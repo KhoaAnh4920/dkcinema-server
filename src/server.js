@@ -2,7 +2,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import viewEngine from "./config/viewEngine";
 import initWebRoutes from './route/web';
-// import connectDB from './config/connectDB';
+import connectDB from './config/connectDB';
 require('dotenv').config();
 
 
@@ -12,8 +12,14 @@ let app = express();
 // Add headers before the routes are defined
 app.use(function (req, res, next) {
 
+    const allowedOrigins = ['http://localhost:3000', 'http://localhost:3001'];
+    const origin = req.headers.origin;
+    if (allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+    }
+
     // Website you wish to allow to connect
-    res.setHeader('Access-Control-Allow-Origin', 'https://localhost:3000');
+    // res.setHeader('Access-Control-Allow-Origin', 'https://spotifakeplus.herokuapp.com');
 
     // Request methods you wish to allow
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
@@ -38,7 +44,7 @@ app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 viewEngine(app);
 initWebRoutes(app);
 // conncect db //
-// connectDB();
+connectDB();
 
 let port = process.env.PORT || 8000;
 

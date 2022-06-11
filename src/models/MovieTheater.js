@@ -1,0 +1,36 @@
+'use strict';
+const {
+    Model
+} = require('sequelize');
+module.exports = (sequelize, DataTypes) => {
+    class MovieTheater extends Model {
+        /**
+         * Helper method for defining associations.
+         * This method is not a part of Sequelize lifecycle.
+         * The `models/index` file will call this method automatically.
+         */
+        static associate(models) {
+
+            // define association here//
+            // Một rạp có nhiều phòng chiếu //
+
+            MovieTheater.hasMany(models.Room, { foreignKey: 'movieTheaterId', as: 'MovieTheaterRoom' })
+            MovieTheater.hasMany(models.Image_MovieTheater, { foreignKey: 'movieTheaterId', as: 'MovieTheaterImage' })
+            MovieTheater.belongsTo(models.Users, { foreignKey: 'userId', targetKey: 'id', as: 'UserMovieTheater' });
+        }
+    };
+    MovieTheater.init({
+        tenRap: DataTypes.STRING,
+        soDienThoai: DataTypes.STRING,
+        cityCode: DataTypes.INTEGER,
+        districtCode: DataTypes.INTEGER,
+        wardCode: DataTypes.INTEGER,
+        address: DataTypes.STRING,
+        userId: DataTypes.INTEGER,
+    }, {
+        sequelize,
+        modelName: 'MovieTheater',
+        freezeTableName: true
+    });
+    return MovieTheater;
+};

@@ -2,7 +2,7 @@
   "development": {
     "username": "postgres",
     "password": "123456",
-    "database": "db_music",
+    "database": "dkcinema",
     "host": "localhost",
     "dialect": "postgres",
     "logging": false,
