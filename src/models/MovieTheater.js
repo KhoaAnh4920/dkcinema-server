@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
             // Một rạp có nhiều phòng chiếu //
 
             MovieTheater.hasMany(models.Room, { foreignKey: 'movieTheaterId', as: 'MovieTheaterRoom' })
-            MovieTheater.hasMany(models.Image_MovieTheater, { foreignKey: 'movieTheaterId', as: 'MovieTheaterImage' })
+            MovieTheater.hasMany(models.ImageMovieTheater, { foreignKey: 'movieTheaterId', as: 'MovieTheaterImage' })
             MovieTheater.belongsTo(models.Users, { foreignKey: 'userId', targetKey: 'id', as: 'UserMovieTheater' });
         }
     };

@@ -5,6 +5,8 @@ import UserController from "../controllers/UserControler";
 import MovieTheaterController from "../controllers/MovieTheaterController";
 import RoomController from "../controllers/RoomController";
 import TypeMovieController from "../controllers/TypeMovieController";
+import MovieControler from "../controllers/MovieControler";
+const authToken = require("../middleware/authenticateToken");
 
 
 
@@ -13,11 +15,26 @@ let router = express.Router();
 
 const swaggerOptions = {
     swaggerDefinition: {
+        openapi: '3.0.1', // YOU NEED THIS
         info: {
-            title: 'Dkcinema API',
-            version: '1.0.0'
-        }
+            title: 'Your API title',
+            version: '1.0.0',
+            description: 'Your API description'
+        },
+        components: {
+            securitySchemes: {
+                bearerAuth: {
+                    type: 'http',
+                    scheme: 'bearer',
+                    bearerFormat: 'JWT',
+                }
+            }
+        },
+        security: [{
+            bearerAuth: []
+        }]
     },
+
     apis: ['src/route/web.js'],
 }
 let initWebRoutes = (app) => {
@@ -26,49 +43,62 @@ let initWebRoutes = (app) => {
 
     router.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs))
 
-    /** 
- * @swagger 
- * /test-movie: 
- *   get: 
- *     tags: ["Test API Swagger"]
- *     description: Get test API
- *     responses:  
- *       200: 
- *         description: Success  
- *   
- */
-    router.get('/test-movie', MovieTheaterController.handleGetAllMovieTheater);
-
-
 
     /**
 * @swagger
 *  /admin-login:
 *    post:
-*      summary: Login Admin.
-*      consumes:
-*        - application/json
 *      tags:
 *        - Auth
-*      parameters:
-*        - in: body
-*          name: Admin
-*          description: Login for Admin.
-*          schema:
-*            type: object
-*            required:
-*              - email
-*              - password
-*            properties:
-*              email:
-*                type: string
-*              password:
-*                type: string
+*      produces:
+*        - application/json
+*      consumes:
+*        - application/json
+*      summary: Login Admin.
+*      requestBody:
+*         content:
+*            application/json:
+*               schema:
+*                  type: object
+*                  properties:
+*                     email:          # <!--- form field name
+*                        type: string
+*                     password:          # <!--- form field name
+*                        type: string
 *      responses:
 *        201:
 *          description: Login OK!
 */
     router.post('/admin-login', UserController.handleLogin);
+
+
+    /**
+* @swagger
+*  /aaa:
+*    post:
+*      tags:
+*        - Auth
+*      produces:
+*        - application/json
+*      consumes:
+*        - application/json
+*      summary: Login Admin.
+*      requestBody:
+*         content:
+*            application/json:
+*               schema:
+*                  type: object
+*                  properties:
+*                     email:          # <!--- form field name
+*                        type: string
+*                     password:          # <!--- form field name
+*                        type: string
+*      responses:
+*        201:
+*          description: Login OK!
+*/
+    router.post('/cms/admin-login', UserController.handleLoginAdmin);
+
 
 
     /** 
@@ -88,6 +118,8 @@ let initWebRoutes = (app) => {
  * @swagger 
  * /get-list-users: 
  *   get: 
+ *     security:              # <--- ADD THIS
+ *       - bearerAuth: []     # <--- ADD THIS
  *     tags: ["Users"]
  *     description: Get List User
  *     responses:  
@@ -95,7 +127,7 @@ let initWebRoutes = (app) => {
  *         description: Success  
  *   
  */
-    router.get('/get-list-users', UserController.handleGetAllUser);
+    router.get('/get-list-users', authToken, UserController.handleGetAllUser);
 
     /** 
  * @swagger 
@@ -118,6 +150,48 @@ let initWebRoutes = (app) => {
     router.get('/users/:userId', UserController.handleGetUserById);
 
 
+    /** 
+ * @swagger 
+ * /role/users/{roleId}: 
+ *   get: 
+ *     tags: ["Users"]
+ *     summary: Get a user by role
+ *     parameters:
+ *       - in: path
+ *         name: roleId
+ *         schema:
+ *         type: integer
+ *         required: true
+ *         description: Role id of the user to get
+ *     responses:  
+ *       200: 
+ *         description: Success  
+ *   
+ */
+    router.get('/role/users/:roleId', UserController.handleGetUserByRoles);
+
+
+    /** 
+ * @swagger 
+ * /movieTheater/users/{userId}: 
+ *   get: 
+ *     tags: ["Users"]
+ *     summary: Get a movieTheater by userId
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *         type: integer
+ *         required: true
+ *         description: Get a movieTheater by userId
+ *     responses:  
+ *       200: 
+ *         description: Success  
+ *   
+ */
+    router.get('/movieTheater/users/:userId', UserController.handleGetMovieTheaterByUser);
+
+
 
     /**
 * @swagger
@@ -128,55 +202,41 @@ let initWebRoutes = (app) => {
 *        - application/json
 *      tags:
 *        - Users
-*      parameters:
-*        - in: body
-*          name: Admin
-*          description: Create user.
-*          schema:
-*            type: object
-*            required:
-*              - email
-*              - password
-*              - fullName
-*              - avatar
-*              - gender
-*              - birthday
-*              - roleId
-*              - cityCode
-*              - districtCode
-*              - wardCode
-*              - address
-*              - phone
-*            properties:
-*              email:
-*                type: string
-*              password:
-*                type: string
-*              fullName:
-*                type: string
-*              avatar:
-*                type: string
-*              gender:
-*                type: boolean
-*              birthday:
-*                type: integer
-*                example: 1640599036184
-*              roleId:
-*                type: integer
-*                example: 1
-*              cityCode:
-*                type: integer
-*                example: 294
-*              districtCode:
-*                type: integer
-*                example: 491
-*              wardCode:
-*                type: integer
-*                example: 10510
-*              address:
-*                type: string
-*              phone:
-*                type: string
+*      requestBody:
+*         content:
+*            application/json:
+*               schema:
+*                  type: object
+*                  properties:
+*                      email:
+*                        type: string
+*                      password:
+*                        type: string
+*                      fullName:
+*                        type: string
+*                      avatar:
+*                        type: string
+*                      gender:
+*                        type: boolean
+*                      birthday:
+*                        type: integer
+*                        example: 1640599036184
+*                      roleId:
+*                        type: integer
+*                        example: 1
+*                      cityCode:
+*                        type: integer
+*                        example: 294
+*                      districtCode:
+*                        type: integer
+*                        example: 491
+*                      wardCode:
+*                        type: integer
+*                        example: 10510
+*                      address:
+*                        type: string
+*                      phone:
+*                        type: string
 *      responses:
 *        201:
 *          description: Admin create User!
@@ -193,52 +253,39 @@ let initWebRoutes = (app) => {
 *        - application/json
 *      tags:
 *        - Users
-*      parameters:
-*        - in: body
-*          name: Admin
-*          description: Edit user.
-*          schema:
-*            type: object
-*            required:
-*              - id
-*              - fullName
-*              - avatar
-*              - gender
-*              - birthday
-*              - roleId
-*              - cityCode
-*              - districtCode
-*              - wardCode
-*              - address
-*              - phone
-*            properties:
-*              id:
-*                type: integer
-*              fullName:
-*                type: string
-*              avatar:
-*                type: string
-*              gender:
-*                type: boolean
-*              birthday:
-*                type: integer
-*                example: 1640599036184
-*              roleId:
-*                type: integer
-*                example: 1
-*              cityCode:
-*                type: integer
-*                example: 294
-*              districtCode:
-*                type: integer
-*                example: 491
-*              wardCode:
-*                type: integer
-*                example: 10510
-*              address:
-*                type: string
-*              phone:
-*                type: string
+*      requestBody:
+*         content:
+*            application/json:
+*               schema:
+*                  type: object
+*                  properties:
+*                     id:
+*                       type: integer
+*                     fullName:
+*                       type: string
+*                     avatar:
+*                       type: string
+*                     gender:
+*                       type: boolean
+*                     birthday:
+*                       type: integer
+*                       example: 1640599036184
+*                     roleId:
+*                       type: integer
+*                       example: 1
+*                     cityCode:
+*                       type: integer
+*                       example: 294
+*                     districtCode:
+*                          type: integer
+*                          example: 491
+*                     wardCode:
+*                       type: integer
+*                       example: 10510
+*                     address:
+*                       type: string
+*                     phone:
+*                       type: string
 *      responses:
 *        201:
 *          description: Admin update User!
@@ -276,48 +323,36 @@ let initWebRoutes = (app) => {
 *        - application/json
 *      tags:
 *        - Customer
-*      parameters:
-*        - in: body
-*          name: Customer
-*          description: Sign in Customer.
-*          schema:
-*            type: object
-*            required:
-*              - email
-*              - password
-*              - fullName
-*              - gender
-*              - birthday
-*              - cityCode
-*              - districtCode
-*              - wardCode
-*              - address
-*              - phone
-*            properties:
-*              email:
-*                type: string
-*              password:
-*                type: string
-*              fullName:
-*                type: string
-*              gender:
-*                type: boolean
-*              birthday:
-*                type: integer
-*                example: 1640599036184
-*              cityCode:
-*                type: integer
-*                example: 294
-*              districtCode:
-*                type: integer
-*                example: 491
-*              wardCode:
-*                type: integer
-*                example: 10510
-*              address:
-*                type: string
-*              phone:
-*                type: string
+*      requestBody:
+*         content:
+*            application/json:
+*               schema:
+*                  type: object
+*                  properties:
+*                       email:
+*                         type: string
+*                       password:
+*                         type: string
+*                       fullName:
+*                         type: string
+*                       gender:
+*                         type: boolean
+*                       birthday:
+*                         type: integer
+*                         example: 1640599036184
+*                       cityCode:
+*                         type: integer
+*                         example: 294
+*                       districtCode:
+*                         type: integer
+*                         example: 491
+*                       wardCode:
+*                         type: integer
+*                         example: 10510
+*                       address:
+*                         type: string
+*                       phone:
+*                         type: string
 *      responses:
 *        201:
 *          description: Admin create User!
@@ -335,43 +370,46 @@ let initWebRoutes = (app) => {
 *        - application/json
 *      tags:
 *        - MovieTheater
-*      parameters:
-*        - in: body
-*          name: Admin
-*          description: Create MovieTheater.
-*          schema:
-*            type: object
-*            required:
-*              - tenRap
-*              - soDienThoai
-*              - cityCode
-*              - districtCode
-*              - wardCode
-*              - address
-*              - userId
-*            properties:
-*              tenRap:
-*                type: string
-*              soDienThoai:
-*                type: string
-*              cityCode:
-*                type: integer
-*                example: 294
-*              districtCode:
-*                type: integer
-*                example: 491
-*              wardCode:
-*                type: integer
-*                example: 10510
-*              address:
-*                type: string
-*              userId:
-*                type: integer
+*      requestBody:
+*         content:
+*            application/json:
+*               schema:
+*                  type: object
+*                  properties:
+*                   tenRap:
+*                     type: string
+*                   soDienThoai:
+*                     type: string
+*                   cityCode:
+*                     type: integer
+*                     example: 294
+*                   districtCode:
+*                     type: integer
+*                     example: 491
+*                   wardCode:
+*                     type: integer
+*                     example: 10510
+*                   address:
+*                     type: string
+*                   userId:
+*                     type: integer
+*                   listImage:
+*                     type: array
+*                     required: false
+*                     items:
+*                        type: object
+*                        properties:
+*                          image:
+*                            example: "https://res.cloudinary.com/cdmedia/image/upload/v1646921892/image/avatar/Unknown_b4jgka.png"
+*                            type: string
+*                          fileName:
+*                            example: "file-name.png"
+*                            type: string
 *      responses:
 *        201:
 *          description: Create MovieTheater.
 */
-    router.put('/movieTheater', MovieTheaterController.handleCreateNewMovieTheater);
+    router.post('/movieTheater', MovieTheaterController.handleCreateNewMovieTheater);
 
 
     /**
@@ -383,41 +421,43 @@ let initWebRoutes = (app) => {
 *        - application/json
 *      tags:
 *        - MovieTheater
-*      parameters:
-*        - in: body
-*          name: Admin
-*          description: Edit MovieTheater.
-*          schema:
-*            type: object
-*            required:
-*              - id
-*              - tenRap
-*              - soDienThoai
-*              - cityCode
-*              - districtCode
-*              - wardCode
-*              - address
-*              - userId
-*            properties:
-*              id:
-*                type: integer
-*              tenRap:
-*                type: string
-*              soDienThoai:
-*                type: string
-*              cityCode:
-*                type: integer
-*                example: 294
-*              districtCode:
-*                type: integer
-*                example: 491
-*              wardCode:
-*                type: integer
-*                example: 10510
-*              address:
-*                type: string
-*              userId:
-*                type: integer
+*      requestBody:
+*         content:
+*            application/json:
+*               schema:
+*                  type: object
+*                  properties:
+*                    id:
+*                      type: integer
+*                    tenRap:
+*                      type: string
+*                    soDienThoai:
+*                      type: string
+*                    cityCode:
+*                      type: integer
+*                      example: 294
+*                    districtCode:
+*                      type: integer
+*                      example: 491
+*                    wardCode:
+*                      type: integer
+*                      example: 10510
+*                    address:
+*                      type: string
+*                    userId:
+*                      type: integer
+*                    listImage:
+*                      type: array
+*                      required: false
+*                      items:
+*                         type: object
+*                         properties:
+*                           image:
+*                             example: "https://res.cloudinary.com/cdmedia/image/upload/v1646921892/image/avatar/Unknown_b4jgka.png"
+*                             type: string
+*                           fileName:
+*                             example: "file-name.png"
+*                             type: string
 *      responses:
 *        201:
 *          description: Edit MovieTheater.
@@ -465,6 +505,26 @@ let initWebRoutes = (app) => {
 */
     router.delete('/movieTheater/:movieTheaterId', MovieTheaterController.handleDeleteMovieTheater);
 
+    /** 
+ * @swagger 
+ * /image-movie-theater/{id}: 
+ *   delete: 
+ *     tags: ["MovieTheater"]
+ *     summary: Delete MovieTheater
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *         type: integer
+ *         required: true
+ *         description: ID image of the movie to delete
+ *     responses:  
+ *       200: 
+ *         description: Success  
+ *   
+ */
+    router.delete('/image-movie-theater/:id', MovieTheaterController.handleDeleteImageMovieTheater);
+
 
     /** 
     * @swagger 
@@ -489,47 +549,45 @@ let initWebRoutes = (app) => {
     *        - application/json
     *      tags:
     *        - Room
-    *      parameters:
-    *        - in: body
-    *          name: Admin
-    *          description: Create room.
-    *          schema:
-    *            type: object
-    *            required: true
-    *            properties:
-    *              numberOfColumn:
-    *                example: 10
-    *                type: integer
-    *              numberOfRow:
-    *                example: 10
-    *                type: integer
-    *              name:
-    *                example: Rap 01
-    *                type: string
-    *              movieTheaterId:
-    *                example: 1
-    *                type: array
-    *              seets:
-    *                type: array
-    *                required: false
-    *                items:
-    *                   type: object
-    *                   properties:
-    *                     posOfColumn:
-    *                       example: 0
-    *                       type: integer
-    *                     posOfRow:
-    *                       type: array
-    *                       required: false
-    *                       items:
+    *      requestBody:
+    *         content:
+    *            application/json:
+    *               schema:
+    *                  type: object
+    *                  properties:
+    *                     numberOfColumn:
+    *                         example: 10
+    *                         type: integer
+    *                     numberOfRow:
+    *                         example: 10
+    *                         type: integer
+    *                     name:
+    *                         example: Rap 01
+    *                         type: string
+    *                     movieTheaterId:
+    *                         example: 1
+    *                         type: array
+    *                     seets:
+    *                         type: array
+    *                         required: false
+    *                         items:
     *                          type: object
     *                          properties:
-    *                            pos:
-    *                               example: 0
-    *                               type: integer
-    *                            typeId:
-    *                               example: 1
-    *                               type: integer
+    *                            posOfColumn:
+    *                              example: 0
+    *                              type: integer
+    *                            posOfRow:
+    *                              type: array
+    *                              required: false
+    *                              items:
+    *                                 type: object
+    *                                 properties:
+    *                                   pos:
+    *                                      example: 0
+    *                                      type: integer
+    *                                   typeId:
+    *                                      example: 1
+    *                                      type: integer
     *      responses:
     *        201:
     *          description: Create room.
@@ -550,6 +608,60 @@ let initWebRoutes = (app) => {
    *   
    */
     router.get('/room', RoomController.handleGetAllRoom);
+
+    /** 
+         * @swagger 
+         * /room/{roomId}: 
+         *   get: 
+         *     tags: ["Room"]
+         *     summary: Get a Room by ID
+         *     parameters:
+         *       - in: path
+         *         name: roomId
+         *         schema:
+         *         type: integer
+         *         required: true
+         *         description: Numeric ID of the Room to get
+         *     responses:  
+         *       200: 
+         *         description: Success  
+         *   
+         */
+    router.get('/room/:roomId', RoomController.handleGetRoomById);
+
+    /** 
+ * @swagger 
+ * /room/{roomId}: 
+ *   delete: 
+ *     tags: ["Room"]
+ *     summary: Delete Room
+ *     parameters:
+ *       - in: path
+ *         name: roomId
+ *         schema:
+ *         type: integer
+ *         required: true
+ *         description: Numeric ID of the room to delete
+ *     responses:  
+ *       200: 
+ *         description: Success  
+ *   
+ */
+    router.delete('/room/:roomId', RoomController.handleDeleteRoom);
+
+
+    /** 
+* @swagger 
+* /type-of-movie: 
+*   get: 
+*     tags: ["Type of Movie"]
+*     description: Get List Type of Movie
+*     responses:  
+*       200: 
+*         description: Success  
+*   
+*/
+    router.get('/type-of-movie', TypeMovieController.handleGetAllTypeMovie);
 
 
     /** 
@@ -576,54 +688,317 @@ let initWebRoutes = (app) => {
     /**
 * @swagger
 *  /type-of-movie:
-*    post:
-*      summary: Create type of movie.
+*    put:
+*      summary: Edit type of movie.
 *      consumes:
 *        - application/json
 *      tags:
 *        - Type of Movie
-*      parameters:
-*        - in: body
-*          name: Admin
-*          description: Create type of movie.
-*          schema:
-*            type: object
-*            required: true
-*            properties:
-*              name:
-*                type: string
+*      requestBody:
+*         content:
+*            application/json:
+*               schema:
+*                  type: object
+*                  properties:
+*                    id:
+*                      type: integer
+*                    name:
+*                      type: string
+*      responses:
+*        201:
+*          description: OK!
+*/
+    router.put('/type-of-movie', TypeMovieController.handleEditTypeMovie);
+
+
+    /**
+* @swagger
+*  /type-of-movie:
+*    post:
+*      summary: Create new type of movie.
+*      consumes:
+*        - application/json
+*      tags:
+*        - Type of Movie
+*      requestBody:
+*         content:
+*            application/json:
+*               schema:
+*                  type: object
+*                  properties:
+*                     name:
+*                       type: string
+*      responses:
+*        201:
+*          description: OK!
+*/
+    router.post('/type-of-movie', TypeMovieController.handleCreateNewTypeMovie);
+
+
+    /**
+* @swagger
+*  /movie:
+*    post:
+*      summary: Create Movie.
+*      consumes:
+*        - application/json
+*      tags:
+*        - Movie
+*      requestBody:
+*         content:
+*            application/json:
+*               schema:
+*                  type: object
+*                  properties:
+*                     name:
+*                       example: 'Doctor Strange'
+*                       type: string
+*                     transName:
+*                       example: 'Bác sĩ lạ'
+*                       type: string
+*                     country:
+*                       type: string
+*                     language:
+*                       type: string
+*                     duration:
+*                       example: 180
+*                       type: integer
+*                     description:
+*                       type: string
+*                     brand:
+*                       type: string
+*                     cast:
+*                       type: string
+*                     status:
+*                       type: integer
+*                     typeId:
+*                       example: 1
+*                       type: integer
+*                     releaseTime:
+*                       type: integer
+*                       example: 1640599036184
+*                     url:
+*                       example: "https://www.youtube.com/watch?v=aWzlQ2N6qqg"
+*                       type: string
+*                     poster:
+*                       type: array
+*                       required: false
+*                       items:
+*                          type: object
+*                          properties:
+*                            image:
+*                              example: "https://res.cloudinary.com/cdmedia/image/upload/v1646921892/image/avatar/Unknown_b4jgka.png"
+*                              type: string
+*                            fileName:
+*                              example: "file-name.png"
+*                              type: string
 *      responses:
 *        201:
 *          description: create OK!
 */
-    router.post('/type-of-movie', TypeMovieController.handleCreateNewTypeMovie);
+    router.post('/movie', MovieControler.handleCreateNewMovie);
+
+    /** 
+ * @swagger 
+ * /image-movie/{id}: 
+ *   delete: 
+ *     tags: ["Movie"]
+ *     summary: Delete Image movie
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *         type: integer
+ *         required: true
+ *         description: Public ID image of the movie to delete
+ *     responses:  
+ *       200: 
+ *         description: Success  
+ *   
+ */
+    router.delete('/image-movie/:id', MovieControler.handleDeleteImageMovie);
+
+
+
 
     /**
-    * @swagger
-    *  /type-of-movie:
-    *    put:
-    *      summary: Edit type of movie.
-    *      consumes:
-    *        - application/json
-    *      tags:
-    *        - Type of Movie
-    *      parameters:
-    *        - in: body
-    *          name: Admin
-    *          description: Edit type of movie.
-    *          schema:
-    *            type: object
-    *            required: true
-    *            properties:
-    *              id:
-    *                type: integer
-    *              name:
-    *                type: string
-    *      responses:
-    *        201:
-    *          description: OK!
-    */
-    router.put('/type-of-movie', TypeMovieController.handleEditTypeMovie);
+* @swagger
+*  /movie:
+*    put:
+*      summary: Update Movie.
+*      consumes:
+*        - application/json
+*      tags:
+*        - Movie
+*      parameters:
+*        - in: body
+*          name: Admin
+*          description: Update Movie
+*          schema:
+*            type: object
+*            required: true
+*            properties:
+*              id:
+*                type: integer
+*              name:
+*                example: 'Doctor Strange'
+*                type: string
+*              transName:
+*                example: 'Bác sĩ lạ'
+*                type: string
+*              country:
+*                type: string
+*              language:
+*                type: string
+*              duration:
+*                example: 180
+*                type: integer
+*              description:
+*                type: string
+*              brand:
+*                type: string
+*              cast:
+*                type: string
+*              status:
+*                type: integer
+*              typeId:
+*                example: 1
+*                type: integer
+*              releaseTime:
+*                type: integer
+*                example: 1640599036184
+*              url:
+*                example: "https://www.youtube.com/watch?v=aWzlQ2N6qqg"
+*                type: string
+*              poster:
+*                type: array
+*                required: false
+*                items:
+*                   type: object
+*                   properties:
+*                     image:
+*                       example: "https://res.cloudinary.com/cdmedia/image/upload/v1646921892/image/avatar/Unknown_b4jgka.png"
+*                       type: string
+*                     fileName:
+*                       example: "file-name.png"
+*                       type: string
+*      responses:
+*        201:
+*          description: create OK!
+*/
+    router.put('/movie', MovieControler.handleUpdateMovie);
+
+
+
+    /** 
+* @swagger 
+* /movie: 
+*   get: 
+*     tags: ["Movie"]
+*     description: Get List Movie
+*     responses:  
+*       200: 
+*         description: Success  
+*   
+*/
+    router.get('/movie', MovieControler.handleGetAllMovie);
+
+
+    /** 
+ * @swagger 
+ * /movie/{movieId}: 
+ *   get: 
+ *     tags: ["Movie"]
+ *     summary: Get a movie by ID
+ *     parameters:
+ *       - in: path
+ *         name: movieId
+ *         schema:
+ *         type: integer
+ *         required: true
+ *         description: Numeric ID of the movie to get
+ *     responses:  
+ *       200: 
+ *         description: Success  
+ *   
+ */
+    router.get('/movie/:movieId', MovieControler.handleGetMovieById);
+
+
+    /** 
+ * @swagger 
+ * /status/movie/{status}: 
+ *   get: 
+ *     tags: ["Movie"]
+ *     summary: Get a movie by status
+ *     parameters:
+ *       - in: path
+ *         name: status
+ *         schema:
+ *         type: integer
+ *         required: true
+ *         description: Status of the movie to get
+ *     responses:  
+ *       200: 
+ *         description: Success  
+ *   
+ */
+    router.get('/status/movie/:status', MovieControler.handleGetMovieByStatus);
+
+
+
+    /**
+* @swagger
+*  /status/movie:
+*    put:
+*      summary: Update status movie.
+*      consumes:
+*        - application/json
+*      tags:
+*        - Movie
+*      requestBody:
+*         content:
+*            application/json:
+*               schema:
+*                  type: object
+*                  properties:
+*                    id:
+*                      type: integer
+*                    status:
+*                      type: integer
+*      responses:
+*        201:
+*          description: OK!
+*/
+    router.put('/status/movie', MovieControler.handleUpdateStatusMovie);
+
+
+    /**
+* @swagger
+*  /delete/movie:
+*    put:
+*      summary: Delete movie.
+*      consumes:
+*        - application/json
+*      tags:
+*        - Movie
+*      requestBody:
+*         content:
+*            application/json:
+*               schema:
+*                  type: object
+*                  properties:
+*                    id:
+*                      type: integer
+*                    isDelete:
+*                      type: boolean
+*      responses:
+*        201:
+*          description: OK!
+*/
+    router.put('/delete/movie', MovieControler.handleDeleteMovie);
+
+
 
     return app.use("/", router);
 }

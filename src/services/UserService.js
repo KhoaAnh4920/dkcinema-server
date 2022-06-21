@@ -5,6 +5,8 @@ var salt = bcrypt.genSaltSync(10);
 var cloudinary = require('cloudinary').v2;
 var jwt = require('jsonwebtoken');
 
+
+
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
@@ -93,7 +95,78 @@ let handleUserLogin = async (email, password) => {
                         userData.user = user;
 
                         // Add token code //
-                        userData.user.token = jwt.sign({ email: user.email, fullName: user.fullName, _id: user.id }, 'dkcinema');
+                        userData.user.accessToken = jwt.sign({ email: user.email, fullName: user.fullName, _id: user.id, roleId: user.roleId }, 'dkcinema');
+
+                    } else {
+                        userData.errorCode = 3;
+                        userData.errMessage = `Wrong pass`;
+                    }
+                } else {
+                    userData.errorCode = 2;
+                    userData.errMessage = `User isn't exist`;
+                }
+            } else {
+                userData.errorCode = 1;
+                userData.errMessage = `Your's email isn't exist in our system`
+
+            }
+            resolve(userData);
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
+let handleAdminLogin = async (email, password) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let userData = {};
+            let isExist = await checkUserEmail(email);
+            if (isExist) {
+                let user = await db.Users.findOne({
+                    where: { email: email },
+                    attributes: ['id', 'email', 'roleId', 'password', 'fullName', 'avatar'],
+                    raw: true
+                })
+                if (user) {
+                    // compare pass //
+                    let check = bcrypt.compareSync(password, user.password);
+
+                    if (check) {
+
+                        if (user.roleId === 2) {
+                            // Check có quản lý rạp ko //
+                            let dataRes = await getMovieTheaterByUser(user.id);
+                            console.log("Check dataRes: ", dataRes);
+                            if (dataRes.data === null) {
+                                console.log("Ok");
+                                userData.errorCode = 4;
+                                userData.errMessage = `Unmanaged users cinema`;
+                                resolve(userData);
+                                return;
+                            }
+
+                            userData.errorCode = 0;
+                            userData.errMessage = `Ok`;
+
+                            delete user.password; // ko lay password cua user //
+                            userData.user = user;
+
+                            // Add token code //
+                            userData.user.accessToken = jwt.sign({ email: user.email, fullName: user.fullName, _id: user.id, roleId: user.roleId }, 'dkcinema');
+                            userData.user.movieTheaterId = dataRes.data.id
+
+                        } else {
+                            userData.errorCode = 0;
+                            userData.errMessage = `Ok`;
+
+                            delete user.password; // ko lay password cua user //
+                            userData.user = user;
+
+                            // Add token code //
+                            userData.user.accessToken = jwt.sign({ email: user.email, fullName: user.fullName, _id: user.id, roleId: user.roleId }, 'dkcinema');
+                        }
+
 
                     } else {
                         userData.errorCode = 3;
@@ -163,7 +236,52 @@ let getUserById = (userId) => {
     })
 }
 
+let getMovieTheaterByUser = (userId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let movieTheater = await db.MovieTheater.findOne({
+                where: { userId: userId },
+                raw: true,
+                nest: true
+            })
 
+            resolve({
+                errCode: 0,
+                errMessage: 'OK',
+                data: movieTheater
+            });
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
+
+let getUserByRole = (roleId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let users = await db.Users.findAll({
+                where: { roleId: roleId },
+                attributes: {
+                    exclude: ['password']
+                },
+                include: [
+                    { model: db.Roles, as: 'UserRoles' },
+                ],
+                raw: true,
+                nest: true
+            });
+
+            resolve({
+                errCode: 0,
+                errMessage: 'OK',
+                data: users
+            });
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
 
 
 let createNewUser = (data) => {
@@ -401,5 +519,8 @@ module.exports = {
     updateUser,
     deleteUser,
     getAllRoles,
-    signUpNewUser
+    signUpNewUser,
+    getUserByRole,
+    getMovieTheaterByUser,
+    handleAdminLogin
 }

@@ -1,7 +1,7 @@
 'use strict';
 module.exports = {
     up: async (queryInterface, Sequelize) => {
-        await queryInterface.createTable('ImageMovie', {
+        await queryInterface.createTable('ImageMovieTheater', {
 
             id: {
                 allowNull: false,
@@ -9,7 +9,7 @@ module.exports = {
                 primaryKey: true,
                 type: Sequelize.INTEGER
             },
-            movieId: {
+            movieTheaterId: {
                 type: Sequelize.INTEGER
             },
             status: {
@@ -32,6 +32,6 @@ module.exports = {
         });
     },
     down: async (queryInterface, Sequelize) => {
-        await queryInterface.dropTable('ImageMovie');
+        await queryInterface.dropTable('ImageMovieTheater');
     }
 };

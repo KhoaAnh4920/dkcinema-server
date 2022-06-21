@@ -20,7 +20,8 @@ module.exports = (sequelize, DataTypes) => {
     ImageMovie.init({
         movieId: DataTypes.INTEGER,
         status: DataTypes.BOOLEAN,
-        url: DataTypes.STRING
+        url: DataTypes.STRING,
+        public_id: DataTypes.STRING,
     }, {
         sequelize,
         modelName: 'ImageMovie',

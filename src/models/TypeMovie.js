@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
             // define association here//
             // Một rạp có nhiều phòng chiếu //
 
-            TypeMovie.belongsToMany(models.Movie, { as: 'TypeInMovie', through: models.Type_Of_Movie, foreignKey: 'typeId' });
+            TypeMovie.belongsToMany(models.Movie, { as: 'TypeInMovie', through: models.TypeOfMovie, foreignKey: 'typeId' });
         }
     };
     TypeMovie.init({

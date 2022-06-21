@@ -48,15 +48,24 @@ let getTypeMovieById = (typeId) => {
                 nest: true
             });
 
-            console.log("type: ", typeMovie);
-
-
-
             resolve({
                 errCode: 0,
                 errMessage: 'OK',
                 data: typeMovie
             });
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
+let getListTypeOfMovie = () => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let dataMovie = await db.TypeMovie.findAll({
+                raw: false,
+            });
+            resolve(dataMovie);
         } catch (e) {
             reject(e);
         }
@@ -113,5 +122,6 @@ let updateTypeMovie = (data) => {
 module.exports = {
     createNewTypeMovie,
     getTypeMovieById,
-    updateTypeMovie
+    updateTypeMovie,
+    getListTypeOfMovie
 }

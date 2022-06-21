@@ -3,19 +3,6 @@ module.exports = {
     up: async (queryInterface, Sequelize) => {
         await queryInterface.createTable('Movie', {
 
-        //     name: DataTypes.STRING,
-        // country: DataTypes.STRING,
-        // duration: DataTypes.INTEGER,
-        // description: DataTypes.STRING,
-        // brand: DataTypes.STRING,
-        // cast: DataTypes.STRING,
-        // status: DataTypes.BOOLEAN,
-        // releaseTime: DataTypes.DATE,
-        // language: DataTypes.STRING,
-        // url: DataTypes.STRING,
-        // typeId: DataTypes.INTEGER,
-        // poster: DataTypes.STRING
-
             id: {
                 allowNull: false,
                 autoIncrement: true,
@@ -23,6 +10,9 @@ module.exports = {
                 type: Sequelize.INTEGER
             },
             name: {
+                type: Sequelize.STRING
+            },
+            transName: {
                 type: Sequelize.STRING
             },
             country: {
@@ -34,7 +24,7 @@ module.exports = {
             },
             description: {
                 allowNull: true,
-                type: Sequelize.STRING
+                type: Sequelize.TEXT
             },
             brand: {
                 allowNull: true,
@@ -46,7 +36,7 @@ module.exports = {
             },
             status: {
                 allowNull: true,
-                type: Sequelize.BOOLEAN
+                type: Sequelize.INTEGER
             },
             releaseTime: {
                 allowNull: true,
@@ -57,14 +47,6 @@ module.exports = {
                 type: Sequelize.STRING
             },
             url: {
-                allowNull: true,
-                type: Sequelize.STRING
-            },
-            typeId: {
-                allowNull: true,
-                type: Sequelize.INTEGER
-            },
-            poster: {
                 allowNull: true,
                 type: Sequelize.STRING
             },

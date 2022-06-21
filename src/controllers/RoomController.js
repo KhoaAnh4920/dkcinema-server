@@ -18,7 +18,31 @@ let handleGetAllRoom = async (req, res) => {
 
 }
 
+let handleGetRoomById = async (req, res) => {
+    let message = '';
+
+    if (req.params && req.params.roomId)
+        message = await RoomService.getRoomById(req.params.roomId);
+    return res.status(200).json(message);
+}
+
+
+let handleDeleteRoom = async (req, res) => {
+
+
+    if (!req.params.roomId) {
+        return res.status(200).json({
+            errCode: 1,
+            errMessage: "Missing id"
+        })
+    }
+    let message = await RoomService.deleteRoom(req.params.roomId);
+    return res.status(200).json(message);
+}
+
 module.exports = {
     handleCreateNewRoom,
-    handleGetAllRoom
+    handleGetAllRoom,
+    handleGetRoomById,
+    handleDeleteRoom
 }

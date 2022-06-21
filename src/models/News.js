@@ -21,6 +21,8 @@ module.exports = (sequelize, DataTypes) => {
         tomTat: DataTypes.TEXT,
         noiDung: DataTypes.TEXT,
         userId: DataTypes.INTEGER,
+        thumbnail: DataTypes.STRING,
+        public_id_url: DataTypes.STRING
     }, {
         sequelize,
         modelName: 'News',
