@@ -1,5 +1,37 @@
 import db from "../models/index";
+require('dotenv').config();
+var cloudinary = require('cloudinary').v2;
 
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+let uploadCloud = (image, fName) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            await cloudinary.uploader.upload(
+                image,
+                {
+                    resource_type: "raw",
+                    public_id: `image/MovieTheater/${fName}`,
+                },
+                // Send cloudinary response or catch error
+                (err, result) => {
+                    if (err) console.log(err);
+                    if (result) {
+                        resolve(result)
+                    }
+
+                }
+            );
+        } catch (e) {
+            reject(e);
+        }
+    })
+
+}
 
 let getAllMovieTheater = () => {
     return new Promise(async (resolve, reject) => {
@@ -7,6 +39,7 @@ let getAllMovieTheater = () => {
             let movieTheater = await db.MovieTheater.findAll({
                 include: [
                     { model: db.Users, as: 'UserMovieTheater' },
+                    { model: db.ImageMovieTheater, as: 'MovieTheaterImage' },
                 ],
                 raw: true,
                 nest: true
@@ -23,14 +56,8 @@ let getAllMovieTheater = () => {
 let createNewMovieTheater = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
-            // if (data.avatar && data.fileName) {
-            //     // upload cloud //
-            //     result = await uploadCloud(data.avatar, data.fileName);
-            // } else {
-            //     avatar = 'https://res.cloudinary.com/cdmedia/image/upload/v1646921892/image/avatar/Unknown_b4jgka.png';
-            // }
 
-            await db.MovieTheater.create({
+            const resMovieTheater = await db.MovieTheater.create({
                 tenRap: data.tenRap,
                 soDienThoai: data.soDienThoai,
                 address: data.address,
@@ -39,6 +66,27 @@ let createNewMovieTheater = (data) => {
                 wardCode: data.wardCode,
                 userId: data.userId,
             })
+
+            if (resMovieTheater && resMovieTheater.dataValues) {
+                let dataImage = data.listImage;
+
+                let result = [];
+                let resUpload = {};
+
+
+                await Promise.all(dataImage.map(async item => {
+                    let obj = {};
+                    obj.movieTheaterId = resMovieTheater.dataValues.id;
+                    obj.status = 1;
+                    resUpload = await uploadCloud(item.image, item.fileName);
+                    obj.url = resUpload.secure_url;
+                    obj.public_id = resUpload.public_id;
+                    result.push(obj);
+                }))
+
+                await db.ImageMovieTheater.bulkCreate(result);
+
+            }
 
             resolve({
                 errCode: 0,
@@ -55,12 +103,6 @@ let createNewMovieTheater = (data) => {
 let updateMovieTheater = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
-            // if (data.avatar && data.fileName) {
-            //     // upload cloud //
-            //     result = await uploadCloud(data.avatar, data.fileName);
-            // } else {
-            //     avatar = 'https://res.cloudinary.com/cdmedia/image/upload/v1646921892/image/avatar/Unknown_b4jgka.png';
-            // }
 
             if (!data.id) {
                 resolve({
@@ -70,10 +112,34 @@ let updateMovieTheater = (data) => {
             } else {
                 let movieTheater = await db.MovieTheater.findOne({
                     where: { id: data.id },
-                    raw: false
+                    raw: false,
+                    nest: true
                 })
 
-                if(movieTheater){
+                if (movieTheater) {
+
+                    // Có truyền image //
+                    if (data.listImage && data.listImage.length > 0) {
+                        // upload cloud //
+
+                        let dataImage = data.listImage;
+
+                        let resUpload = {};
+
+                        await Promise.all(dataImage.map(async item => {
+                            if (item.image && item.fileName) {
+                                let obj = {};
+                                obj.movieTheaterId = +data.id;
+                                obj.status = 1;
+                                resUpload = await uploadCloud(item.image, item.fileName);
+
+                                obj.url = resUpload.secure_url;
+                                obj.public_id = resUpload.public_id;
+
+                                await db.ImageMovieTheater.create(obj);
+                            }
+                        }))
+                    }
                     movieTheater.tenRap = data.tenRap;
                     movieTheater.soDienThoai = data.soDienThoai;
                     movieTheater.address = data.address;
@@ -82,18 +148,13 @@ let updateMovieTheater = (data) => {
                     movieTheater.districtCode = data.districtCode;
                     movieTheater.wardCode = data.wardCode;
 
-                    // if (data.avatar && data.fileName) {
-                    //     user.avatar = result.secure_url;
-                    //     user.public_id_image = result.public_id;
-                    // }
-
                     await movieTheater.save();
 
                     resolve({
                         errCode: 0,
                         message: "Update MovieTheater Success"
                     });
-                }else{
+                } else {
 
                 }
 
@@ -114,6 +175,7 @@ let getMovieTheaterById = (movieTheaterId) => {
 
                 include: [
                     { model: db.Users, as: 'UserMovieTheater' },
+                    { model: db.ImageMovieTheater, as: 'MovieTheaterImage' },
                 ],
                 raw: true,
                 nest: true
@@ -158,10 +220,46 @@ let deleteMovieTheater = (id) => {
     })
 }
 
+
+let deleteImageMovieTheater = (id) => {
+
+    console.log("Check publicImageId: ", id);
+
+    return new Promise(async (resolve, reject) => {
+        let imageMovieTheater = await db.ImageMovieTheater.findOne({
+            where: { id: id }
+        })
+        if (!imageMovieTheater) {
+            resolve({
+                errCode: 2,
+                errMessage: 'imageMovieTheater ko ton tai'
+            })
+        }
+
+        console.log("Check imageMovieTheater: ", imageMovieTheater);
+
+        if (imageMovieTheater.url && imageMovieTheater.public_id) {
+            // Xóa hình cũ //
+            await cloudinary.uploader.destroy(imageMovieTheater.public_id, { invalidate: true, resource_type: "raw" },
+                function (err, result) { console.log(result) });
+        }
+
+        await db.ImageMovieTheater.destroy({
+            where: { id: id }
+        });
+        resolve({
+            errCode: 0,
+            errMessage: "Delete image ok"
+        })
+    })
+}
+
+
 module.exports = {
     getAllMovieTheater,
     createNewMovieTheater,
     updateMovieTheater,
     getMovieTheaterById,
-    deleteMovieTheater
+    deleteMovieTheater,
+    deleteImageMovieTheater
 }

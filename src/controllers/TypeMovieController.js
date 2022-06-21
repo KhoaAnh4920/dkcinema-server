@@ -16,16 +16,26 @@ let handleEditTypeMovie = async (req, res) => {
 let handleGetTypeMovieById = async (req, res) => {
     let message = '';
 
-    console.log("req.params: ", req.params);
-
     if (req.params && req.params.typeId)
         message = await TypeMovieService.getTypeMovieById(req.params.typeId);
     return res.status(200).json(message);
 }
 
 
+let handleGetAllTypeMovie = async (req, res) => {
+    let dataTypeMovie = await TypeMovieService.getListTypeOfMovie();
+    return res.status(200).json({
+        errCode: 0,
+        errMessage: 'OK',
+        dataTypeMovie
+    })
+
+}
+
+
 module.exports = {
     handleCreateNewTypeMovie,
     handleEditTypeMovie,
-    handleGetTypeMovieById
+    handleGetTypeMovieById,
+    handleGetAllTypeMovie
 }

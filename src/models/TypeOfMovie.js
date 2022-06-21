@@ -3,7 +3,7 @@ const {
     Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-    class Type_Of_Movie extends Model {
+    class TypeOfMovie extends Model {
         /**
          * Helper method for defining associations.
          * This method is not a part of Sequelize lifecycle.
@@ -14,17 +14,17 @@ module.exports = (sequelize, DataTypes) => {
             // define association here//
             // Một rạp có nhiều phòng chiếu //
 
-            Type_Of_Movie.belongsTo(models.Movie, { foreignKey: 'movieId', targetKey: 'id', as: 'Movie' });
-            Type_Of_Movie.belongsTo(models.TypeMovie, { foreignKey: 'typeId', targetKey: 'id', as: 'Type' });
+            TypeOfMovie.belongsTo(models.Movie, { foreignKey: 'movieId', targetKey: 'id', as: 'Movie' });
+            TypeOfMovie.belongsTo(models.TypeMovie, { foreignKey: 'typeId', targetKey: 'id', as: 'Type' });
         }
     };
-    Type_Of_Movie.init({
+    TypeOfMovie.init({
         movieId: DataTypes.INTEGER,
         typeId: DataTypes.INTEGER,
     }, {
         sequelize,
-        modelName: 'Type_Of_Movie',
+        modelName: 'TypeOfMovie',
         freezeTableName: true
     });
-    return Type_Of_Movie;
+    return TypeOfMovie;
 };

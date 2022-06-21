@@ -15,21 +15,22 @@ module.exports = (sequelize, DataTypes) => {
 
             Movie.hasMany(models.Showtime, { foreignKey: 'movieId', as: 'ShowtimeMovie' })
             Movie.hasMany(models.ImageMovie, { foreignKey: 'movieId', as: 'ImageOfMovie' })
-            Movie.belongsToMany(models.TypeMovie, { as: 'MovieOfType', through: models.Type_Of_Movie, foreignKey: 'movieId' });
+            Movie.belongsToMany(models.TypeMovie, { as: 'MovieOfType', through: models.TypeOfMovie, foreignKey: 'movieId' });
         }
     };
     Movie.init({
         name: DataTypes.STRING,
+        transName: DataTypes.STRING,
         country: DataTypes.STRING,
         duration: DataTypes.INTEGER,
-        description: DataTypes.STRING,
+        description: DataTypes.TEXT,
         brand: DataTypes.STRING,
         cast: DataTypes.STRING,
-        status: DataTypes.BOOLEAN,
+        status: DataTypes.INTEGER,
         releaseTime: DataTypes.DATE,
         language: DataTypes.STRING,
         url: DataTypes.STRING,
-        poster: DataTypes.STRING
+        isDelete: DataTypes.BOOLEAN
     }, {
         sequelize,
         modelName: 'Movie',

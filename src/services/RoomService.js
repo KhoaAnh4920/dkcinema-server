@@ -7,6 +7,19 @@ let createNewRoom = (data) => {
             console.log("Check data: ", data);
 
             if (data) {
+                let existsName = await db.Room.findOne({
+                    where: {
+                        name: data.name
+                    }
+                })
+                if (existsName) {
+                    resolve({
+                        errCode: -1,
+                        errMessage: 'Name room is exists'
+                    }); // return
+                }
+
+
                 await db.Room.create({
                     name: data.name,
                     numberOfColumn: data.numberOfColumn,
@@ -56,6 +69,9 @@ let getAllRoom = () => {
                     { model: db.MovieTheater, as: 'MovieTheaterRoom' },
                     { model: db.Seet, as: 'RoomSeet' }
                 ],
+                order: [
+                    ['id', 'DESC'],
+                ],
                 raw: false,
                 nest: true
             });
@@ -67,11 +83,69 @@ let getAllRoom = () => {
     })
 }
 
+let getRoomById = (roomId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let roomData = await db.Room.findOne({
+                include: [
+                    { model: db.MovieTheater, as: 'MovieTheaterRoom' },
+                    { model: db.Seet, as: 'RoomSeet' }
+                ],
+                where: { id: roomId },
+
+                raw: false,
+                nest: true
+            });
+
+            resolve({
+                errCode: 0,
+                errMessage: 'OK',
+                data: roomData
+            });
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
+
+let deleteRoom = (id) => {
+    return new Promise(async (resolve, reject) => {
+        let room = await db.Room.findOne({
+            where: { id: id }
+        })
+        if (!room) {
+            resolve({
+                errCode: 2,
+                errMessage: 'Room not found'
+            })
+        }
+
+        // Check lich chieu //
+
+        ///////////
+
+        await db.Seet.destroy({
+            where: { roomId: id }
+        })
+
+        await db.Room.destroy({
+            where: { id: id }
+        });
+        resolve({
+            errCode: 0,
+            errMessage: "Delete room ok"
+        })
+    })
+}
+
 
 
 
 
 module.exports = {
     createNewRoom,
-    getAllRoom
+    getAllRoom,
+    getRoomById,
+    deleteRoom
 }

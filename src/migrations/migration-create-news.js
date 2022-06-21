@@ -18,6 +18,12 @@ module.exports = {
             userId: {
                 type: Sequelize.INTEGER
             },
+            thumbnail: {
+                type: Sequelize.STRING
+            },
+            public_id_url: {
+                type: Sequelize.STRING
+            },
             createdAt: {
                 allowNull: true,
                 type: Sequelize.DATE
