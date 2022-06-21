@@ -73,6 +73,7 @@ let createNewMovie = (data) => {
                         console.log("Check resUpload: ", resUpload);
                         obj.url = resUpload.secure_url;
                         obj.public_id = resUpload.public_id;
+                        obj.typeImage = item.typeImage;
                         result.push(obj);
                     }))
 
@@ -302,16 +303,24 @@ let getMovieById = (movieId) => {
     })
 }
 
-let getMovieByStatus = (status) => {
+let getMovieByStatus = (query) => {
+    console.log("Check query: ", query);
+    const page = (query.page) ? +query.page : 1;
+    const PerPage = (query.PerPage) ? +query.PerPage : 6;
+    const skip = (page - 1) * PerPage;
+    console.log("Check page: ", page);
+    console.log("Check PerPage: ", PerPage);
     return new Promise(async (resolve, reject) => {
         try {
+            let total = await db.Movie.count({ where: { status: +query.status, isDelete: false } });
             let movie = await db.Movie.findAll({
-                where: { status: status },
+                offset: skip,
+                limit: PerPage,
+                where: { status: +query.status, isDelete: false },
                 include: [
                     { model: db.ImageMovie, as: 'ImageOfMovie' },
                     { model: db.TypeMovie, as: 'MovieOfType' },
                 ],
-                where: { isDelete: false },
                 order: [
                     ['id', 'DESC'],
                 ],
@@ -322,7 +331,8 @@ let getMovieByStatus = (status) => {
             resolve({
                 errCode: 0,
                 errMessage: 'OK',
-                data: movie
+                data: movie,
+                totalData: total
             });
         } catch (e) {
             reject(e);
