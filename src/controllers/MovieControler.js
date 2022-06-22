@@ -47,8 +47,8 @@ let handleGetMovieById = async (req, res) => {
 
 let handleGetMovieByStatus = async (req, res) => {
     let message = '';
-    if (req.params && req.params.status)
-        message = await MovieServices.getMovieByStatus(req.params.status);
+    if (req.query && req.query.status)
+        message = await MovieServices.getMovieByStatus(req.query);
     return res.status(200).json(message);
 }
 

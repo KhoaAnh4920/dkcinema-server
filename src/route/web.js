@@ -927,23 +927,35 @@ let initWebRoutes = (app) => {
 
     /** 
  * @swagger 
- * /status/movie/{status}: 
+ * /status/movie: 
  *   get: 
  *     tags: ["Movie"]
  *     summary: Get a movie by status
  *     parameters:
- *       - in: path
+ *       - in: query
  *         name: status
  *         schema:
  *         type: integer
  *         required: true
  *         description: Status of the movie to get
+ *       - in: query
+ *         name: page
+ *         schema:
+ *         type: integer
+ *         required: true
+ *         description: Page of the movie to get
+ *       - in: query
+ *         name: PerPage
+ *         schema:
+ *         type: integer
+ *         required: true
+ *         description: PerPage of the movie to get
  *     responses:  
  *       200: 
  *         description: Success  
  *   
  */
-    router.get('/status/movie/:status', MovieControler.handleGetMovieByStatus);
+    router.get('/status/movie', MovieControler.handleGetMovieByStatus);
 
 
 

@@ -12,6 +12,9 @@ module.exports = {
             movieId: {
                 type: Sequelize.INTEGER
             },
+            typeImage: {
+                type: Sequelize.INTEGER
+            },
             status: {
                 type: Sequelize.BOOLEAN
             },
