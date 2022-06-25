@@ -7,9 +7,20 @@ let handleCreateNewRoom = async (req, res) => {
     return res.status(200).json(message);
 }
 
+let handleUpdateRoom = async (req, res) => {
+    if (!req.body.id) {
+        return res.status(200).json({
+            errCode: 1,
+            errMessage: "Missing id"
+        })
+    }
+    let message = await RoomService.updateRoom(req.body);
+    return res.status(200).json(message);
+}
+
 
 let handleGetAllRoom = async (req, res) => {
-    let room = await RoomService.getAllRoom();
+    let room = await RoomService.getAllRoom(req.query);
     return res.status(200).json({
         errCode: 0,
         errMessage: 'OK',
@@ -44,5 +55,6 @@ module.exports = {
     handleCreateNewRoom,
     handleGetAllRoom,
     handleGetRoomById,
-    handleDeleteRoom
+    handleDeleteRoom,
+    handleUpdateRoom
 }

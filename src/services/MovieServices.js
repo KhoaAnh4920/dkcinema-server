@@ -328,6 +328,8 @@ let getMovieByStatus = (query) => {
                 nest: true
             });
 
+            console.log(movie);
+
             resolve({
                 errCode: 0,
                 errMessage: 'OK',

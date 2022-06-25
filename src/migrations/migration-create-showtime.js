@@ -3,11 +3,11 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable('Showtime', {
 
-        // codeSeet: DataTypes.STRING,
-        // posOfColumn: DataTypes.STRING,
-        // posOfRow: DataTypes.STRING,
-        // roomId: DataTypes.INTEGER,
-        // typeId: DataTypes.INTEGER
+      // startTime: DataTypes.DATE,
+      // endTime: DataTypes.DATE,
+      // premiereDate: DataTypes.DATE,
+      // movieId: DataTypes.INTEGER,
+      // roomId: DataTypes.INTEGER
 
       id: {
         allowNull: false,
@@ -15,19 +15,19 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      codeSeet: {
-        type: Sequelize.STRING
+      startTime: {
+        type: Sequelize.DATE
       },
-      posOfColumn: {
-        type: Sequelize.STRING
+      endTime: {
+        type: Sequelize.DATE
       },
-      posOfRow: {
-        type: Sequelize.STRING
+      premiereDate: {
+        type: Sequelize.DATE
       },
-      roomId: {
+      movieId: {
         type: Sequelize.INTEGER
       },
-      typeId: {
+      roomId: {
         type: Sequelize.INTEGER
       },
       createdAt: {

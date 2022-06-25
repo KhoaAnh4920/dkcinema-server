@@ -16,6 +16,10 @@ const customizeConfig = {
   dialect: 'postgres',
   logging: false,
   dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false
+    }
   },
   query: {
     "raw": true
