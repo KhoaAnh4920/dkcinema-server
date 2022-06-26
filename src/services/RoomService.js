@@ -4,8 +4,6 @@ let createNewRoom = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
 
-            console.log("Check data: ", data);
-
             if (data) {
                 let existsName = await db.Room.findOne({
                     where: {
@@ -61,7 +59,88 @@ let createNewRoom = (data) => {
 }
 
 
-let getAllRoom = () => {
+
+let updateRoom = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (data) {
+                let room = await db.Room.findOne({
+                    where: { id: data.id },
+                    raw: false
+                })
+
+                if (room) {
+                    let existsName = await db.Room.findAll({
+                        where: {
+                            name: data.name
+                        }
+                    })
+
+                    let checkName = existsName.some(item => item.id !== data.id);
+
+                    if (checkName) {
+                        resolve({
+                            errCode: -1,
+                            errMessage: 'Name room is exists'
+                        });
+                        return;
+                    }
+
+                    room.name = data.name;
+                    room.numberOfColumn = data.numberOfColumn;
+                    room.numberOfRow = data.numberOfRow;
+                    room.movieTheaterId = data.movieTheaterId;
+
+
+                    await room.save().then(function (x) {
+                        console.log("Check x: ", x);
+                        let dataSeet = data.seets;
+
+                        if (dataSeet) {
+                            dataSeet.map(item => {
+                                item.posOfRow.map(y => {
+                                    let radCode = 'Seet ' + Math.round(Math.random() * 400);
+                                    db.Seet.create({
+                                        codeSeet: radCode,
+                                        posOfColumn: item.posOfColumn,
+                                        posOfRow: y.pos,
+                                        roomId: data.id,
+                                        typeId: 1
+                                    })
+                                })
+                            })
+                        }
+                    });
+
+                    resolve({
+                        errCode: 0,
+                        errMessage: 'OK'
+                    }); // return 
+
+
+                } else {
+                    resolve({
+                        errCode: -1,
+                        errMessage: 'Room not found'
+                    }); // return 
+                }
+
+
+            } else {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing params'
+                }); // return 
+            }
+
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
+
+let getAllRoom = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
             let room = await db.Room.findAll({
@@ -69,6 +148,9 @@ let getAllRoom = () => {
                     { model: db.MovieTheater, as: 'MovieTheaterRoom' },
                     { model: db.Seet, as: 'RoomSeet' }
                 ],
+                where: {
+                    movieTheaterId: data.movieTheaterId || 1
+                },
                 order: [
                     ['id', 'DESC'],
                 ],
@@ -82,6 +164,7 @@ let getAllRoom = () => {
         }
     })
 }
+
 
 let getRoomById = (roomId) => {
     return new Promise(async (resolve, reject) => {
@@ -147,5 +230,6 @@ module.exports = {
     createNewRoom,
     getAllRoom,
     getRoomById,
-    deleteRoom
+    deleteRoom,
+    updateRoom
 }

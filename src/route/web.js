@@ -6,6 +6,8 @@ import MovieTheaterController from "../controllers/MovieTheaterController";
 import RoomController from "../controllers/RoomController";
 import TypeMovieController from "../controllers/TypeMovieController";
 import MovieControler from "../controllers/MovieControler";
+import ScheduleController from "../controllers/ScheduleController";
+
 const authToken = require("../middleware/authenticateToken");
 
 
@@ -17,9 +19,9 @@ const swaggerOptions = {
     swaggerDefinition: {
         openapi: '3.0.1', // YOU NEED THIS
         info: {
-            title: 'Your API title',
+            title: 'DKCinema API',
             version: '1.0.0',
-            description: 'Your API description'
+            description: 'API DKCINEMA'
         },
         components: {
             securitySchemes: {
@@ -595,18 +597,83 @@ let initWebRoutes = (app) => {
     router.post('/room', RoomController.handleCreateNewRoom);
 
 
+    /**
+* @swagger
+*  /room:
+*    put:
+*      summary: Update room.
+*      consumes:
+*        - application/json
+*      tags:
+*        - Room
+*      requestBody:
+*         content:
+*            application/json:
+*               schema:
+*                  type: object
+*                  properties:
+*                     id:
+*                         example: 1
+*                         type: integer
+*                     numberOfColumn:
+*                         example: 10
+*                         type: integer
+*                     numberOfRow:
+*                         example: 10
+*                         type: integer
+*                     name:
+*                         example: Rap 01
+*                         type: string
+*                     movieTheaterId:
+*                         example: 1
+*                         type: array
+*                     seets:
+*                         type: array
+*                         required: false
+*                         items:
+*                          type: object
+*                          properties:
+*                            posOfColumn:
+*                              example: 0
+*                              type: integer
+*                            posOfRow:
+*                              type: array
+*                              required: false
+*                              items:
+*                                 type: object
+*                                 properties:
+*                                   pos:
+*                                      example: 0
+*                                      type: integer
+*                                   typeId:
+*                                      example: 1
+*                                      type: integer
+*      responses:
+*        201:
+*          description: Create room.
+*/
+    router.put('/room', RoomController.handleUpdateRoom);
+
+
 
     /** 
-   * @swagger 
-   * /room: 
-   *   get: 
-   *     tags: ["Room"]
-   *     description: Get List Room
-   *     responses:  
-   *       200: 
-   *         description: Success  
-   *   
-   */
+* @swagger 
+* /room: 
+*   get: 
+*     tags: ["Room"]
+*     description: Get List Room
+*     parameters:
+*       - in: query
+*         name: movieTheaterId
+*         schema:
+*         type: integer
+*         required: false
+*         description: Movie Theater of Room
+*     responses:  
+*       200: 
+*         description: Success  
+*   
+*/
     router.get('/room', RoomController.handleGetAllRoom);
 
     /** 
@@ -1009,6 +1076,96 @@ let initWebRoutes = (app) => {
 *          description: OK!
 */
     router.put('/delete/movie', MovieControler.handleDeleteMovie);
+
+
+    /**
+* @swagger
+*  /schedule-movie:
+*    post:
+*      summary: Create new schedule of movie.
+*      consumes:
+*        - application/json
+*      tags:
+*        - ScheduleMovie
+*      requestBody:
+*         content:
+*            application/json:
+*               schema:
+*                  type: object
+*                  properties:
+*                     movieId:
+*                       type: integer
+*                     roomId:
+*                       type: integer
+*                       example: 1
+*                     premiereDate:
+*                       type: integer
+*                       example: 1640599036184
+*                     startTime:
+*                       type: integer
+*                       example: 1640549137000
+*                     endTime:
+*                       type: integer
+*                       example: 1672085137000
+*      responses:
+*        201:
+*          description: OK!
+*/
+    router.post('/schedule-movie', ScheduleController.handleCreateNewScheduleMovie);
+
+
+    /** 
+* @swagger 
+* /get-list-schedule: 
+*   get: 
+*     tags: ["ScheduleMovie"]
+*     summary: Get a ScheduleMovie by date
+*     parameters:
+*       - in: query
+*         name: date
+*         schema:
+*         type: string
+*         required: false
+*         description: Date of schedule
+*       - in: query
+*         name: roomId
+*         schema:
+*         type: integer
+*         required: false
+*         description: Room of schedule
+*       - in: query
+*         name: movieId
+*         schema:
+*         type: integer
+*         required: false
+*         description: Movie of schedule
+*     responses:  
+*       200: 
+*         description: Success  
+*   
+*/
+    router.get('/get-list-schedule', ScheduleController.handleGetScheduleByDate);
+
+
+    /** 
+ * @swagger 
+ * /schedule/{scheduleId}: 
+ *   delete: 
+ *     tags: ["ScheduleMovie"]
+ *     summary: Delete Schedule Movie
+ *     parameters:
+ *       - in: path
+ *         name: scheduleId
+ *         schema:
+ *         type: integer
+ *         required: true
+ *         description: Numeric ID of the Schedule to delete
+ *     responses:  
+ *       200: 
+ *         description: Success  
+ *   
+ */
+    router.delete('/schedule/:scheduleId', ScheduleController.handleDeleteSchedule);
 
 
 

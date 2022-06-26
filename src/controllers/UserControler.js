@@ -99,8 +99,6 @@ let handleEditUser = async (req, res) => {
 }
 
 let handleDeleteUser = async (req, res) => {
-
-
     if (!req.params.userId) {
         return res.status(200).json({
             errCode: 1,
