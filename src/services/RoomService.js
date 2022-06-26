@@ -22,7 +22,7 @@ let createNewRoom = (data) => {
                     name: data.name,
                     numberOfColumn: data.numberOfColumn,
                     numberOfRow: data.numberOfRow,
-                    movieTheaterId: 1
+                    movieTheaterId: data.movieTheaterId
                 }).then(function (x) {
                     if (x.id) {
                         // insert seet in room //
@@ -37,7 +37,7 @@ let createNewRoom = (data) => {
                                         posOfColumn: item.posOfColumn,
                                         posOfRow: y.pos,
                                         roomId: x.id,
-                                        typeId: 1
+                                        typeId: y.typeId
                                     })
                                 })
                             })
@@ -69,6 +69,23 @@ let updateRoom = (data) => {
                     raw: false
                 })
 
+                console.log("Check data: ", data);
+
+                if (data.listSeetChangeType && data.listSeetChangeType.length > 0) {
+                    await Promise.all(data.listSeetChangeType.map(async (item, index) => {
+                        console.log("Map chay");
+                        let res = await db.Seet.update({
+                            // your new row data here
+                            typeId: item.posOfRow.typeId
+                        },
+                            { where: { roomId: data.id, posOfColumn: item.posOfColumn, posOfRow: item.posOfRow.pos } }
+                        );
+
+                        console.log(res);
+                    }))
+
+                }
+
                 if (room) {
                     let existsName = await db.Room.findAll({
                         where: {
@@ -96,7 +113,9 @@ let updateRoom = (data) => {
                         console.log("Check x: ", x);
                         let dataSeet = data.seets;
 
-                        if (dataSeet) {
+                        console.log("Check dataSeet: ", dataSeet);
+
+                        if (dataSeet && dataSeet.length > 0) {
                             dataSeet.map(item => {
                                 item.posOfRow.map(y => {
                                     let radCode = 'Seet ' + Math.round(Math.random() * 400);
@@ -105,12 +124,29 @@ let updateRoom = (data) => {
                                         posOfColumn: item.posOfColumn,
                                         posOfRow: y.pos,
                                         roomId: data.id,
-                                        typeId: 1
+                                        typeId: y.typeId
                                     })
                                 })
                             })
                         }
+
                     });
+
+                    if (data.listSeetChangeType && data.listSeetChangeType.length > 0) {
+                        await Promise.all(data.listSeetChangeType.map(async (item, index) => {
+                            console.log("Check item: ", item);
+                            let res = await db.Seet.update({
+                                // your new row data here
+                                typeId: item.posOfRow.typeId
+                            },
+                                { where: { roomId: data.id, posOfColumn: item.posOfColumn, posOfRow: item.posOfRow.pos } }
+                            );
+
+                            console.log(res);
+                        }))
+
+
+                    }
 
                     resolve({
                         errCode: 0,
