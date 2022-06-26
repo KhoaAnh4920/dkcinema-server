@@ -354,7 +354,7 @@ let deleteImageMovie = (id) => {
         if (!imageMovie) {
             resolve({
                 errCode: 2,
-                errMessage: 'imageMovie ko ton tai'
+                errMessage: 'Image Movie not found'
             })
         }
 

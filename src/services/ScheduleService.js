@@ -10,7 +10,6 @@ let createNewScheduleMovie = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
 
-
             if (data) {
                 let newDatePremier = new Date(+data.premiereDate);
                 let newDateStartTime = new Date(+data.startTime);
@@ -44,7 +43,6 @@ let createNewScheduleMovie = (data) => {
                     }
                 );
 
-                console.log("Check data: ", checkData);
 
 
                 if (checkData.length > 0) {
@@ -59,10 +57,12 @@ let createNewScheduleMovie = (data) => {
                 let getDay = moment(data.startTime).format("YYYY-MM-DD");
                 console.log("Check getDay: ", getDay);
 
+                console.log("Check payload: ", data);
+
                 let listSchedule = await db.sequelize.query(
-                    'SELECT * FROM "Showtime" WHERE CAST("premiereDate" AS VARCHAR) LIKE :premiereDate',
+                    'SELECT * FROM "Showtime" WHERE "Showtime"."roomId" = :roomId AND CAST("premiereDate" AS VARCHAR) LIKE :premiereDate',
                     {
-                        replacements: { premiereDate: `%${getDay}%` },
+                        replacements: { premiereDate: `%${getDay}%`, roomId: data.roomId },
                         type: QueryTypes.SELECT
                     }
                 );
@@ -156,7 +156,6 @@ let createNewScheduleMovie = (data) => {
                 });
                 return;
             }
-
             resolve({
                 errCode: 2,
                 errMessage: 'Missing data'
