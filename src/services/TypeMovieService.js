@@ -40,7 +40,6 @@ let createNewTypeMovie = (data) => {
 let getTypeMovieById = (typeId) => {
     return new Promise(async (resolve, reject) => {
         try {
-            console.log("TypeId: ", typeId);
             let typeMovie = await db.TypeMovie.findOne({
                 where: { id: typeId },
 

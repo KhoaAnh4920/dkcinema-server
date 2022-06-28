@@ -69,19 +69,15 @@ let updateRoom = (data) => {
                     raw: false
                 })
 
-                console.log("Check data: ", data);
-
                 if (data.listSeetChangeType && data.listSeetChangeType.length > 0) {
                     await Promise.all(data.listSeetChangeType.map(async (item, index) => {
-                        console.log("Map chay");
+
                         let res = await db.Seet.update({
                             // your new row data here
                             typeId: item.posOfRow.typeId
                         },
                             { where: { roomId: data.id, posOfColumn: item.posOfColumn, posOfRow: item.posOfRow.pos } }
                         );
-
-                        console.log(res);
                     }))
 
                 }

@@ -7,6 +7,11 @@ import RoomController from "../controllers/RoomController";
 import TypeMovieController from "../controllers/TypeMovieController";
 import MovieControler from "../controllers/MovieControler";
 import ScheduleController from "../controllers/ScheduleController";
+import FoodController from "../controllers/FoodController";
+import ComboController from "../controllers/ComboController";
+import TypeFoodController from "../controllers/TypeFoodController";
+
+
 
 const authToken = require("../middleware/authenticateToken");
 
@@ -897,62 +902,61 @@ let initWebRoutes = (app) => {
 *        - application/json
 *      tags:
 *        - Movie
-*      parameters:
-*        - in: body
-*          name: Admin
-*          description: Update Movie
-*          schema:
-*            type: object
-*            required: true
-*            properties:
-*              id:
-*                type: integer
-*              name:
-*                example: 'Doctor Strange'
-*                type: string
-*              transName:
-*                example: 'Bác sĩ lạ'
-*                type: string
-*              country:
-*                type: string
-*              language:
-*                type: string
-*              duration:
-*                example: 180
-*                type: integer
-*              description:
-*                type: string
-*              brand:
-*                type: string
-*              cast:
-*                type: string
-*              status:
-*                type: integer
-*              typeId:
-*                example: 1
-*                type: integer
-*              releaseTime:
-*                type: integer
-*                example: 1640599036184
-*              url:
-*                example: "https://www.youtube.com/watch?v=aWzlQ2N6qqg"
-*                type: string
-*              poster:
-*                type: array
-*                required: false
-*                items:
-*                   type: object
-*                   properties:
-*                     image:
-*                       example: "https://res.cloudinary.com/cdmedia/image/upload/v1646921892/image/avatar/Unknown_b4jgka.png"
+*      requestBody:
+*         content:
+*            application/json:
+*               schema:
+*                  type: object
+*                  properties:
+*                     id:
+*                       type: integer
+*                     name:
+*                       example: 'Doctor Strange'
 *                       type: string
-*                     fileName:
-*                       example: "file-name.png"
+*                     transName:
+*                       example: 'Bác sĩ lạ'
 *                       type: string
+*                     country:
+*                       type: string
+*                     language:
+*                       type: string
+*                     duration:
+*                       example: 180
+*                       type: integer
+*                     description:
+*                       type: string
+*                     brand:
+*                       type: string
+*                     cast:
+*                       type: string
+*                     status:
+*                       type: integer
+*                     typeId:
+*                       example: 1
+*                       type: integer
+*                     releaseTime:
+*                       type: integer
+*                       example: 1640599036184
+*                     url:
+*                       example: "https://www.youtube.com/watch?v=aWzlQ2N6qqg"
+*                       type: string
+*                     poster:
+*                       type: array
+*                       required: false
+*                       items:
+*                          type: object
+*                          properties:
+*                            image:
+*                              example: "https://res.cloudinary.com/cdmedia/image/upload/v1646921892/image/avatar/Unknown_b4jgka.png"
+*                              type: string
+*                            fileName:
+*                              example: "file-name.png"
+*                              type: string
 *      responses:
 *        201:
 *          description: create OK!
 */
+
     router.put('/movie', MovieControler.handleUpdateMovie);
 
 
@@ -1167,6 +1171,307 @@ let initWebRoutes = (app) => {
  */
     router.delete('/schedule/:scheduleId', ScheduleController.handleDeleteSchedule);
 
+
+    /**
+* @swagger
+*  /food:
+*    post:
+*      summary: Create new food.
+*      consumes:
+*        - application/json
+*      tags:
+*        - Food
+*      requestBody:
+*         content:
+*            application/json:
+*               schema:
+*                  type: object
+*                  properties:
+*                     name:
+*                       type: string
+*                     price:
+*                       type: number
+*                       format: double
+*                       example: 20000
+*                     typeId:
+*                       type: integer
+*                       example: 1
+*      responses:
+*        201:
+*          description: OK!
+*/
+    router.post('/food', FoodController.handleCreateNewFood);
+
+    /** 
+    * @swagger 
+    * /get-list-food: 
+    *   get: 
+    *     tags: ["Food"]
+    *     description: Get List Food
+    *     parameters:
+    *       - in: query
+    *         name: typeId
+    *         schema:
+    *         type: integer
+    *         required: false
+    *         description: type of food
+    *     responses:  
+    *       200: 
+    *         description: Success  
+    *   
+    */
+    router.get('/get-list-food', FoodController.handleGetAllFood);
+
+
+    /** 
+* @swagger 
+* /food/{foodId}: 
+*   get: 
+*     tags: ["Food"]
+*     summary: Get a food by ID
+*     parameters:
+*       - in: path
+*         name: foodId
+*         schema:
+*         type: integer
+*         required: true
+*         description: Numeric ID of the food to get
+*     responses:  
+*       200: 
+*         description: Success  
+*   
+*/
+    router.get('/food/:foodId', FoodController.handleGetFoodById);
+
+
+    /**
+* @swagger
+*  /food:
+*    put:
+*      summary: Update Food.
+*      consumes:
+*        - application/json
+*      tags:
+*        - Food
+*      requestBody:
+*         content:
+*            application/json:
+*               schema:
+*                  type: object
+*                  properties:
+*                    id:
+*                      type: integer
+*                    name:
+*                      example: 'Pepsi'
+*                      type: string
+*                    price:
+*                      type: number
+*                      format: double
+*                      example: 20000
+*                    typeId:
+*                      type: integer
+*                      example: 1
+*      responses:
+*        201:
+*          description: create OK!
+*/
+    router.put('/food', FoodController.handleUpdateFood);
+
+
+    /** 
+ * @swagger 
+ * /food/{id}: 
+ *   delete: 
+ *     tags: ["Food"]
+ *     summary: Delete Food
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *         type: integer
+ *         required: true
+ *         description: Numeric ID of the food to delete
+ *     responses:  
+ *       200: 
+ *         description: Success  
+ *   
+ */
+    router.delete('/food/:id', FoodController.handleDeleteFood);
+
+    /** 
+* @swagger 
+* /type-of-food: 
+*   get: 
+*     tags: ["Type of food"]
+*     description: Get List Type of Food
+*     responses:  
+*       200: 
+*         description: Success  
+*   
+*/
+    router.get('/type-of-food', TypeFoodController.handleGetAllTypeFood);
+
+
+
+    /**
+    * @swagger
+    *  /combo:
+    *    post:
+    *      summary: Create new combo.
+    *      consumes:
+    *        - application/json
+    *      tags:
+    *        - Combo
+    *      requestBody:
+    *         content:
+    *            application/json:
+    *               schema:
+    *                  type: object
+    *                  properties:
+    *                     name:
+    *                         example: Combo 01
+    *                         type: string
+    *                     price:
+    *                         type: number
+    *                         format: double
+    *                         example: 20000
+    *                     items:
+    *                         type: array
+    *                         required: false
+    *                         items:
+    *                          type: object
+    *                          properties:
+    *                            foodId:
+    *                              example: 1
+    *                              type: integer
+    *                            amount:
+    *                              example: 2
+    *                              type: integer
+    *                              required: true
+    *      responses:
+    *        201:
+    *          description: Create combo.
+    */
+    router.post('/combo', ComboController.handleCreateNewCombo);
+
+
+    /** 
+    * @swagger 
+    * /get-list-combo: 
+    *   get: 
+    *     tags: ["Combo"]
+    *     description: Get List Combo
+    *     responses:  
+    *       200: 
+    *         description: Success  
+    *   
+    */
+    router.get('/get-list-combo', ComboController.handleGetAllCombo);
+
+
+    /** 
+* @swagger 
+* /item-combo/{id}: 
+*   get: 
+*     tags: ["Combo"]
+*     summary: Get a item combo by ID
+*     parameters:
+*       - in: path
+*         name: id
+*         schema:
+*         type: integer
+*         required: true
+*         description: Numeric ID of the combo to get
+*     responses:  
+*       200: 
+*         description: Success  
+*   
+*/
+    router.get('/item-combo/:id', ComboController.handleGetItemCombo);
+
+    /** 
+* @swagger 
+* /combo/{id}: 
+*   get: 
+*     tags: ["Combo"]
+*     summary: Get a detail combo by ID
+*     parameters:
+*       - in: path
+*         name: id
+*         schema:
+*         type: integer
+*         required: true
+*         description: Numeric ID of the combo to get
+*     responses:  
+*       200: 
+*         description: Success  
+*   
+*/
+    router.get('/combo/:id', ComboController.handleGetDetailCombo);
+
+
+    /**
+    * @swagger
+    *  /combo:
+    *    put:
+    *      summary: Edit combo.
+    *      consumes:
+    *        - application/json
+    *      tags:
+    *        - Combo
+    *      requestBody:
+    *         content:
+    *            application/json:
+    *               schema:
+    *                  type: object
+    *                  properties:
+    *                     id:
+    *                         type: integer
+    *                     name:
+    *                         example: Combo 01
+    *                         type: string
+    *                     price:
+    *                         type: number
+    *                         format: double
+    *                         example: 20000
+    *                     items:
+    *                         type: array
+    *                         required: false
+    *                         items:
+    *                          type: object
+    *                          properties:
+    *                            foodId:
+    *                              example: 1
+    *                              type: integer
+    *                            amount:
+    *                              example: 2
+    *                              type: integer
+    *                              required: true
+    *      responses:
+    *        201:
+    *          description: Update combo.
+    */
+    router.put('/combo', ComboController.handleEditCombo);
+
+    /** 
+ * @swagger 
+ * /combo/{id}: 
+ *   delete: 
+ *     tags: ["Combo"]
+ *     summary: Delete Combo
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *         type: integer
+ *         required: true
+ *         description: Numeric ID of the combo to delete
+ *     responses:  
+ *       200: 
+ *         description: Success  
+ *   
+ */
+    router.delete('/combo/:id', ComboController.handleDeleteCombo);
 
 
     return app.use("/", router);

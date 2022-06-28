@@ -18,6 +18,9 @@ module.exports = {
             comboId: {
                 type: Sequelize.INTEGER
             },
+            amount: {
+                type: Sequelize.INTEGER
+            },
             createdAt: {
                 allowNull: true,
                 type: Sequelize.DATE
