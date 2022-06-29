@@ -15,7 +15,7 @@ let createNewScheduleMovie = (data) => {
                 let newDateStartTime = new Date(+data.startTime);
 
                 let test = moment(newDatePremier).format("YYYY-MM-DD");
-                let test2 = moment(newDateStartTime).format("HH:mm");
+                let test2 = moment(newDateStartTime).format("HH:mm:ss");
                 console.log(test);
                 console.log("test 2: ", test2);
 
@@ -54,13 +54,13 @@ let createNewScheduleMovie = (data) => {
                 }
 
                 // Get list schedule for day //
-                let getDay = moment(data.startTime).format("YYYY-MM-DD");
+                let getDay = moment(data.premiereDate).format("YYYY-MM-DD");
                 console.log("Check getDay: ", getDay);
 
                 console.log("Check payload: ", data);
 
                 let listSchedule = await db.sequelize.query(
-                    'SELECT * FROM "Showtime" WHERE "Showtime"."roomId" = :roomId AND CAST("premiereDate" AS VARCHAR) LIKE :premiereDate',
+                    'SELECT * FROM "Showtime" WHERE "Showtime"."roomId" = :roomId AND CAST("premiereDate" AS VARCHAR) LIKE :premiereDate order by id asc',
                     {
                         replacements: { premiereDate: `%${getDay}%`, roomId: data.roomId },
                         type: QueryTypes.SELECT
@@ -73,12 +73,33 @@ let createNewScheduleMovie = (data) => {
 
                 if (listSchedule && listSchedule.length > 0) {
 
+                    console.log("data.startTime: ", data.startTime);
+                    console.log("data.startTime 2: ", moment.utc(data.startTime).format("HH:mm:ss"));
+
+
                     let checkFlag = false;
                     await Promise.all(listSchedule.map((item, index) => {
-                        let currentStartTime = moment(data.startTime).format("HH");
-                        let checkStartTimeData = moment(item.startTime).format("HH");
-                        let checkEndTimeData = moment(item.endTime).format("HH");
-                        if (+currentStartTime > +checkStartTimeData && +currentStartTime < +checkEndTimeData) {
+                        // let currentStartTime = moment(test2, "HH:mm:ss");
+                        // let checkStartTimeData = moment(item.startTime, "HH:mm:ss");
+                        // let checkEndTimeData = moment(item.endTime, "HH:mm:ss");
+
+                        let h = moment(data.startTime).format("HH");
+                        let m = moment(data.startTime).format("mm");
+                        let h1 = moment(item.startTime).format("HH");
+                        let m1 = moment(item.startTime).format("mm");
+                        let h2 = moment(item.endTime).format("HH");
+                        let m2 = moment(item.endTime).format("mm");
+
+                        console.log("h: ", h);
+                        console.log("m: ", m);
+                        console.log("h1: ", h1);
+                        console.log("m1: ", m1);
+                        console.log("h2: ", h2);
+                        console.log("m2: ", m2);
+
+
+
+                        if ((h1 < h || h1 == h && m1 <= m) && (h < h2 || h == h2 && m <= m2)) {
                             console.log("Co chay")
                             // resolve({
                             //     errCode: 1,
@@ -87,7 +108,7 @@ let createNewScheduleMovie = (data) => {
                             checkFlag = true;
                             return;
                         }
-                        if (currentStartTime < checkStartTimeData) {
+                        if (h < h1) {
                             console.log("Co chay");
                             checkFlag = true;
                             // resolve({
@@ -97,6 +118,7 @@ let createNewScheduleMovie = (data) => {
                             return;
                         }
                     }))
+                    console.log("checkFlag: ", checkFlag);
                     if (checkFlag) {
                         resolve({
                             errCode: 1,
@@ -105,31 +127,32 @@ let createNewScheduleMovie = (data) => {
                         return;
                     }
 
-
-
-                    console.log("Ko break");
+                    // console.log("Ko break");
 
 
                     let lastSchedule = listSchedule[listSchedule.length - 1];
 
                     console.log("lastSchedule: ", lastSchedule);
 
-                    var start = moment(data.startTime);
-                    console.log("Check start: ", start);
-                    var end = moment(lastSchedule.endTime); //2021-12-27T13:15:00.000Z => 20
-                    console.log("Check end: ", end);
-                    var duration = moment.duration(start.diff(end))
 
-                    console.log("Check hours: ", duration.asHours());
-                    console.log("Check asMinutes: ", duration.asMinutes());
-                    if (Math.round(duration.asHours()) > 0 || (Math.round(duration.asHours()) === 0 && Math.round(duration.asMinutes()) > 15)) {
+                    let test2 = moment(newDateStartTime).format("HH:mm:ss");
+                    let endTime = moment(lastSchedule.endTime).format("HH:mm:ss");
+
+                    console.log("Check end time: ", endTime);
+
+                    var givenTime = moment(test2, "HH:mm:ss");
+                    var minutesPassed = moment(endTime, "HH:mm:ss").diff(givenTime, "minutes");
+
+                    console.log("Check duration: ", Math.abs(minutesPassed));
+
+                    if (Math.abs(minutesPassed) !== 15) {
                         resolve({
                             errCode: 3,
                             errMessage: 'Break time should not exceed 15 minutes'
                         });
                         return;
-                    }
-                    else {
+                    } else {
+                        console.log("OK");
                         db.Showtime.create({
                             movieId: data.movieId,
                             roomId: data.roomId,
@@ -138,7 +161,6 @@ let createNewScheduleMovie = (data) => {
                             endTime: data.endTime
                         })
                     }
-
 
                 } else {
                     db.Showtime.create({

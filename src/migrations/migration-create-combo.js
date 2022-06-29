@@ -3,9 +3,9 @@ module.exports = {
     up: async (queryInterface, Sequelize) => {
         await queryInterface.createTable('Combo', {
 
-        //     name: DataTypes.STRING,
-        // price: DataTypes.DOUBLE,
-        // image: DataTypes.STRING
+            //     name: DataTypes.STRING,
+            // price: DataTypes.DOUBLE,
+            // image: DataTypes.STRING
 
             id: {
                 allowNull: false,
@@ -14,7 +14,7 @@ module.exports = {
                 type: Sequelize.INTEGER
             },
             name: {
-                type: Sequelize.INTEGER
+                type: Sequelize.STRING
             },
             price: {
                 type: Sequelize.INTEGER

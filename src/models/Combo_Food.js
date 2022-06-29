@@ -21,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
     Combo_Food.init({
         comboId: DataTypes.INTEGER,
         foodId: DataTypes.INTEGER,
+        amount: DataTypes.INTEGER,
     }, {
         sequelize,
         modelName: 'Combo_Food',
