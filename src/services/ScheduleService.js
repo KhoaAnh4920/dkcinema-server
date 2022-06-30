@@ -195,6 +195,99 @@ let getScheduleByDate = (data) => {
         try {
             if (data) {
 
+                console.log(data);
+
+                // var date_not_formatted = new Date(+data.date);
+
+                // console.log(date_not_formatted);
+
+                let dateFormat = moment(new Date(+data.date)).format('YYYY-MM-DD');
+
+                console.log(dateFormat);
+
+
+                let listSchedule = await db.Showtime.findAll({
+                    where: {
+                        // ["premiereDate::timestamp"]: {
+                        //     [Op.iLike]: `%${data.date}%`
+                        // },
+                        [Op.and]: [
+                            data.date &&
+                            db.sequelize.where(
+                                db.sequelize.cast(db.sequelize.col("Showtime.premiereDate"), "varchar"),
+                                { [Op.iLike]: `%${dateFormat}%` }
+                            ),
+                            data.roomId &&
+                            {
+                                roomId: {
+                                    [Op.or]: [(data.roomId) ? data.roomId : null, null]
+                                }
+                            },
+                            data.movieId &&
+                            {
+                                movieId: {
+                                    [Op.or]: [(data.movieId) ? data.movieId : null, null]
+                                }
+                            }
+                        ]
+                    },
+                    include: [
+                        { model: db.Movie, as: 'ShowtimeMovie' },
+                        {
+                            model: db.Room, as: 'RoomShowTime', where: {
+                                movieTheaterId: data.movieTheaterId
+                            }
+                        },
+                    ],
+                    order: [
+                        ['id', 'DESC'],
+                    ],
+                    raw: true,
+                    nest: true
+                });
+
+
+
+
+                // let test = 'SELECT "Showtime".*, "Movie".id AS "MovieID", "Movie"."name"  FROM "Showtime" JOIN "Movie" ON "Showtime"."movieId" = "Movie".id WHERE CAST("premiereDate" AS VARCHAR) LIKE :premiereDate';
+
+                // if (data.roomId) {
+                //     test += ' AND "Showtime"."roomId" = :roomId';
+                // }
+                // if (data.movieId) {
+                //     test += ' AND "Showtime"."movieId" = :movieId';
+                // }
+                // let listSchedule = await db.sequelize.query(
+                //     test,
+                //     {
+                //         replacements: { premiereDate: `%${data.date}%`, roomId: data.roomId, movieId: data.movieId },
+                //         type: QueryTypes.SELECT
+                //     }
+                // );
+                resolve({
+                    errCode: 0,
+                    errMessage: 'OK',
+                    data: listSchedule
+                }); // return 
+            }
+
+            resolve({
+                errCode: 2,
+                errMessage: 'Missing data'
+            }); // return 
+
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
+
+let getScheduleById = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (data) {
+
                 console.log(typeof (data.date));
 
                 // var date_not_formatted = new Date(+data.date);
@@ -304,7 +397,8 @@ let deleteSchedule = (id) => {
 module.exports = {
     createNewScheduleMovie,
     getScheduleByDate,
-    deleteSchedule
+    deleteSchedule,
+    getScheduleById
 }
 
 

@@ -15,17 +15,19 @@ module.exports = (sequelize, DataTypes) => {
             // Một rạp có nhiều phòng chiếu //
 
             Booking.hasMany(models.Ticket, { foreignKey: 'bookingId', as: 'BookingTicket' })
-            Booking.belongsTo(models.Voucher, { foreignKey: 'voucherId', as: 'VoucherBooking' })
-            Booking.belongsTo(models.Customer, { foreignKey: 'customerId', as: 'CustomerBooking' })
-            Booking.belongsToMany(models.Combo, { as: 'BookingForCombo', through: models.Combo_Booking, foreignKey: 'bookingId' });
+            // Booking.belongsTo(models.Voucher, { foreignKey: 'voucherId', targetKey: 'id', as: 'VoucherBooking' })
+            // Booking.belongsTo(models.Customer, { foreignKey: 'customerId', targetKey: 'id', as: 'CustomerBooking' })
+            // Booking.belongsToMany(models.Combo, { as: 'BookingForCombo', through: models.Combo_Booking, foreignKey: 'bookingId' });
         }
     };
     Booking.init({
-        date: DataTypes.DATE,
         price: DataTypes.DOUBLE,
         customerId: DataTypes.INTEGER,
         status: DataTypes.INTEGER,
-        voucherId: DataTypes.INTEGER
+        voucherId: DataTypes.INTEGER,
+        nameCus: DataTypes.STRING,
+        email: DataTypes.STRING,
+        phoneNumber: DataTypes.STRING,
     }, {
         sequelize,
         modelName: 'Booking',

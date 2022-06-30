@@ -15,8 +15,9 @@ module.exports = (sequelize, DataTypes) => {
             // Một người dùng thuộc 1 role //
 
             Ticket.belongsTo(models.Seet, { foreignKey: 'seetId', targetKey: 'id', as: 'TicketSeet' })
-            Ticket.belongsTo(models.Showtime, { foreignKey: 'showTimeId', as: 'TicketShowtime' })
-            Ticket.belongsTo(models.Booking, { foreignKey: 'bookingId', as: 'BookingTicket' })
+            Ticket.belongsTo(models.Showtime, { foreignKey: 'showTimeId', targetKey: 'id', as: 'TicketShowtime' })
+            Ticket.belongsTo(models.Booking, { foreignKey: 'bookingId', targetKey: 'id', as: 'BookingTicket' })
+
         }
     };
     Ticket.init({

@@ -304,7 +304,6 @@ let getMovieById = (movieId) => {
 }
 
 let getMovieByStatus = (query) => {
-    console.log("Check query: ", query);
     const page = (query.page) ? +query.page : 1;
     const PerPage = (query.PerPage) ? +query.PerPage : 6;
     const skip = (page - 1) * PerPage;
@@ -327,8 +326,6 @@ let getMovieByStatus = (query) => {
                 raw: false,
                 nest: true
             });
-
-            console.log(movie);
 
             resolve({
                 errCode: 0,
