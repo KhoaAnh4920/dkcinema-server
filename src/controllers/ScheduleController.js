@@ -10,8 +10,14 @@ let handleCreateNewScheduleMovie = async (req, res) => {
 
 let handleGetScheduleByDate = async (req, res) => {
     let message = '';
-    if (req.query && (req.query.date || req.query.roomId))
+    console.log(req.query);
+    if (req.query && req.query.movieTheaterId)
         message = await ScheduleService.getScheduleByDate(req.query);
+    else
+        return res.status(200).json({
+            errCode: 1,
+            errMessage: "Missing params"
+        })
     return res.status(200).json(message);
 }
 

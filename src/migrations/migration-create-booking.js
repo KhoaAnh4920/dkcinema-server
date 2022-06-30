@@ -9,9 +9,6 @@ module.exports = {
                 primaryKey: true,
                 type: Sequelize.INTEGER
             },
-            date: {
-                type: Sequelize.TEXT
-            },
             price: {
                 type: Sequelize.DOUBLE
             },

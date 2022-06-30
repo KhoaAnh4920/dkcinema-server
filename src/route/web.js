@@ -10,6 +10,7 @@ import ScheduleController from "../controllers/ScheduleController";
 import FoodController from "../controllers/FoodController";
 import ComboController from "../controllers/ComboController";
 import TypeFoodController from "../controllers/TypeFoodController";
+import BookingController from "../controllers/BookingController";
 
 
 
@@ -1143,6 +1144,12 @@ let initWebRoutes = (app) => {
 *         type: integer
 *         required: false
 *         description: Movie of schedule
+*       - in: query
+*         name: movieTheaterId
+*         schema:
+*         type: integer
+*         required: false
+*         description: Movie Theater of schedule
 *     responses:  
 *       200: 
 *         description: Success  
@@ -1473,6 +1480,100 @@ let initWebRoutes = (app) => {
  */
     router.delete('/combo/:id', ComboController.handleDeleteCombo);
 
+
+
+    /**
+    * @swagger
+    *  /booking-ticket:
+    *    post:
+    *      summary: Booking ticket films.
+    *      consumes:
+    *        - application/json
+    *      tags:
+    *        - Booking Ticket
+    *      requestBody:
+    *         content:
+    *            application/json:
+    *               schema:
+    *                  type: object
+    *                  properties:
+    *                     cusId:
+    *                         example: 1
+    *                         type: integer
+    *                     movieId:
+    *                         example: 1
+    *                         type: integer
+    *                     showTimeId:
+    *                         example: 1
+    *                         type: integer
+    *                     paymentId:
+    *                         example: 1
+    *                         type: integer
+    *                     voucherCode:
+    *                         example: TESTVOUCHER
+    *                         type: string
+    *                     price:
+    *                         example: 80000
+    *                         type: integer
+    *                     name:
+    *                         example: Khoa Anh
+    *                         type: string
+    *                     email:
+    *                         example: khoadido@gmail.com
+    *                         type: string
+    *                     phoneNumber:
+    *                         example: khoadido@gmail.com
+    *                         type: integer
+    *                     seets:
+    *                         type: array
+    *                         required: false
+    *                         items:
+    *                          type: object
+    *                          properties:
+    *                            seetId:
+    *                              example: 1
+    *                              type: integer
+    *                     combo:
+    *                         type: array
+    *                         required: false
+    *                         items:
+    *                          type: object
+    *                          properties:
+    *                            comboId:
+    *                              example: 1
+    *                              type: integer
+    *                            quanlity:
+    *                              example: 1
+    *                              type: integer
+    *      responses:
+    *        201:
+    *          description: Create room.
+    */
+    router.post('/booking-ticket', BookingController.handleCreateBookingTicket);
+
+
+    router.post('/api/handle-booking', BookingController.handleBookingPayment);
+
+
+    /** 
+ * @swagger 
+ * /ticket/booking: 
+ *   get: 
+ *     tags: ["Booking Ticket"]
+ *     summary: Get a movie by status
+ *     parameters:
+ *       - in: query
+ *         name: bookingId
+ *         schema:
+ *         type: integer
+ *         required: true
+ *         description: Bookingid of ticket to get
+ *     responses:  
+ *       200: 
+ *         description: Success  
+ *   
+ */
+    router.get('/ticket/booking', BookingController.handleGetTicketByBooking);
 
     return app.use("/", router);
 }
