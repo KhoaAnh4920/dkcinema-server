@@ -6,6 +6,8 @@ const { QueryTypes } = require('sequelize');
 
 
 
+// SELECT * FROM "Showtime"  WHERE "premiereDate"  >= now() //
+
 let createNewScheduleMovie = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -68,7 +70,6 @@ let createNewScheduleMovie = (data) => {
                 );
 
                 console.log("listSchedule: ", listSchedule);
-
 
 
                 if (listSchedule && listSchedule.length > 0) {
@@ -143,12 +144,14 @@ let createNewScheduleMovie = (data) => {
                     var givenTime = moment(test2, "HH:mm:ss");
                     var minutesPassed = moment(endTime, "HH:mm:ss").diff(givenTime, "minutes");
 
+                    console.log('minutesPassed: ', minutesPassed);
+
                     console.log("Check duration: ", Math.abs(minutesPassed));
 
-                    if (Math.abs(minutesPassed) !== 15) {
+                    if (Math.abs(minutesPassed) < 16) {
                         resolve({
                             errCode: 3,
-                            errMessage: 'Break time should not exceed 15 minutes'
+                            errMessage: 'Waiting time should not be less than 15 minutes'
                         });
                         return;
                     } else {
@@ -220,13 +223,18 @@ let getScheduleByDate = (data) => {
                             data.roomId &&
                             {
                                 roomId: {
-                                    [Op.or]: [(data.roomId) ? data.roomId : null, null]
+                                    [Op.or]: [(data.roomId) ? +data.roomId : null, null]
                                 }
                             },
                             data.movieId &&
                             {
                                 movieId: {
-                                    [Op.or]: [(data.movieId) ? data.movieId : null, null]
+                                    [Op.or]: [(data.movieId) ? +data.movieId : null, null]
+                                }
+                            },
+                            data.type && {
+                                premiereDate: {
+                                    [Op.gte]: moment().utcOffset(0).startOf('day').subtract(1, "days").format()
                                 }
                             }
                         ]
@@ -235,7 +243,7 @@ let getScheduleByDate = (data) => {
                         { model: db.Movie, as: 'ShowtimeMovie' },
                         {
                             model: db.Room, as: 'RoomShowTime', where: {
-                                movieTheaterId: data.movieTheaterId
+                                movieTheaterId: +data.movieTheaterId
                             }
                         },
                     ],
@@ -246,7 +254,10 @@ let getScheduleByDate = (data) => {
                     nest: true
                 });
 
+                console.log(data.type);
 
+                console.log(moment().utcOffset(0).startOf('day').subtract(1, "days").format());
+                // console.log("listSchedule: ", listSchedule);
 
 
                 // let test = 'SELECT "Showtime".*, "Movie".id AS "MovieID", "Movie"."name"  FROM "Showtime" JOIN "Movie" ON "Showtime"."movieId" = "Movie".id WHERE CAST("premiereDate" AS VARCHAR) LIKE :premiereDate';

@@ -1150,6 +1150,12 @@ let initWebRoutes = (app) => {
 *         type: integer
 *         required: false
 *         description: Movie Theater of schedule
+*       - in: query
+*         name: type
+*         schema:
+*         type: integer
+*         required: false
+*         description: type to get list schedule
 *     responses:  
 *       200: 
 *         description: Success  
@@ -1519,11 +1525,11 @@ let initWebRoutes = (app) => {
     *                         example: Khoa Anh
     *                         type: string
     *                     email:
-    *                         example: khoadido@gmail.com
+    *                         example: khoaanh4920@gmail.com
     *                         type: string
     *                     phoneNumber:
-    *                         example: khoadido@gmail.com
-    *                         type: integer
+    *                         example: +84968617132
+    *                         type: string
     *                     seets:
     *                         type: array
     *                         required: false
@@ -1574,6 +1580,8 @@ let initWebRoutes = (app) => {
  *   
  */
     router.get('/ticket/booking', BookingController.handleGetTicketByBooking);
+
+    router.post('/test-send-mail', BookingController.testSendMail);
 
     return app.use("/", router);
 }

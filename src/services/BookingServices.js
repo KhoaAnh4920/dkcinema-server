@@ -14,7 +14,7 @@ var redirectUrl = "http://localhost:3000/";
 
 // var ipnUrl = "https://57ce-2402-800-6371-a14a-ed0d-ccd6-cbe9-5ced.ngrok.io/api/handle-order";
 
-var notifyUrl = "https://fc6c-27-3-232-90.ap.ngrok.io/api/handle-booking";
+var notifyUrl = "https://64dd-14-161-20-253.ap.ngrok.io/api/handle-booking";
 // var ipnUrl = redirectUrl = "https://webhook.site/454e7b77-f177-4ece-8236-ddf1c26ba7f8";
 var requestType = "captureWallet";
 import emailService from '../services/emailService';
@@ -30,11 +30,14 @@ let createNewBookingTicket = (data) => {
             if (data) {
                 let bookingId = '';
 
-                let res = await db.Booking.create({
+                await db.Booking.create({
                     customerId: data.cusId,
                     price: data.price,
                     voucherId: null,
-                    status: 0
+                    status: 0,
+                    nameCus: data.name,
+                    email: data.email,
+                    phoneNumber: data.phoneNumber
                 }).then(function (x) {
                     if (x.id) {
                         bookingId = x.id;
@@ -54,7 +57,7 @@ let createNewBookingTicket = (data) => {
                         })
                         db.Ticket.bulkCreate(listSeets);
 
-                        combos.map(item => {
+                        (combos.length > 0) && combos.map(item => {
                             let obj = {};
                             obj.bookingId = x.id;
                             obj.comboId = item.comboId;
@@ -67,6 +70,8 @@ let createNewBookingTicket = (data) => {
                     }
                 })
 
+                console.log("bookingId: ", bookingId)
+
                 if (bookingId !== '') {
                     let result = await getMomoPaymentLink({
                         amount: data.price,
@@ -74,8 +79,8 @@ let createNewBookingTicket = (data) => {
                     })
 
                     resolve({
-                        errCode: 2,
-                        errMessage: 'Missing data',
+                        errCode: 0,
+                        errMessage: 'OK',
                         result: result
                     }); // return 
                 }
@@ -216,14 +221,26 @@ let handleBookingPayment = async (req) => {
             plain: true,
         });
 
-
-
         // send mail //
         sendMailBooking(orderCurrent)
 
 
         return result;
     }
+    return false;
+};
+
+let testSendMail = async (req) => {
+
+
+    const orderCurrent = await db.Booking.findOne({
+        where: { id: 13 },
+    });
+
+    console.log("Check orderCurrent: ", orderCurrent);
+
+    sendMailBooking(orderCurrent)
+
     return false;
 };
 
@@ -238,7 +255,7 @@ let sendMailBooking = (data) => {
             } else {
 
                 let ticket = await db.Ticket.findAll({
-                    where: { bookingId: +data.bookingId },
+                    where: { bookingId: +data.id },
                     include: [
                         { model: db.Seet, as: 'TicketSeet' },
                         {
@@ -261,9 +278,11 @@ let sendMailBooking = (data) => {
                 obj.time = ngayChieu + ' - ' + gioChieu;
                 obj.room = ticket[0].TicketShowtime.RoomShowTime.MovieTheaterRoom.tenRap + ' - ' + ticket[0].TicketShowtime.RoomShowTime.name;
                 obj.paymentMethod = 'Ví Điện Tử Momo';
-                obj.price = 1000;
-                obj.name = data.name;
-                obj.email = data.email
+                obj.price = data.price;
+                obj.name = data.nameCus;
+                obj.reciverEmail = data.email;
+                obj.bookingId = data.id
+
 
 
 
@@ -277,7 +296,7 @@ let sendMailBooking = (data) => {
                 obj.seet = '1' + ' - (' + soGhe + ')';
 
                 // send mail //
-                await emailService.sendAttachment(obj);
+                await emailService.sendSimpleEmail(obj);
 
                 resolve({
                     errCode: 0,
@@ -347,7 +366,8 @@ module.exports = {
     createNewBookingTicket,
     getMomoPaymentLink,
     handleBookingPayment,
-    getTicketByBooking
+    getTicketByBooking,
+    testSendMail
 }
 
 

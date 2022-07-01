@@ -18,39 +18,40 @@ let sendSimpleEmail = async (dataSend) => {
 
     // send mail with defined transport object
     let info = await transporter.sendMail({
-        from: '"TestMailReactjs 👻" <khoadido@gmail.com>', // sender address
+        from: '"DK Cinemas Booking Ticket 👻" <khoadido@gmail.com>', // sender address
         to: dataSend.reciverEmail, // list of receivers
         subject: "Thông tin đặt vé", // Subject line
         html: getBodyEmailHTML(dataSend), // html body
     });
 }
 
+// let getBodyEmailHTML = (dataSend) => {
+//     let result = ''
+//     if (dataSend.language === 'vi') {
+//         result =
+//             `
+//         <h3>Xin chào ${dataSend.patientName}!</h3>
+//         <p>Thông tin đặt lịch khám bệnh</p>
+//         <div>Thời gian: ${dataSend.time}</div>
+//         <div>Bác sĩ: ${dataSend.doctorName}</div>
+
+//         <p>Click để xác nhận: </p>
+//         <div>
+//         <a href=${dataSend.redirectLink} target="_blank">Click here</a>
+//         </div>
+
+//         `
+//     }
+
+//     return result;
+// }
+
 let getBodyEmailHTML = (dataSend) => {
     let result = ''
-    if (dataSend.language === 'vi') {
-        result =
-            `
-        <h3>Xin chào ${dataSend.patientName}!</h3>
-        <p>Thông tin đặt lịch khám bệnh</p>
-        <div>Thời gian: ${dataSend.time}</div>
-        <div>Bác sĩ: ${dataSend.doctorName}</div>
 
-        <p>Click để xác nhận: </p>
-        <div>
-        <a href=${dataSend.redirectLink} target="_blank">Click here</a>
-        </div>
-
+    console.log("Check datasend: ", dataSend);
+    result =
         `
-    }
-
-    return result;
-}
-
-let getBodyHTMLEmailRemedy = (dataSend) => {
-    let result = ''
-    if (dataSend.language === 'vi') {
-        result =
-            `
             <!DOCTYPE html>
             <html lang="en">
             
@@ -115,12 +116,12 @@ let getBodyHTMLEmailRemedy = (dataSend) => {
                         width: 70%;
                         height: 500px;
                         border-radius: 10px;
-                        border: 1px solid orange;
+                        border: 1px solid #ffb42b;
             
                     }
             
                     .form-header {
-                        background-color: orange;
+                        background-color: #ffb42b;
                         padding: 3px 2px;
                         border-top-left-radius: 10px;
                         border-top-right-radius: 10px;
@@ -177,41 +178,41 @@ let getBodyHTMLEmailRemedy = (dataSend) => {
             <body>
                 <div class="form-main">
                     <div class="form-header">
-                        <h3>Mã đặt vé của bạn: 257492</h3>
+                        <h3>Mã đặt vé của bạn: ${dataSend.bookingId}</h3>
                     </div>
                     <div class="form-body">
-                        <p>Xin chào <span>Phan Châu Đức</span> </p>
+                        <p>Xin chào <span>${dataSend.name}</span> </p>
                         <p>Chúc mừng bạn đã thanh toán thành công tại DKCINEMAS</p>
                         <p>Đây là thông tin đặt vé của bạn:</p>
             
                         <table>
                             <tr>
                                 <td class="text-left">Mã đặt vé</td>
-                                <td class="text-right">257492</td>
+                                <td class="text-right">${dataSend.bookingId}</td>
                             </tr>
                             <tr>
                                 <td class="text-left">Phim</td>
-                                <td class="text-right">Doreamon</td>
+                                <td class="text-right">${dataSend.nameMovie}</td>
                             </tr>
                             <tr>
                                 <td class="text-left">ngày và giờ chiếu</td>
-                                <td class="text-right">05/06/2022 - 22:00</td>
+                                <td class="text-right">${dataSend.time}</td>
                             </tr>
                             <tr>
                                 <td class="text-left">loại vé và số ghế</td>
-                                <td class="text-right">1 - VIP (F1) - 55.000 VND</td>
+                                <td class="text-right">${dataSend.seet} - ${dataSend.price} VND</td>
                             </tr>
                             <tr>
                                 <td class="text-left">rạp và phòng chiếu</td>
-                                <td class="text-right"> DK landmark - 4</td>
+                                <td class="text-right">${dataSend.room}</td>
                             </tr>
                             <tr>
                                 <td class="text-left">hình thức thanh toán</td>
-                                <td class="text-right">ví điện tử momo</td>
+                                <td class="text-right">${dataSend.paymentMethod}</td>
                             </tr>
                             <tr>
                                 <td class="text-left">tổng tiền</td>
-                                <td class="text-right">55.000 VND</td>
+                                <td class="text-right">${dataSend.price} VND</td>
                             </tr>
                             <tr>
                                 <td>&nbsp;</td>
@@ -226,7 +227,7 @@ let getBodyHTMLEmailRemedy = (dataSend) => {
                             </tr>
                             <tr align="center">
                                 <td colspan="2" class="image">
-                                    <img src="./logo.png" alt="">
+                                    <img style="width: 150px" src="https://res.cloudinary.com/dpo9d3otr/image/upload/v1656596213/Image/Logo/DKCinema_wx0dza.png" alt="">
                                 </td>
                             </tr>
                         </table>
@@ -238,16 +239,6 @@ let getBodyHTMLEmailRemedy = (dataSend) => {
         
 
         `
-    }
-    if (dataSend.language === 'en') {
-        result =
-            `
-        <h3>Dear ${dataSend.patientName}!</h3>
-        <p>Remedy infor in below attachment</p>
-        
-
-        `
-    }
     return result;
 }
 
