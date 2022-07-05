@@ -4,7 +4,6 @@ const crypto = require("crypto");
 const https = require("https");
 import moment from 'moment';
 
-
 //parameters
 var partnerCode = "MOMO";
 var accessKey = "F8BBA842ECF85";
@@ -14,7 +13,7 @@ var redirectUrl = "http://localhost:3000/";
 
 // var ipnUrl = "https://57ce-2402-800-6371-a14a-ed0d-ccd6-cbe9-5ced.ngrok.io/api/handle-order";
 
-var notifyUrl = "https://64dd-14-161-20-253.ap.ngrok.io/api/handle-booking";
+var notifyUrl = "https://fe6f-14-161-20-253.ap.ngrok.io/api/handle-booking";
 // var ipnUrl = redirectUrl = "https://webhook.site/454e7b77-f177-4ece-8236-ddf1c26ba7f8";
 var requestType = "captureWallet";
 import emailService from '../services/emailService';
@@ -34,7 +33,7 @@ let createNewBookingTicket = (data) => {
                     customerId: data.cusId,
                     price: data.price,
                     voucherId: null,
-                    status: 0,
+                    status: -1,
                     nameCus: data.name,
                     email: data.email,
                     phoneNumber: data.phoneNumber
@@ -57,14 +56,16 @@ let createNewBookingTicket = (data) => {
                         })
                         db.Ticket.bulkCreate(listSeets);
 
-                        (combos.length > 0) && combos.map(item => {
-                            let obj = {};
-                            obj.bookingId = x.id;
-                            obj.comboId = item.comboId;
-                            obj.amount = item.quanlity;
-                            listCombo.push(obj);
-                        })
-                        db.Combo_Booking.bulkCreate(listCombo)
+                        if (combos.length > 0) {
+                            combos.map(item => {
+                                let obj = {};
+                                obj.bookingId = x.id;
+                                obj.comboId = item.comboId;
+                                obj.amount = item.quanlity;
+                                listCombo.push(obj);
+                            })
+                            db.Combo_Booking.bulkCreate(listCombo)
+                        }
 
                         // send email booking //
                     }
@@ -172,8 +173,9 @@ let getMomoPaymentLink = async (data) => {
             res.on("data", (body) => {
                 console.log("Body: ");
                 console.log(body);
-                console.log("payUrl: ");
-                console.log(JSON.parse(body).payUrl);
+                // console.log("payUrl: ");
+                // console.log(JSON.parse(body).payUrl);
+                // resolve(body)
                 resolve(JSON.parse(body));
             });
             res.on("end", () => {
@@ -226,8 +228,20 @@ let handleBookingPayment = async (req) => {
 
 
         return result;
+    } else {
+        await db.Combo_Booking.destroy({
+            where: { bookingId: +req.body.extraData }
+        })
+        await db.Ticket.destroy({
+            where: { bookingId: +req.body.extraData }
+        })
+        await db.Booking.destroy({
+            where: { id: +req.body.extraData },
+        })
+
+        return false;
     }
-    return false;
+    // return false;
 };
 
 let testSendMail = async (req) => {
@@ -242,6 +256,23 @@ let testSendMail = async (req) => {
     sendMailBooking(orderCurrent)
 
     return false;
+};
+
+
+let testSignature = async (req) => {
+
+    console.log('req.signature: ', req.body.signature);
+
+    let params = decodeURI(req.body.signature)
+
+    var signature = crypto
+        .createHmac("sha256", secretkey)
+        .update(params)
+        .digest("hex");
+    //console.log("--------------------SIGNATURE----------------");
+    console.log('signature: ', signature);
+
+    return signature;
 };
 
 let sendMailBooking = (data) => {
@@ -362,12 +393,45 @@ let getTicketByBooking = (query) => {
 }
 
 
+let getBookingSeet = (query) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            console.log('query.scheduleId: ', query.scheduleId);
+            let ticket = await db.Ticket.findAll({
+                where: { showTimeId: +query.scheduleId },
+                include: [
+                    { model: db.Seet, as: 'TicketSeet' },
+                    {
+                        model: db.Booking, as: 'BookingTicket', where: { status: 1 }
+                    },
+                ],
+                raw: true,
+                nest: true
+
+
+            })
+            console.log(ticket);
+
+
+            resolve({
+                errCode: 0,
+                data: ticket
+            })
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
+
 module.exports = {
     createNewBookingTicket,
     getMomoPaymentLink,
     handleBookingPayment,
     getTicketByBooking,
-    testSendMail
+    testSendMail,
+    testSignature,
+    getBookingSeet
 }
 
 

@@ -3,7 +3,7 @@ const {
     Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-    class Ranking extends Model {
+    class Banner extends Model {
         /**
          * Helper method for defining associations.
          * This method is not a part of Sequelize lifecycle.
@@ -14,15 +14,18 @@ module.exports = (sequelize, DataTypes) => {
             // define association here//
             // Một rạp có nhiều phòng chiếu //
 
-            Ranking.hasMany(models.Customer, { foreignKey: 'rankId', as: 'RankingCustomer' })
         }
     };
-    Ranking.init({
+    Banner.init({
+        url: DataTypes.STRING,
+        public_id_image: DataTypes.STRING,
         name: DataTypes.STRING,
+        status: DataTypes.BOOLEAN,
+        description: DataTypes.TEXT
     }, {
         sequelize,
-        modelName: 'Ranking',
+        modelName: 'Banner',
         freezeTableName: true
     });
-    return Ranking;
+    return Banner;
 };

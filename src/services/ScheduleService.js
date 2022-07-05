@@ -294,86 +294,33 @@ let getScheduleByDate = (data) => {
 }
 
 
-let getScheduleById = (data) => {
+
+
+let getScheduleById = (scheduleId) => {
     return new Promise(async (resolve, reject) => {
         try {
-            if (data) {
-
-                console.log(typeof (data.date));
-
-                // var date_not_formatted = new Date(+data.date);
-
-                // console.log(date_not_formatted);
-
-                let dateFormat = moment(new Date(+data.date)).format('YYYY-MM-DD');
-
-                console.log(dateFormat);
-
-                let listSchedule = await db.Showtime.findAll({
-                    where: {
-                        // ["premiereDate::timestamp"]: {
-                        //     [Op.iLike]: `%${data.date}%`
-                        // },
-                        [Op.and]: [
-                            data.date &&
-                            db.sequelize.where(
-                                db.sequelize.cast(db.sequelize.col("Showtime.premiereDate"), "varchar"),
-                                { [Op.iLike]: `%${dateFormat}%` }
-                            ),
-                            data.roomId &&
-                            {
-                                roomId: {
-                                    [Op.or]: [(data.roomId) ? data.roomId : null, null]
-                                }
-                            },
-                            data.movieId &&
-                            {
-                                movieId: {
-                                    [Op.or]: [(data.movieId) ? data.movieId : null, null]
-                                }
-                            }
-                        ]
+            let schedule = await db.Showtime.findOne({
+                where: { id: scheduleId },
+                include: [
+                    {
+                        model: db.Movie, as: 'ShowtimeMovie', include: [
+                            { model: db.ImageMovie, as: 'ImageOfMovie' },
+                        ],
                     },
-                    include: [
-                        { model: db.Movie, as: 'ShowtimeMovie' },
-                        { model: db.Room, as: 'RoomShowTime' },
-                    ],
-                    order: [
-                        ['id', 'DESC'],
-                    ],
-                    raw: true,
-                    nest: true
-                });
+                    { model: db.Room, as: 'RoomShowTime', include: { model: db.MovieTheater, as: 'MovieTheaterRoom' } }
+                ],
 
+                raw: false,
+                nest: true
+            });
 
-
-
-                // let test = 'SELECT "Showtime".*, "Movie".id AS "MovieID", "Movie"."name"  FROM "Showtime" JOIN "Movie" ON "Showtime"."movieId" = "Movie".id WHERE CAST("premiereDate" AS VARCHAR) LIKE :premiereDate';
-
-                // if (data.roomId) {
-                //     test += ' AND "Showtime"."roomId" = :roomId';
-                // }
-                // if (data.movieId) {
-                //     test += ' AND "Showtime"."movieId" = :movieId';
-                // }
-                // let listSchedule = await db.sequelize.query(
-                //     test,
-                //     {
-                //         replacements: { premiereDate: `%${data.date}%`, roomId: data.roomId, movieId: data.movieId },
-                //         type: QueryTypes.SELECT
-                //     }
-                // );
-                resolve({
-                    errCode: 0,
-                    errMessage: 'OK',
-                    data: listSchedule
-                }); // return 
-            }
+            console.log(schedule);
 
             resolve({
-                errCode: 2,
-                errMessage: 'Missing data'
-            }); // return 
+                errCode: 0,
+                errMessage: 'OK',
+                data: schedule
+            });
 
         } catch (e) {
             reject(e);

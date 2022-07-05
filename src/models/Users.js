@@ -35,6 +35,7 @@ module.exports = (sequelize, DataTypes) => {
         roleId: DataTypes.INTEGER,
         phone: DataTypes.STRING,
         userToken: DataTypes.STRING,
+        externalid: DataTypes.STRING,
     }, {
         sequelize,
         modelName: 'Users',
@@ -42,3 +43,4 @@ module.exports = (sequelize, DataTypes) => {
     });
     return Users;
 };
+

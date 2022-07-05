@@ -76,10 +76,11 @@ let handleUserLogin = async (email, password) => {
             let isExist = await checkUserEmail(email);
             if (isExist) {
                 let user = await db.Users.findOne({
-                    where: { email: email },
-                    attributes: ['id', 'email', 'roleId', 'password', 'fullName', 'avatar'],
+                    where: { email: email, roleId: 4 },
+                    attributes: ['id', 'email', 'roleId', 'password', 'fullName', 'avatar', 'externalid', 'phone'],
                     raw: true
                 })
+                console.log('users: ', user);
                 if (user) {
                     // compare pass //
                     let check = bcrypt.compareSync(password, user.password);
@@ -91,10 +92,21 @@ let handleUserLogin = async (email, password) => {
                         userData.errorCode = 0;
                         userData.errMessage = `Ok`;
 
+                        let cus = await db.Customer.findOne({
+                            where: { externalId: user.externalid }
+                        })
+
+                        console.log('cus: ', cus);
+
                         delete user.password; // ko lay password cua user //
+                        delete user.id;
+
+                        user.id = cus.id;
+
+                        console.log('user: ', user);
                         userData.user = user;
 
-                        // Add token code //
+                        // // Add token code //
                         userData.user.accessToken = jwt.sign({ email: user.email, fullName: user.fullName, _id: user.id, roleId: user.roleId }, 'dkcinema');
 
                     } else {
@@ -283,6 +295,16 @@ let getUserByRole = (roleId) => {
     })
 }
 
+let makeid = (length) => {
+    var result = '';
+    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var charactersLength = characters.length;
+    for (var i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() *
+            charactersLength));
+    }
+    return result;
+}
 
 let createNewUser = (data) => {
     return new Promise(async (resolve, reject) => {
@@ -306,6 +328,21 @@ let createNewUser = (data) => {
                     avatar = 'https://res.cloudinary.com/cdmedia/image/upload/v1646921892/image/avatar/Unknown_b4jgka.png';
                 }
 
+                let externalId = null;
+
+                if (data.roleId === 4) {
+                    externalId = makeid(16);
+
+                    await db.Customer.create({
+                        email: data.email,
+                        phone: data.phone,
+                        fullName: data.fullName,
+                        point: null,
+                        rankId: null,
+                        externalId: externalId
+                    })
+                }
+
                 await db.Users.create({
                     email: data.email,
                     password: hashPass,
@@ -321,7 +358,8 @@ let createNewUser = (data) => {
                     public_id_image: (result && result.public_id) ? result.public_id : '',
                     cityCode: data.cityCode,
                     districtCode: data.districtCode,
-                    wardCode: data.wardCode
+                    wardCode: data.wardCode,
+                    externalId: (data.roleId === 4) ? externalId : null
                 })
 
                 resolve({
@@ -464,6 +502,8 @@ let getAllRoles = () => {
 }
 
 
+
+
 let signUpNewUser = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -479,20 +519,35 @@ let signUpNewUser = (data) => {
 
                 let avatar = 'https://res.cloudinary.com/cdmedia/image/upload/v1646921892/image/avatar/Unknown_b4jgka.png';
 
+                // Create external Id
+
+                let externalId = makeid(16);
+
                 await db.Users.create({
                     email: data.email,
                     password: hashPass,
                     fullName: data.fullName,
+                    phone: data.phone,
                     isActive: false,
                     gender: data.gender,
                     birthday: data.birthday,
-                    roleId: 1,
+                    roleId: 4,
                     avatar: avatar,
                     public_id_image: '',
                     cityCode: data.cityCode,
                     districtCode: data.districtCode,
                     wardCode: data.wardCode,
-                    address: data.addres
+                    address: data.addres,
+                    externalId: externalId
+                })
+
+                await db.Customer.create({
+                    email: data.email,
+                    phone: data.phone,
+                    fullName: data.fullName,
+                    point: null,
+                    rankId: null,
+                    externalId: externalId
                 })
 
                 resolve({

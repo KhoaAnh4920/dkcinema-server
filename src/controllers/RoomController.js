@@ -32,6 +32,12 @@ let handleGetAllRoom = async (req, res) => {
 let handleGetRoomById = async (req, res) => {
     let message = '';
 
+    if (!req.params.roomId) {
+        return res.status(200).json({
+            errCode: 1,
+            errMessage: "Missing id"
+        })
+    }
     if (req.params && req.params.roomId)
         message = await RoomService.getRoomById(req.params.roomId);
     return res.status(200).json(message);
