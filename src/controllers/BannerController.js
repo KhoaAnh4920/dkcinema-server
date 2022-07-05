@@ -9,7 +9,6 @@ let handleCreateNewBanner = async (req, res) => {
 
 let handleGetBanner = async (req, res) => {
     let message = '';
-    console.log(req.query);
     message = await BannerServices.getListBanner(req.query);
     return res.status(200).json(message);
 }

@@ -16,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
             Customer.belongsTo(models.Ranking, { foreignKey: 'rankId', targetKey: 'id', as: 'RankingCustomer' });
             Customer.hasMany(models.Booking, { foreignKey: 'customerId', as: 'CustomerBooking' })
             Customer.hasMany(models.Comment, { foreignKey: 'cusId', as: 'CustomerComment' })
+            Customer.belongsToMany(models.News, { as: 'CustomerInNewsVote', through: models.Vote_News, foreignKey: 'newsId' });
         }
     };
     Customer.init({

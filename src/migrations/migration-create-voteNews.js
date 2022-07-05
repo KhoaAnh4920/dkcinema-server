@@ -1,7 +1,13 @@
 'use strict';
 module.exports = {
     up: async (queryInterface, Sequelize) => {
-        await queryInterface.createTable('News', {
+        await queryInterface.createTable('Vote_News', {
+
+            // comment: DataTypes.STRING,
+            // rating: DataTypes.INTEGER,
+            // commentCount: DataTypes.INTEGER,
+            // cusId: DataTypes.INTEGER,
+            // newsId: DataTypes.INTEGER,
 
 
             id: {
@@ -10,29 +16,16 @@ module.exports = {
                 primaryKey: true,
                 type: Sequelize.INTEGER
             },
-            tomTat: {
-                type: Sequelize.TEXT
-            },
-            noiDung: {
-                type: Sequelize.TEXT
-            },
-            userId: {
-                type: Sequelize.INTEGER
-            },
-            type: {
-                type: Sequelize.INTEGER
-            },
-            thumbnail: {
-                type: Sequelize.STRING
-            },
-            public_id_url: {
-                type: Sequelize.STRING
-            },
             rating: {
-                type: Sequelize.FLOAT
+                allowNull: true,
+                type: Sequelize.INTEGER
             },
-            status: {
-                type: Sequelize.BOOLEAN
+            cusId: {
+                allowNull: true,
+                type: Sequelize.INTEGER
+            },
+            newsId: {
+                type: Sequelize.INTEGER
             },
             createdAt: {
                 allowNull: true,
@@ -45,6 +38,6 @@ module.exports = {
         });
     },
     down: async (queryInterface, Sequelize) => {
-        await queryInterface.dropTable('News');
+        await queryInterface.dropTable('Vote_News');
     }
 };
