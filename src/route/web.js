@@ -11,6 +11,9 @@ import FoodController from "../controllers/FoodController";
 import ComboController from "../controllers/ComboController";
 import TypeFoodController from "../controllers/TypeFoodController";
 import BookingController from "../controllers/BookingController";
+import BannerController from "../controllers/BannerController";
+var multipart = require('connect-multiparty');
+var multipartMiddleware = multipart();
 
 
 
@@ -1165,6 +1168,27 @@ let initWebRoutes = (app) => {
 
 
     /** 
+* @swagger 
+* /schedule/{scheduleId}: 
+*   get: 
+*     tags: ["ScheduleMovie"]
+*     summary: Get a Schedule  by ID
+*     parameters:
+*       - in: path
+*         name: scheduleId
+*         schema:
+*         type: integer
+*         required: true
+*         description: Numeric ID of the Schedule to get
+*     responses:  
+*       200: 
+*         description: Success  
+*   
+*/
+    router.get('/schedule/:scheduleId', ScheduleController.handleGetScheduleById);
+
+
+    /** 
  * @swagger 
  * /schedule/{scheduleId}: 
  *   delete: 
@@ -1581,7 +1605,187 @@ let initWebRoutes = (app) => {
  */
     router.get('/ticket/booking', BookingController.handleGetTicketByBooking);
 
+
+    /** 
+ * @swagger 
+ * /booking-seet: 
+ *   get: 
+ *     tags: ["Booking Ticket"]
+ *     summary: Get a movie by status
+ *     parameters:
+ *       - in: query
+ *         name: scheduleId
+ *         schema:
+ *         type: integer
+ *         required: true
+ *         description: Get seet was booking in schedule
+ *     responses:  
+ *       200: 
+ *         description: Success  
+ *   
+ */
+    router.get('/booking-seet', BookingController.handleGetBookingSeet);
+
+
+
+    /**
+* @swagger
+*  /banner:
+*    post:
+*      summary: Create new banner.
+*      consumes:
+*        - application/json
+*      tags:
+*        - Banner
+*      requestBody:
+*         content:
+*            application/json:
+*               schema:
+*                  type: object
+*                  properties:
+*                   name:
+*                     type: string
+*                   description:
+*                     type: string
+*                   url:
+*                     example: "https://res.cloudinary.com/cdmedia/image/upload/v1646921892/image/avatar/Unknown_b4jgka.png"
+*                     type: string
+*                   fileName:
+*                     example: "file-name.png"
+*                     type: string
+*      responses:
+*        201:
+*          description: Create Banner.
+*/
+    router.post('/banner', BannerController.handleCreateNewBanner);
+
+    /** 
+* @swagger 
+* /get-list-banner: 
+*   get: 
+*     tags: ["Banner"]
+*     summary: Get list Banner
+*     parameters:
+*       - in: query
+*         name: status
+*         schema:
+*         type: integer
+*         required: false
+*         description: status banner
+*     responses:  
+*       200: 
+*         description: Success  
+*   
+*/
+    router.get('/get-list-banner', BannerController.handleGetBanner);
+
+
+    /** 
+* @swagger 
+* /banner/{id}: 
+*   get: 
+*     tags: ["Banner"]
+*     summary: Get a detail Banner by ID
+*     parameters:
+*       - in: path
+*         name: id
+*         schema:
+*         type: integer
+*         required: true
+*         description: Numeric ID of the Banner to get
+*     responses:  
+*       200: 
+*         description: Success  
+*   
+*/
+    router.get('/banner/:id', BannerController.handleGetDetailBanner);
+
+
+    /**
+* @swagger
+*  /status/banner:
+*    put:
+*      summary: Update status banner.
+*      consumes:
+*        - application/json
+*      tags:
+*        - Banner
+*      requestBody:
+*         content:
+*            application/json:
+*               schema:
+*                  type: object
+*                  properties:
+*                    id:
+*                      type: integer
+*                    status:
+*                      type: integer
+*      responses:
+*        201:
+*          description: OK!
+*/
+    router.put('/status/banner', BannerController.handleUpdateStatusBanner);
+
+
+    /**
+* @swagger
+*  /banner:
+*    put:
+*      summary: Admin edit banner.
+*      consumes:
+*        - application/json
+*      tags:
+*        - Banner
+*      requestBody:
+*         content:
+*            application/json:
+*               schema:
+*                  type: object
+*                  properties:
+*                     id:
+*                       type: integer
+*                     name:
+*                       type: string
+*                     description:
+*                       type: string
+*                     url:
+*                       type: string
+*                     fileName:
+*                       type: string
+*      responses:
+*        201:
+*          description: Admin update Banner!
+*/
+    router.put('/banner', BannerController.handleEditBanner);
+
+
+    /** 
+ * @swagger 
+ * /banner/{id}: 
+ *   delete: 
+ *     tags: ["Banner"]
+ *     summary: Delete Banner
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *         type: integer
+ *         required: true
+ *         description: Numeric ID of the banner to delete
+ *     responses:  
+ *       200: 
+ *         description: Success  
+ *   
+ */
+    router.delete('/banner/:id', BannerController.handleDeleteBanner);
+
+
     router.post('/test-send-mail', BookingController.testSendMail);
+
+    router.post('/test-signature', BookingController.testSignature);
+
+    router.post('/upload_files', multipartMiddleware, BookingController.testUpload);
+
 
     return app.use("/", router);
 }

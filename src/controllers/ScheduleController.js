@@ -33,8 +33,18 @@ let handleDeleteSchedule = async (req, res) => {
 }
 
 
+let handleGetScheduleById = async (req, res) => {
+    let message = '';
+    if (req.params && req.params.scheduleId)
+        message = await ScheduleService.getScheduleById(req.params.scheduleId);
+    return res.status(200).json(message);
+}
+
+
+
 module.exports = {
     handleCreateNewScheduleMovie,
     handleGetScheduleByDate,
-    handleDeleteSchedule
+    handleDeleteSchedule,
+    handleGetScheduleById
 }

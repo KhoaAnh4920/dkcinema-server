@@ -26,9 +26,9 @@ module.exports = {
         allowNull: true,
         type: Sequelize.INTEGER
       },
-      cusId: {
+      externalId: {
         allowNull: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING
       },
       createdAt: {
         allowNull: true,
