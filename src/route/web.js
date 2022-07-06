@@ -12,6 +12,7 @@ import ComboController from "../controllers/ComboController";
 import TypeFoodController from "../controllers/TypeFoodController";
 import BookingController from "../controllers/BookingController";
 import BannerController from "../controllers/BannerController";
+import NewsController from "../controllers/NewsController";
 var multipart = require('connect-multiparty');
 var multipartMiddleware = multipart();
 
@@ -1778,6 +1779,242 @@ let initWebRoutes = (app) => {
  *   
  */
     router.delete('/banner/:id', BannerController.handleDeleteBanner);
+
+
+
+    /**
+* @swagger
+*  /news:
+*    post:
+*      summary: Create new post.
+*      consumes:
+*        - application/json
+*      tags:
+*        - News
+*      requestBody:
+*         content:
+*            application/json:
+*               schema:
+*                  type: object
+*                  properties:
+*                   noiDung:
+*                     type: string
+*                   tomTat:
+*                     type: string
+*                   userId:
+*                     type: integer
+*                   type:
+*                     example: 1
+*                     type: integer
+*                   thumbnail:
+*                     example: "https://res.cloudinary.com/cdmedia/image/upload/v1646921892/image/avatar/Unknown_b4jgka.png"
+*                     type: string
+*                   fileName:
+*                     example: "file-name.png"
+*                     type: string
+*      responses:
+*        201:
+*          description: Create Banner.
+*/
+    router.post('/news', NewsController.handleCreateNews);
+
+
+
+    /** 
+* @swagger 
+* /get-list-news: 
+*   get: 
+*     tags: ["News"]
+*     summary: Get list News
+*     parameters:
+*       - in: query
+*         name: status
+*         schema:
+*         type: integer
+*         required: false
+*         description: status post
+*       - in: query
+*         name: type
+*         schema:
+*         type: integer
+*         required: false
+*         description: type post
+*     responses:  
+*       200: 
+*         description: Success  
+*   
+*/
+    router.get('/get-list-news', NewsController.handleGetNews);
+
+
+    /** 
+* @swagger 
+* /news/{id}: 
+*   get: 
+*     tags: ["News"]
+*     summary: Get a detail News by ID
+*     parameters:
+*       - in: path
+*         name: id
+*         schema:
+*         type: integer
+*         required: true
+*         description: Numeric ID of the News to get
+*     responses:  
+*       200: 
+*         description: Success  
+*   
+*/
+    router.get('/news/:id', NewsController.handleGetDetailNews);
+
+
+    /**
+* @swagger
+*  /status/news:
+*    put:
+*      summary: Update status news.
+*      consumes:
+*        - application/json
+*      tags:
+*        - News
+*      requestBody:
+*         content:
+*            application/json:
+*               schema:
+*                  type: object
+*                  properties:
+*                    id:
+*                      type: integer
+*                    status:
+*                      type: integer
+*      responses:
+*        201:
+*          description: OK!
+*/
+    router.put('/status/news', NewsController.handleUpdateStatusNews);
+
+
+
+
+    /**
+* @swagger
+*  /news:
+*    put:
+*      summary: Admin edit post.
+*      consumes:
+*        - application/json
+*      tags:
+*        - News
+*      requestBody:
+*         content:
+*            application/json:
+*               schema:
+*                  type: object
+*                  properties:
+*                     id:
+*                       type: integer
+*                     noiDung:
+*                       type: string
+*                     tomTat:
+*                       type: string
+*                     type:
+*                       example: 1
+*                       type: integer
+*                     thumbnail:
+*                       type: string
+*                     fileName:
+*                       type: string
+*      responses:
+*        201:
+*          description: Admin update Banner!
+*/
+    router.put('/news', NewsController.handleEditNews);
+
+
+
+    /** 
+ * @swagger 
+ * /news/{id}: 
+ *   delete: 
+ *     tags: ["News"]
+ *     summary: Delete News
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *         type: integer
+ *         required: true
+ *         description: Numeric ID of the news to delete
+ *     responses:  
+ *       200: 
+ *         description: Success  
+ *   
+ */
+    router.delete('/news/:id', NewsController.handleDeleteNews);
+
+
+
+    /**
+* @swagger
+*  /news/comment:
+*    post:
+*      summary: Comment in post.
+*      consumes:
+*        - application/json
+*      tags:
+*        - News
+*      requestBody:
+*         content:
+*            application/json:
+*               schema:
+*                  type: object
+*                  properties:
+*                   comment:
+*                     type: string
+*                   rating:
+*                     type: integer
+*                   cusId:
+*                     example: 1
+*                     type: integer
+*                   newsId:
+*                     example: 1
+*                     type: integer
+*      responses:
+*        201:
+*          description: Post comment.
+*/
+    router.post('/news/comment', NewsController.handlePostComment);
+
+
+    /**
+* @swagger
+*  /news/vote:
+*    post:
+*      summary: Comment in post.
+*      consumes:
+*        - application/json
+*      tags:
+*        - News
+*      requestBody:
+*         content:
+*            application/json:
+*               schema:
+*                  type: object
+*                  properties:
+*                   rating:
+*                     type: integer
+*                   cusId:
+*                     example: 1
+*                     type: integer
+*                   newsId:
+*                     example: 1
+*                     type: integer
+*      responses:
+*        201:
+*          description: Rating news.
+*/
+    router.post('/news/vote', NewsController.handleVoteRating);
+
 
 
     router.post('/test-send-mail', BookingController.testSendMail);

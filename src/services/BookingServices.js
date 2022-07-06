@@ -212,7 +212,7 @@ let handleBookingPayment = async (req) => {
         const orderCurrent = await db.Booking.findOne({
             where: { id: +req.body.extraData },
         });
-        console.log("Check orderCurrent: ", orderCurrent);
+
         // const orderCurrentData = orderCurrent.dataValues;
         // console.log("orderCurrentData dataValues: ", orderCurrentData);
         orderCurrent.status = 1;
