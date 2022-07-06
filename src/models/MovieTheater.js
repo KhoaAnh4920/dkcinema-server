@@ -16,7 +16,8 @@ module.exports = (sequelize, DataTypes) => {
 
             MovieTheater.hasMany(models.Room, { foreignKey: 'movieTheaterId', as: 'MovieTheaterRoom' })
             MovieTheater.hasMany(models.ImageMovieTheater, { foreignKey: 'movieTheaterId', as: 'MovieTheaterImage' })
-            MovieTheater.belongsTo(models.Users, { foreignKey: 'userId', targetKey: 'id', as: 'UserMovieTheater' });
+            // MovieTheater.belongsTo(models.Users, { foreignKey: 'userId', targetKey: 'id', as: 'UserMovieTheater' });
+            MovieTheater.hasMany(models.Users, { foreignKey: 'movietheaterid', as: 'UserMovieTheater' })
         }
     };
     MovieTheater.init({
@@ -26,7 +27,6 @@ module.exports = (sequelize, DataTypes) => {
         districtCode: DataTypes.INTEGER,
         wardCode: DataTypes.INTEGER,
         address: DataTypes.STRING,
-        userId: DataTypes.INTEGER,
     }, {
         sequelize,
         modelName: 'MovieTheater',
@@ -34,3 +34,5 @@ module.exports = (sequelize, DataTypes) => {
     });
     return MovieTheater;
 };
+
+

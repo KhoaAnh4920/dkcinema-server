@@ -183,25 +183,25 @@ let initWebRoutes = (app) => {
     router.get('/role/users/:roleId', UserController.handleGetUserByRoles);
 
 
-    /** 
- * @swagger 
- * /movieTheater/users/{userId}: 
- *   get: 
- *     tags: ["Users"]
- *     summary: Get a movieTheater by userId
- *     parameters:
- *       - in: path
- *         name: userId
- *         schema:
- *         type: integer
- *         required: true
- *         description: Get a movieTheater by userId
- *     responses:  
- *       200: 
- *         description: Success  
- *   
- */
-    router.get('/movieTheater/users/:userId', UserController.handleGetMovieTheaterByUser);
+    //     /** 
+    //  * @swagger 
+    //  * /movieTheater/users/{userId}: 
+    //  *   get: 
+    //  *     tags: ["Users"]
+    //  *     summary: Get a movieTheater by userId
+    //  *     parameters:
+    //  *       - in: path
+    //  *         name: userId
+    //  *         schema:
+    //  *         type: integer
+    //  *         required: true
+    //  *         description: Get a movieTheater by userId
+    //  *     responses:  
+    //  *       200: 
+    //  *         description: Success  
+    //  *   
+    //  */
+    //     router.get('/movieTheater/users/:userId', UserController.handleGetMovieTheaterByUser);
 
 
 
@@ -1584,6 +1584,40 @@ let initWebRoutes = (app) => {
 
 
     router.post('/api/handle-booking', BookingController.handleBookingPayment);
+
+
+
+    /** 
+* @swagger 
+* /get-list-booking: 
+*   get: 
+*     tags: ["Booking Ticket"]
+*     summary: Get list booking
+*     parameters:
+*       - in: query
+*         name: date
+*         schema:
+*         type: string
+*         required: false
+*         description: Date of booking
+*       - in: query
+*         name: movieTheaterId
+*         schema:
+*         type: integer
+*         required: false
+*         description: Movie Theater of booking
+*       - in: query
+*         name: status
+*         schema:
+*         type: integer
+*         required: false
+*         description: status to get list booking
+*     responses:  
+*       200: 
+*         description: Success  
+*   
+*/
+    router.get('/get-list-booking', BookingController.handleGetAllBooking);
 
 
     /** 

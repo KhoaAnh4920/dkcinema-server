@@ -134,6 +134,19 @@ let handleGetBookingSeet = async (req, res) => {
 }
 
 
+let handleGetAllBooking = async (req, res) => {
+    let message = await BookingServices.getAllBooking(req.query);;
+    console.log(req.query);
+    // if (req.query)
+    //     message = await ScheduleService.getAllBooking(req.query);
+    // else
+    //     return res.status(200).json({
+    //         errCode: 1,
+    //         errMessage: "Missing params"
+    //     })
+    return res.status(200).json(message);
+}
+
 
 module.exports = {
     handleCreateBookingTicket,
@@ -142,5 +155,6 @@ module.exports = {
     handleGetBookingSeet,
     testSendMail,
     testSignature,
-    testUpload
+    testUpload,
+    handleGetAllBooking
 }

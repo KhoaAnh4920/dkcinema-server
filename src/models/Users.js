@@ -15,7 +15,8 @@ module.exports = (sequelize, DataTypes) => {
             // Một người dùng thuộc 1 role //
             Users.belongsTo(models.Roles, { foreignKey: 'roleId', targetKey: 'id', as: 'UserRoles' })
             Users.hasMany(models.News, { foreignKey: 'userId', as: 'UserNews' })
-            Users.hasOne(models.MovieTheater, { foreignKey: 'userId', as: 'UserMovieTheater' });
+            // Users.hasOne(models.MovieTheater, { foreignKey: 'userId', as: 'UserMovieTheater' });
+            Users.belongsTo(models.MovieTheater, { foreignKey: 'movietheaterid', targetKey: 'id', as: 'UserMovieTheater' })
         }
     };
     Users.init({
@@ -36,6 +37,7 @@ module.exports = (sequelize, DataTypes) => {
         phone: DataTypes.STRING,
         userToken: DataTypes.STRING,
         externalid: DataTypes.STRING,
+        movietheaterid: DataTypes.STRING,
     }, {
         sequelize,
         modelName: 'Users',

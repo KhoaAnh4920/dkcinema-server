@@ -20,6 +20,7 @@ let handleUpdateRoom = async (req, res) => {
 
 
 let handleGetAllRoom = async (req, res) => {
+    console.log(req.query);
     let room = await RoomService.getAllRoom(req.query);
     return res.status(200).json({
         errCode: 0,

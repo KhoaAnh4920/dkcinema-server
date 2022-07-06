@@ -24,7 +24,7 @@ const authToken = async (req, res, next) => {
     // Authenticate token
     try {
         const user = await jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-        console.log("Check user: ", user);
+
         if (user && user.roleId === 1)
             next();
         else {
@@ -50,4 +50,3 @@ const authToken = async (req, res, next) => {
 };
 
 module.exports = authToken;
-

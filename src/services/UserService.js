@@ -137,7 +137,7 @@ let handleAdminLogin = async (email, password) => {
             if (isExist) {
                 let user = await db.Users.findOne({
                     where: { email: email },
-                    attributes: ['id', 'email', 'roleId', 'password', 'fullName', 'avatar'],
+                    attributes: ['id', 'email', 'roleId', 'password', 'fullName', 'avatar', 'movietheaterid'],
                     raw: true
                 })
                 if (user) {
@@ -145,12 +145,13 @@ let handleAdminLogin = async (email, password) => {
                     let check = bcrypt.compareSync(password, user.password);
 
                     if (check) {
-
+                        // Check có thuộc rạp //
                         if (user.roleId === 2) {
-                            // Check có quản lý rạp ko //
-                            let dataRes = await getMovieTheaterByUser(user.id);
-                            console.log("Check dataRes: ", dataRes);
-                            if (dataRes.data === null) {
+
+
+                            // let dataRes = await getMovieTheaterByUser(user.id);
+
+                            if (!user.movietheaterid) {
                                 console.log("Ok");
                                 userData.errorCode = 4;
                                 userData.errMessage = `Unmanaged users cinema`;
@@ -166,7 +167,7 @@ let handleAdminLogin = async (email, password) => {
 
                             // Add token code //
                             userData.user.accessToken = jwt.sign({ email: user.email, fullName: user.fullName, _id: user.id, roleId: user.roleId }, 'dkcinema');
-                            userData.user.movieTheaterId = dataRes.data.id
+                            userData.user.movieTheaterId = user.movietheaterid;
 
                         } else {
                             userData.errorCode = 0;
@@ -210,6 +211,7 @@ let getAllUser = () => {
                 },
                 include: [
                     { model: db.Roles, as: 'UserRoles' },
+                    { model: db.MovieTheater, as: 'UserMovieTheater' },
                 ],
                 raw: true,
                 nest: true
@@ -232,6 +234,7 @@ let getUserById = (userId) => {
                 },
                 include: [
                     { model: db.Roles, as: 'UserRoles' },
+                    { model: db.MovieTheater, as: 'UserMovieTheater' },
                 ],
                 raw: true,
                 nest: true
@@ -248,25 +251,25 @@ let getUserById = (userId) => {
     })
 }
 
-let getMovieTheaterByUser = (userId) => {
-    return new Promise(async (resolve, reject) => {
-        try {
-            let movieTheater = await db.MovieTheater.findOne({
-                where: { userId: userId },
-                raw: true,
-                nest: true
-            })
+// let getMovieTheaterByUser = (userId) => {
+//     return new Promise(async (resolve, reject) => {
+//         try {
+//             let movieTheater = await db.MovieTheater.findOne({
+//                 where: { userId: userId },
+//                 raw: true,
+//                 nest: true
+//             })
 
-            resolve({
-                errCode: 0,
-                errMessage: 'OK',
-                data: movieTheater
-            });
-        } catch (e) {
-            reject(e);
-        }
-    })
-}
+//             resolve({
+//                 errCode: 0,
+//                 errMessage: 'OK',
+//                 data: movieTheater
+//             });
+//         } catch (e) {
+//             reject(e);
+//         }
+//     })
+// }
 
 
 let getUserByRole = (roleId) => {
@@ -343,6 +346,8 @@ let createNewUser = (data) => {
                     })
                 }
 
+                console.log('data: ', data);
+
                 await db.Users.create({
                     email: data.email,
                     password: hashPass,
@@ -359,7 +364,8 @@ let createNewUser = (data) => {
                     cityCode: data.cityCode,
                     districtCode: data.districtCode,
                     wardCode: data.wardCode,
-                    externalId: (data.roleId === 4) ? externalId : null
+                    externalid: (data.roleId === 4) ? externalId : null,
+                    movietheaterid: (data.movietheaterid) ? data.movietheaterid : null
                 })
 
                 resolve({
@@ -416,6 +422,7 @@ let updateUser = (data) => {
                     user.districtCode = data.districtCode;
                     user.wardCode = data.wardCode;
                     user.address = data.address;
+                    user.movietheaterid = (data.movietheaterid) ? data.movietheaterid : null
 
                     if (data.avatar && data.fileName) {
                         user.avatar = result.secure_url;
@@ -470,6 +477,13 @@ let deleteUser = (id) => {
         await db.Users.destroy({
             where: { id: id }
         });
+
+        if (user.roleId === 4) {
+            await db.Customer.destroy({
+                where: { externalId: user.externalid }
+            });
+        }
+
         resolve({
             errCode: 0,
             errMessage: "Delete user ok"
@@ -500,7 +514,6 @@ let getAllRoles = () => {
         }
     })
 }
-
 
 
 
@@ -538,7 +551,7 @@ let signUpNewUser = (data) => {
                     districtCode: data.districtCode,
                     wardCode: data.wardCode,
                     address: data.addres,
-                    externalId: externalId
+                    externalid: externalId
                 })
 
                 await db.Customer.create({
@@ -576,6 +589,6 @@ module.exports = {
     getAllRoles,
     signUpNewUser,
     getUserByRole,
-    getMovieTheaterByUser,
+    // getMovieTheaterByUser,
     handleAdminLogin
 }
