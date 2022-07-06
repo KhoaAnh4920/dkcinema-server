@@ -38,7 +38,7 @@ let getAllMovieTheater = () => {
         try {
             let movieTheater = await db.MovieTheater.findAll({
                 include: [
-                    { model: db.Users, as: 'UserMovieTheater' },
+                    // { model: db.Users, as: 'UserMovieTheater' },
                     { model: db.ImageMovieTheater, as: 'MovieTheaterImage' },
                 ],
                 raw: true,
@@ -53,6 +53,7 @@ let getAllMovieTheater = () => {
 }
 
 
+
 let createNewMovieTheater = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -64,7 +65,7 @@ let createNewMovieTheater = (data) => {
                 cityCode: data.cityCode,
                 districtCode: data.districtCode,
                 wardCode: data.wardCode,
-                userId: data.userId,
+                // userId: data.userId,
             })
 
             if (resMovieTheater && resMovieTheater.dataValues) {
@@ -143,7 +144,7 @@ let updateMovieTheater = (data) => {
                     movieTheater.tenRap = data.tenRap;
                     movieTheater.soDienThoai = data.soDienThoai;
                     movieTheater.address = data.address;
-                    movieTheater.userId = data.userId;
+                    // movieTheater.userId = data.userId;
                     movieTheater.cityCode = data.cityCode;
                     movieTheater.districtCode = data.districtCode;
                     movieTheater.wardCode = data.wardCode;
@@ -174,7 +175,7 @@ let getMovieTheaterById = (movieTheaterId) => {
                 where: { id: movieTheaterId },
 
                 include: [
-                    { model: db.Users, as: 'UserMovieTheater' },
+                    // { model: db.Users, as: 'UserMovieTheater' },
                     { model: db.ImageMovieTheater, as: 'MovieTheaterImage' },
                 ],
                 raw: true,

@@ -84,13 +84,13 @@ let handleGetUserByRoles = async (req, res) => {
     return res.status(200).json(message);
 }
 
-let handleGetMovieTheaterByUser = async (req, res) => {
-    let message = '';
+// let handleGetMovieTheaterByUser = async (req, res) => {
+//     let message = '';
 
-    if (req.params && req.params.userId)
-        message = await UserService.getMovieTheaterByUser(req.params.userId);
-    return res.status(200).json(message);
-}
+//     if (req.params && req.params.userId)
+//         message = await UserService.getMovieTheaterByUser(req.params.userId);
+//     return res.status(200).json(message);
+// }
 
 let handleEditUser = async (req, res) => {
     let data = req.body;
@@ -136,6 +136,6 @@ module.exports = {
     getAllRoles,
     handleSignUpNewUser,
     handleGetUserByRoles,
-    handleGetMovieTheaterByUser,
+    // handleGetMovieTheaterByUser,
     handleLoginAdmin
 }

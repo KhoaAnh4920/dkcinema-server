@@ -3,6 +3,8 @@ import db from "../models/index";
 const crypto = require("crypto");
 const https = require("https");
 import moment from 'moment';
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
 
 //parameters
 var partnerCode = "MOMO";
@@ -424,6 +426,113 @@ let getBookingSeet = (query) => {
 }
 
 
+let getAllBooking = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (data) {
+
+                console.log(data);
+
+                let dateFormat = moment(new Date(+data.date)).format('YYYY-MM-DD');
+
+                console.log(dateFormat);
+
+
+                let listBooking = await db.Booking.findAll({
+                    where: {
+                        [Op.and]: [
+                            data.date &&
+                            db.sequelize.where(
+                                db.sequelize.cast(db.sequelize.col("Booking.createdAt"), "varchar"),
+                                { [Op.iLike]: `%${dateFormat}%` }
+                            ),
+                            data.status &&
+                            {
+                                status: {
+                                    [Op.or]: [(data.status) ? +data.status : null, null]
+                                }
+                            },
+                        ]
+                    },
+                    include: [
+                        {
+                            model: db.Ticket, as: 'BookingTicket', include: [{
+                                model: db.Showtime, as: 'TicketShowtime',
+                                include: [{
+                                    model: db.Room, as: 'RoomShowTime',
+                                    include: [{
+                                        model: db.MovieTheater, as: 'MovieTheaterRoom',
+                                    }],
+                                    where: {
+                                        [Op.and]: [
+                                            data.movieTheaterId &&
+                                            {
+                                                movieTheaterId: {
+                                                    [Op.or]: [(data.movieTheaterId) ? +data.movieTheaterId : null, null]
+                                                }
+                                            },
+                                        ]
+
+                                    },
+                                }]
+                            }]
+                        },
+
+                    ],
+
+                    order: [
+                        ['id', 'DESC'],
+                    ],
+                    raw: true,
+                    nest: true
+                });
+
+
+                if (listBooking && listBooking.length > 0) {
+                    listBooking = listBooking.filter(item => item.BookingTicket.TicketShowtime.id !== null)
+                }
+
+                console.log('listBooking: ', listBooking)
+
+
+                console.log(moment().utcOffset(0).startOf('day').subtract(1, "days").format());
+                // console.log("listBooking: ", listBooking);
+
+                // let test = 'SELECT "Showtime".*, "Movie".id AS "MovieID", "Movie"."name"  FROM "Showtime" JOIN "Movie" ON "Showtime"."movieId" = "Movie".id WHERE CAST("premiereDate" AS VARCHAR) LIKE :premiereDate';
+
+                // if (data.roomId) {
+                //     test += ' AND "Showtime"."roomId" = :roomId';
+                // }
+                // if (data.movieId) {
+                //     test += ' AND "Showtime"."movieId" = :movieId';
+                // }
+                // let listBooking = await db.sequelize.query(
+                //     test,
+                //     {
+                //         replacements: { premiereDate: `%${data.date}%`, roomId: data.roomId, movieId: data.movieId },
+                //         type: QueryTypes.SELECT
+                //     }
+                // );
+                resolve({
+                    errCode: 0,
+                    errMessage: 'OK',
+                    data: listBooking
+                }); // return 
+            }
+
+            resolve({
+                errCode: 2,
+                errMessage: 'Missing data'
+            }); // return 
+
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
+
+
 module.exports = {
     createNewBookingTicket,
     getMomoPaymentLink,
@@ -431,7 +540,8 @@ module.exports = {
     getTicketByBooking,
     testSendMail,
     testSignature,
-    getBookingSeet
+    getBookingSeet,
+    getAllBooking
 }
 
 

@@ -275,7 +275,7 @@ let getListNews = (data) => {
                 order: [
                     ['id', 'DESC'],
                 ],
-                raw: true,
+                raw: false,
                 nest: true
             })
 

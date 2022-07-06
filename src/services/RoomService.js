@@ -3,11 +3,12 @@ import db from "../models/index";
 let createNewRoom = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
-
+            console.log('data: ', data);
             if (data) {
                 let existsName = await db.Room.findOne({
                     where: {
-                        name: data.name
+                        name: data.name,
+                        movieTheaterId: data.movieTheaterId
                     }
                 })
                 if (existsName) {
@@ -16,6 +17,7 @@ let createNewRoom = (data) => {
                         errMessage: 'Name room is exists'
                     }); // return
                 }
+
 
 
                 await db.Room.create({
@@ -57,6 +59,7 @@ let createNewRoom = (data) => {
         }
     })
 }
+
 
 
 
