@@ -175,7 +175,6 @@ let handleAdminLogin = async (email, password) => {
 
                             delete user.password; // ko lay password cua user //
                             userData.user = user;
-
                             // Add token code //
                             userData.user.accessToken = jwt.sign({ email: user.email, fullName: user.fullName, _id: user.id, roleId: user.roleId }, 'dkcinema');
                         }
