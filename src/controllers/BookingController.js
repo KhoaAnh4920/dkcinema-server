@@ -126,6 +126,14 @@ let handleGetTicketByBooking = async (req, res) => {
     return res.status(200).json(message);
 }
 
+let handleGetComboByBooking = async (req, res) => {
+    let message = '';
+
+    if (req.query && req.query.bookingId)
+        message = await BookingServices.getComboByBooking(req.query);
+    return res.status(200).json(message);
+}
+
 let handleGetBookingSeet = async (req, res) => {
     let message = '';
     if (req.query && req.query.scheduleId)
@@ -148,6 +156,15 @@ let handleGetAllBooking = async (req, res) => {
 }
 
 
+let handleGetDetailBooking = async (req, res) => {
+    let message = '';
+
+    if (req.params && req.params.id)
+        message = await BookingServices.getDetailBooking(req.params.id);
+    return res.status(200).json(message);
+}
+
+
 module.exports = {
     handleCreateBookingTicket,
     handleBookingPayment,
@@ -156,5 +173,7 @@ module.exports = {
     testSendMail,
     testSignature,
     testUpload,
-    handleGetAllBooking
+    handleGetAllBooking,
+    handleGetDetailBooking,
+    handleGetComboByBooking
 }

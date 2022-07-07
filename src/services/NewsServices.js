@@ -350,11 +350,6 @@ let updateStatusNews = async (data) => {
 }
 
 
-// noiDung: data.noiDung,
-// tomTat: data.tomTat,
-// userId: data.userId,
-// type: data.type,
-
 let updateNews = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -382,7 +377,7 @@ let updateNews = (data) => {
 
                         }
                         // upload cloud //
-                        result = await uploadCloud(data.image, data.fileName);
+                        result = await uploadCloud(data.thumbnail, data.fileName);
 
 
                     }
