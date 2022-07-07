@@ -13,6 +13,7 @@ import TypeFoodController from "../controllers/TypeFoodController";
 import BookingController from "../controllers/BookingController";
 import BannerController from "../controllers/BannerController";
 import NewsController from "../controllers/NewsController";
+import VoucherController from "../controllers/VoucherController";
 var multipart = require('connect-multiparty');
 var multipartMiddleware = multipart();
 
@@ -1620,12 +1621,34 @@ let initWebRoutes = (app) => {
     router.get('/get-list-booking', BookingController.handleGetAllBooking);
 
 
+
+    /** 
+* @swagger 
+* /booking/{id}: 
+*   get: 
+*     tags: ["Booking Ticket"]
+*     summary: Get a detail booking by ID
+*     parameters:
+*       - in: path
+*         name: id
+*         schema:
+*         type: integer
+*         required: true
+*         description: Numeric ID of the booking to get
+*     responses:  
+*       200: 
+*         description: Success  
+*   
+*/
+    router.get('/booking/:id', BookingController.handleGetDetailBooking);
+
+
     /** 
  * @swagger 
  * /ticket/booking: 
  *   get: 
  *     tags: ["Booking Ticket"]
- *     summary: Get a movie by status
+ *     summary: Get a ticket booking
  *     parameters:
  *       - in: query
  *         name: bookingId
@@ -1639,6 +1662,28 @@ let initWebRoutes = (app) => {
  *   
  */
     router.get('/ticket/booking', BookingController.handleGetTicketByBooking);
+
+
+
+    /** 
+ * @swagger 
+ * /combo-booking: 
+ *   get: 
+ *     tags: ["Booking Ticket"]
+ *     summary: Get combo in booking
+ *     parameters:
+ *       - in: query
+ *         name: bookingId
+ *         schema:
+ *         type: integer
+ *         required: true
+ *         description: Bookingid of combo to get
+ *     responses:  
+ *       200: 
+ *         description: Success  
+ *   
+ */
+    router.get('/combo-booking', BookingController.handleGetComboByBooking);
 
 
     /** 
@@ -2048,6 +2093,50 @@ let initWebRoutes = (app) => {
 *          description: Rating news.
 */
     router.post('/news/vote', NewsController.handleVoteRating);
+
+
+
+
+    /**
+* @swagger
+*  /voucher:
+*    post:
+*      summary: Create new voucher.
+*      consumes:
+*        - application/json
+*      tags:
+*        - Voucher
+*      requestBody:
+*         content:
+*            application/json:
+*               schema:
+*                  type: object
+*                  properties:
+*                   code:
+*                     type: string
+*                   name:
+*                     type: string
+*                   description:
+*                     type: string
+*                   discount:
+*                     type: integer
+*                   condition:
+*                     type: integer
+*                   maxUses:
+*                     type: integer
+*                   status:
+*                     example: true
+*                     type: boolean
+*                   timeStart:
+*                     type: integer
+*                   timeEnd:
+*                     type: integer
+*      responses:
+*        201:
+*          description: Create Banner.
+*/
+    router.post('/voucher', VoucherController.handleCreateVoucher);
+
 
 
 

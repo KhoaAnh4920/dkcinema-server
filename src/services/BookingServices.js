@@ -395,6 +395,31 @@ let getTicketByBooking = (query) => {
 }
 
 
+let getComboByBooking = (query) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let combo = await db.Combo_Booking.findAll({
+                where: { bookingId: +query.bookingId },
+                include: [
+                    { model: db.Combo, as: 'Combo' },
+
+                ],
+                raw: true,
+                nest: true
+
+            })
+
+
+            resolve({
+                errCode: 0,
+                data: combo
+            })
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
 let getBookingSeet = (query) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -492,27 +517,6 @@ let getAllBooking = (data) => {
                     listBooking = listBooking.filter(item => item.BookingTicket.TicketShowtime.id !== null)
                 }
 
-                console.log('listBooking: ', listBooking)
-
-
-                console.log(moment().utcOffset(0).startOf('day').subtract(1, "days").format());
-                // console.log("listBooking: ", listBooking);
-
-                // let test = 'SELECT "Showtime".*, "Movie".id AS "MovieID", "Movie"."name"  FROM "Showtime" JOIN "Movie" ON "Showtime"."movieId" = "Movie".id WHERE CAST("premiereDate" AS VARCHAR) LIKE :premiereDate';
-
-                // if (data.roomId) {
-                //     test += ' AND "Showtime"."roomId" = :roomId';
-                // }
-                // if (data.movieId) {
-                //     test += ' AND "Showtime"."movieId" = :movieId';
-                // }
-                // let listBooking = await db.sequelize.query(
-                //     test,
-                //     {
-                //         replacements: { premiereDate: `%${data.date}%`, roomId: data.roomId, movieId: data.movieId },
-                //         type: QueryTypes.SELECT
-                //     }
-                // );
                 resolve({
                     errCode: 0,
                     errMessage: 'OK',
@@ -533,6 +537,44 @@ let getAllBooking = (data) => {
 
 
 
+let getDetailBooking = (id) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let dataBooking = await db.Booking.findOne({
+                where: { id: id },
+                include: [
+                    {
+                        model: db.Ticket, as: 'BookingTicket', include: [{
+                            model: db.Showtime, as: 'TicketShowtime',
+                            include: [{
+                                model: db.Room, as: 'RoomShowTime',
+                                include: [{
+                                    model: db.MovieTheater, as: 'MovieTheaterRoom',
+                                }],
+                            }, { model: db.Movie, as: 'ShowtimeMovie' }]
+                        }, { model: db.Seet, as: 'TicketSeet' }]
+                    },
+
+                ],
+                where: { id: id },
+
+                raw: false,
+                nest: true
+            });
+
+            resolve({
+                errCode: 0,
+                errMessage: 'OK',
+                data: dataBooking
+            });
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
+
+
 module.exports = {
     createNewBookingTicket,
     getMomoPaymentLink,
@@ -541,7 +583,9 @@ module.exports = {
     testSendMail,
     testSignature,
     getBookingSeet,
-    getAllBooking
+    getAllBooking,
+    getDetailBooking,
+    getComboByBooking
 }
 
 

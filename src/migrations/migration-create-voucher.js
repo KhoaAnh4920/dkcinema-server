@@ -12,6 +12,9 @@ module.exports = {
       code: {
         type: Sequelize.STRING
       },
+      name: {
+        type: Sequelize.STRING
+      },
       discount: {
         type: Sequelize.INTEGER
       },
@@ -27,12 +30,14 @@ module.exports = {
       },
       description: {
         allowNull: true,
-        type: Sequelize.STRING
+        type: Sequelize.TEXT
       },
       timeStart: {
+        allowNull: true,
         type: Sequelize.DATE
       },
       timeEnd: {
+        allowNull: true,
         type: Sequelize.DATE
       },
       createdAt: {
