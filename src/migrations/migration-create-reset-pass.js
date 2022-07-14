@@ -1,11 +1,7 @@
 'use strict';
 module.exports = {
     up: async (queryInterface, Sequelize) => {
-        await queryInterface.createTable('Combo', {
-
-            //     name: DataTypes.STRING,
-            // price: DataTypes.DOUBLE,
-            // image: DataTypes.STRING
+        await queryInterface.createTable('Reset_pass', {
 
             id: {
                 allowNull: false,
@@ -13,18 +9,18 @@ module.exports = {
                 primaryKey: true,
                 type: Sequelize.INTEGER
             },
-            name: {
+
+            m_email: {
                 type: Sequelize.STRING
             },
-            price: {
+            m_numcheck: {
+                default: 0,
                 type: Sequelize.INTEGER
             },
-            image: {
+            m_token: {
                 type: Sequelize.STRING
             },
-            public_id_image: {
-                type: Sequelize.STRING
-            },
+
             createdAt: {
                 allowNull: true,
                 type: Sequelize.DATE
@@ -33,9 +29,11 @@ module.exports = {
                 allowNull: true,
                 type: Sequelize.DATE
             }
+
+
         });
     },
     down: async (queryInterface, Sequelize) => {
-        await queryInterface.dropTable('Combo');
+        await queryInterface.dropTable('Reset_pass');
     }
 };

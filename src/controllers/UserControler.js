@@ -18,7 +18,7 @@ let handleLogin = async (req, res) => {
 
     return res.status(200).json({
         errorCode: userData.errorCode,
-        message: userData.errMessage,
+        errMessage: userData.errMessage,
         data: (userData.user) ? userData.user : {}
     })
 }
@@ -68,11 +68,39 @@ let handleCreateNewUser = async (req, res) => {
     return res.status(200).json(message);
 }
 
+let handleVerifyEmail = async (req, res) => {
+    let message = await UserService.userVerifyEmail(req.body);
+    return res.status(200).json(message);
+}
+
+let handleSendMailResetPass = async (req, res) => {
+    let message = await UserService.sendMailResetPass(req.body);
+    return res.status(200).json(message);
+}
+
+let handleRequiredResetPass = async (req, res) => {
+    let message = await UserService.requiredResetPass(req.body);
+    return res.status(200).json(message);
+}
+
+let handleResetNewPass = async (req, res) => {
+    let message = await UserService.resetNewPass(req.body);
+    return res.status(200).json(message);
+}
+
 let handleGetUserById = async (req, res) => {
     let message = '';
 
     if (req.params && req.params.userId)
         message = await UserService.getUserById(req.params.userId);
+    return res.status(200).json(message);
+}
+
+let handleGetUserByExternalId = async (req, res) => {
+    let message = '';
+
+    if (req.params && req.params.externalId)
+        message = await UserService.getUserByExternalId(req.params.externalId);
     return res.status(200).json(message);
 }
 
@@ -123,6 +151,13 @@ let getAllRoles = async (req, res) => {
 }
 
 
+let handleGetAllStaff = async (req, res) => {
+    let message = '';
+    message = await UserService.getAllStaff(req.query);
+    return res.status(200).json(message);
+}
+
+
 
 
 
@@ -137,5 +172,11 @@ module.exports = {
     handleSignUpNewUser,
     handleGetUserByRoles,
     // handleGetMovieTheaterByUser,
-    handleLoginAdmin
+    handleLoginAdmin,
+    handleGetUserByExternalId,
+    handleVerifyEmail,
+    handleSendMailResetPass,
+    handleRequiredResetPass,
+    handleResetNewPass,
+    handleGetAllStaff
 }

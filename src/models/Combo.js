@@ -21,7 +21,8 @@ module.exports = (sequelize, DataTypes) => {
     Combo.init({
         name: DataTypes.STRING,
         price: DataTypes.DOUBLE,
-        image: DataTypes.STRING
+        image: DataTypes.STRING,
+        public_id_image: DataTypes.STRING,
     }, {
         sequelize,
         modelName: 'Combo',

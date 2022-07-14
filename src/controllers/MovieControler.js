@@ -45,6 +45,12 @@ let handleGetMovieById = async (req, res) => {
     return res.status(200).json(message);
 }
 
+let handleSearchMovie = async (req, res) => {
+    let message = '';
+    message = await MovieServices.getMovieByKeyword(req.query);
+    return res.status(200).json(message);
+}
+
 let handleGetMovieByStatus = async (req, res) => {
     let message = '';
     if (req.query && req.query.status)
@@ -64,6 +70,7 @@ let handleDeleteImageMovie = async (req, res) => {
 }
 
 
+
 module.exports = {
     handleCreateNewMovie,
     handleGetAllMovie,
@@ -72,5 +79,6 @@ module.exports = {
     handleUpdateMovie,
     handleDeleteImageMovie,
     handleDeleteMovie,
-    handleGetMovieByStatus
+    handleGetMovieByStatus,
+    handleSearchMovie
 }

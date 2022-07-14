@@ -1,6 +1,11 @@
 import db from "../models/index";
 require('dotenv').config();
 var cloudinary = require('cloudinary').v2;
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
+
+
+
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -222,6 +227,58 @@ let deleteMovieTheater = (id) => {
 }
 
 
+let checkMerchantMovieTheater = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (data) {
+
+                let dataMerchant = [];
+                if (data.movieTheaterId && data.roleId) {
+                    dataMerchant = await db.Users.findOne({
+                        where: {
+                            [Op.and]: [
+                                data.movieTheaterId &&
+                                {
+                                    movietheaterid: {
+                                        [Op.or]: [(data.movieTheaterId) ? +data.movieTheaterId : null, null]
+                                    }
+                                },
+                                data.roleId &&
+                                {
+                                    roleId: {
+                                        [Op.or]: [(data.roleId) ? +data.roleId : null, null]
+                                    }
+                                },
+                            ]
+                        },
+
+                        raw: false,
+                        nest: true
+                    });
+                }
+
+                console.log('dataMerchant: ', dataMerchant)
+
+                resolve({
+                    errCode: 0,
+                    errMessage: 'OK',
+                    data: dataMerchant
+                }); // return 
+            }
+
+            resolve({
+                errCode: 2,
+                errMessage: 'Missing data'
+            }); // return 
+
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
+
+
 let deleteImageMovieTheater = (id) => {
 
     console.log("Check publicImageId: ", id);
@@ -262,5 +319,6 @@ module.exports = {
     updateMovieTheater,
     getMovieTheaterById,
     deleteMovieTheater,
-    deleteImageMovieTheater
+    deleteImageMovieTheater,
+    checkMerchantMovieTheater
 }

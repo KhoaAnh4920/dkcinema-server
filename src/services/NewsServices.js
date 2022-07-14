@@ -168,7 +168,7 @@ let voteNewsRating = (data) => {
             if (data.rating) {
 
                 let check = await db.Vote_News.findOne({
-                    where: { cusId: data.cusId }
+                    where: { cusId: data.cusId, newsId: data.newsId }
                 })
                 console.log(check);
                 if (!check) {
@@ -300,6 +300,9 @@ let getDetailNews = (id) => {
             let dataPost = await db.News.findOne({
 
                 where: { id: id },
+                include: [
+                    { model: db.Comment, as: 'CommentNews', include: [{ model: db.Customer, as: 'CustomerComment', attributes: ['fullName'] }] },
+                ],
 
                 raw: false,
                 nest: true
@@ -315,6 +318,7 @@ let getDetailNews = (id) => {
         }
     })
 }
+
 
 
 let updateStatusNews = async (data) => {

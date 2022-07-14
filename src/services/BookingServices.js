@@ -5,17 +5,22 @@ const https = require("https");
 import moment from 'moment';
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
+import QRCode from 'qrcode';
+var cron = require('node-cron');
+
+
+
 
 //parameters
 var partnerCode = "MOMO";
 var accessKey = "F8BBA842ECF85";
 var secretkey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
 var orderInfo = "pay with MoMo";
-var redirectUrl = "http://localhost:3000/";
+var redirectUrl = "http://localhost:3001/";
 
 // var ipnUrl = "https://57ce-2402-800-6371-a14a-ed0d-ccd6-cbe9-5ced.ngrok.io/api/handle-order";
 
-var notifyUrl = "https://fe6f-14-161-20-253.ap.ngrok.io/api/handle-booking";
+var notifyUrl = "https://1ae7-14-241-244-237.ap.ngrok.io/api/handle-booking";
 // var ipnUrl = redirectUrl = "https://webhook.site/454e7b77-f177-4ece-8236-ddf1c26ba7f8";
 var requestType = "captureWallet";
 import emailService from '../services/emailService';
@@ -30,12 +35,73 @@ let createNewBookingTicket = (data) => {
         try {
             if (data) {
                 let bookingId = '';
+                // let voucher = null;
+                // if (data.voucherCode) {
+                //     voucher = await db.Voucher.findOne({
+                //         where: { id: data.voucherCode },
+                //         raw: false
+                //     })
+
+                //     if (!voucher) {
+                //         resolve({
+                //             errCode: 2,
+                //             errMessage: 'Voucher not found'
+                //         });
+                //         return
+                //     }
+                // }
+
+
+                // Check seet //
+                let seets = data.seets;
+
+                let ticketData = await db.Ticket.findAll({
+                    where: { showTimeId: data.showTimeId },
+
+                    raw: true,
+                    nest: true
+                })
+
+                // console.log('ticketData: ', ticketData);
+
+
+                await Promise.all(seets.map(async item => {
+                    let check = ticketData.filter(data => data.seetId === item.seetId)
+
+                    // console.log('Check: ', check);
+                    // 
+                    if (check && check.length > 0) {
+                        var givenTime = moment(new Date(), "HH:mm:ss");
+                        var minutesPassed = moment(check[0].createdAt, "HH:mm:ss").diff(givenTime, "minutes");
+
+
+                        if (Math.abs(minutesPassed) > 15) {
+                            console.log("Xoa: ", check[0].bookingId);
+                            await db.Ticket.destroy({
+                                where: { bookingId: check[0].bookingId }
+                            })
+                            await db.Combo_Booking.destroy({
+                                where: { bookingId: check[0].bookingId }
+                            })
+                            await db.Booking.destroy({
+                                where: { id: check[0].bookingId }
+                            })
+                        } else {
+                            resolve({
+                                errCode: -1,
+                                errMessage: 'Refused seet',
+                            });
+                            return;
+                        }
+                    }
+                }))
+
 
                 await db.Booking.create({
                     customerId: data.cusId,
                     price: data.price,
                     voucherId: null,
-                    status: -1,
+                    status: 0,
                     nameCus: data.name,
                     email: data.email,
                     phoneNumber: data.phoneNumber
@@ -69,25 +135,15 @@ let createNewBookingTicket = (data) => {
                             db.Combo_Booking.bulkCreate(listCombo)
                         }
 
-                        // send email booking //
+                        resolve({
+                            errCode: 0,
+                            errMessage: 'OK',
+                            result: x.id
+                        });
+                        return
+
                     }
                 })
-
-                console.log("bookingId: ", bookingId)
-
-                if (bookingId !== '') {
-                    let result = await getMomoPaymentLink({
-                        amount: data.price,
-                        orderId: bookingId
-                    })
-
-                    resolve({
-                        errCode: 0,
-                        errMessage: 'OK',
-                        result: result
-                    }); // return 
-                }
-
             }
 
             resolve({
@@ -104,6 +160,45 @@ let createNewBookingTicket = (data) => {
 
 
 let getMomoPaymentLink = async (data) => {
+
+    let voucher = null;
+    if (data.nameCus && data.email && data.phoneNumber) {
+        if (data.voucherCode) {
+            voucher = await db.Voucher.findOne({
+                where: { code: data.voucherCode },
+                raw: false,
+                nest: true
+            })
+
+            if (!voucher) {
+                resolve({
+                    errCode: 2,
+                    errMessage: 'Voucher not found'
+                });
+                return
+            }
+
+        }
+
+
+        let booking = await db.Booking.findOne({
+            where: { id: data.orderId },
+
+            raw: false,
+        })
+
+
+        booking.price = data.amount;
+        booking.voucherId = (voucher && voucher.id) ? voucherId : null;
+        booking.nameCus = data.nameCus;
+        booking.email = data.email;
+        booking.phoneNumber = data.phoneNumber
+
+        await booking.save();
+
+    }
+
+
     var requestId = partnerCode + new Date().getTime();
     var orderId = requestId;
     //before sign HMAC SHA256 with format
@@ -166,7 +261,6 @@ let getMomoPaymentLink = async (data) => {
     };
 
 
-
     return new Promise((resolve, reject) => {
         const req = https.request(options, (res) => {
             console.log(`Status: ${res.statusCode}`);
@@ -178,7 +272,18 @@ let getMomoPaymentLink = async (data) => {
                 // console.log("payUrl: ");
                 // console.log(JSON.parse(body).payUrl);
                 // resolve(body)
-                resolve(JSON.parse(body));
+                try {
+                    a = JSON.parse(body);
+                    resolve(a);
+                } catch (e) {
+                    console.log(e);
+                    var lastChar = body.substr(body.length - 1);
+                    console.log('lastChar: ', lastChar)
+                    if (lastChar !== '}')
+                        body = body + '}'
+                    resolve(body)
+                }
+                // resolve(JSON.parse(body));
             });
             res.on("end", () => {
                 console.log("No more data in response.");
@@ -219,11 +324,58 @@ let handleBookingPayment = async (req) => {
         // console.log("orderCurrentData dataValues: ", orderCurrentData);
         orderCurrent.status = 1;
 
+        if (orderCurrent.voucherId) {
+            let voucher = await db.Voucher.findOne({
+                where: { id: orderCurrent.voucherId },
+                raw: false
+            })
+
+            if (voucher.maxUses !== -1) {
+                voucher.maxUses = voucher.maxUses - 1;
+                await voucher.save()
+            }
+        }
+
         const result = await db.Booking.update(orderCurrent, {
             where: { id: +req.body.extraData },
             returning: true,
             plain: true,
         });
+
+
+        let cusId = orderCurrent.customerId;
+
+
+
+        console.log('cusId in handleBookingPayment: ', cusId);
+        let totalBooking = await db.Booking.findOne({
+            where: { customerId: cusId, status: 1 },
+            attributes: [
+                'customerId',
+                [Sequelize.fn('SUM', Sequelize.cast(Sequelize.col('Booking.price'), "integer")), 'total_Price'],
+            ],
+            group: ['customerId'],
+            raw: true,
+        })
+
+        let customer = await db.Customer.findOne({
+            where: { id: cusId },
+            raw: false
+        })
+
+        console.log('totalBooking: ', totalBooking)
+
+        if (totalBooking && +totalBooking.total_Price > 0) {
+            if (+totalBooking.total_Price > 1000000 && +totalBooking.total_Price <= 2000000) {
+                customer.rankId = 2;
+                await customer.save();
+            }
+            if (+totalBooking.total_Price > 2000000) {
+                customer.rankId = 3;
+                await customer.save();
+            }
+        }
+
 
         // send mail //
         sendMailBooking(orderCurrent)
@@ -250,7 +402,7 @@ let testSendMail = async (req) => {
 
 
     const orderCurrent = await db.Booking.findOne({
-        where: { id: 13 },
+        where: { id: 42 },
     });
 
     console.log("Check orderCurrent: ", orderCurrent);
@@ -263,7 +415,7 @@ let testSendMail = async (req) => {
 
 let testSignature = async (req) => {
 
-    console.log('req.signature: ', req.body.signature);
+    // console.log('req.signature: ', req.body.signature);
 
     let params = decodeURI(req.body.signature)
 
@@ -286,7 +438,6 @@ let sendMailBooking = (data) => {
                     errMessage: "Missing params"
                 })
             } else {
-
                 let ticket = await db.Ticket.findAll({
                     where: { bookingId: +data.id },
                     include: [
@@ -299,9 +450,7 @@ let sendMailBooking = (data) => {
                     raw: true,
                     nest: true
 
-
                 })
-                console.log(ticket);
 
                 let obj = {}
                 obj.nameMovie = ticket[0].TicketShowtime.ShowtimeMovie.name;
@@ -317,6 +466,13 @@ let sendMailBooking = (data) => {
                 obj.bookingId = data.id
 
 
+                // const imgQRCode = await QRCode.toDataURL(`${data.id}`);
+
+                // obj.QRcode = imgQRCode;
+
+                // console.log('obj: ', obj)
+
+
 
 
                 let soGhe = ''
@@ -328,6 +484,11 @@ let sendMailBooking = (data) => {
 
                 obj.seet = '1' + ' - (' + soGhe + ')';
 
+                const imgQRCode = await QRCode.toDataURL(`${data.id}`);
+
+                obj.QRcode = imgQRCode;
+
+                console.log('Check obj: ', obj)
                 // send mail //
                 await emailService.sendSimpleEmail(obj);
 
@@ -346,7 +507,18 @@ let sendMailBooking = (data) => {
 let getTicketByBooking = (query) => {
     return new Promise(async (resolve, reject) => {
         try {
+            let page = null;
+            let PerPage = null;
+            let skip = null;
+            let total = await db.Ticket.count({ where: { bookingId: +query.bookingId } });
+            if (query.page && query.PerPage) {
+                page = +query.page;
+                PerPage = +query.PerPage;
+                skip = (page - 1) * PerPage;
+            }
             let ticket = await db.Ticket.findAll({
+                offset: (skip) ? skip : null,
+                limit: (PerPage) ? PerPage : null,
                 where: { bookingId: +query.bookingId },
                 include: [
                     { model: db.Seet, as: 'TicketSeet' },
@@ -360,7 +532,7 @@ let getTicketByBooking = (query) => {
 
 
             })
-            console.log(ticket);
+            // console.log(ticket);
 
             let obj = {}
             obj.nameMovie = ticket[0].TicketShowtime.ShowtimeMovie.name;
@@ -386,7 +558,8 @@ let getTicketByBooking = (query) => {
 
             resolve({
                 errCode: 0,
-                data: ticket
+                data: ticket,
+                totalData: total
             })
         } catch (e) {
             reject(e);
@@ -420,10 +593,10 @@ let getComboByBooking = (query) => {
     })
 }
 
+
 let getBookingSeet = (query) => {
     return new Promise(async (resolve, reject) => {
         try {
-            console.log('query.scheduleId: ', query.scheduleId);
             let ticket = await db.Ticket.findAll({
                 where: { showTimeId: +query.scheduleId },
                 include: [
@@ -437,7 +610,7 @@ let getBookingSeet = (query) => {
 
 
             })
-            console.log(ticket);
+            // console.log(ticket);
 
 
             resolve({
@@ -455,15 +628,21 @@ let getAllBooking = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
             if (data) {
+                let page = null;
+                let PerPage = null;
+                let skip = null;
 
-                console.log(data);
+                if (data.page && data.PerPage) {
+                    page = +data.page;
+                    PerPage = +data.PerPage;
+                    skip = (page - 1) * PerPage;
+                }
 
                 let dateFormat = moment(new Date(+data.date)).format('YYYY-MM-DD');
 
-                console.log(dateFormat);
-
-
                 let listBooking = await db.Booking.findAll({
+                    offset: (skip) ? skip : null,
+                    limit: (PerPage) ? PerPage : null,
                     where: {
                         [Op.and]: [
                             data.date &&
@@ -475,6 +654,18 @@ let getAllBooking = (data) => {
                             {
                                 status: {
                                     [Op.or]: [(data.status) ? +data.status : null, null]
+                                }
+                            },
+                            data.nameCus &&
+                            {
+                                nameCus: {
+                                    [Sequelize.Op.iLike]: `%${data.nameCus}%`
+                                }
+                            },
+                            data.id &&
+                            {
+                                id: {
+                                    [Op.or]: [(data.id) ? +data.id : null, null]
                                 }
                             },
                         ]
@@ -499,7 +690,9 @@ let getAllBooking = (data) => {
                                         ]
 
                                     },
-                                }]
+                                },
+                                { model: db.Movie, as: 'ShowtimeMovie', }
+                                ]
                             }]
                         },
 
@@ -508,19 +701,24 @@ let getAllBooking = (data) => {
                     order: [
                         ['id', 'DESC'],
                     ],
-                    raw: true,
+                    raw: false,
                     nest: true
                 });
 
 
+
+                // console.log('listBooking: ', listBooking)
+                //item.dataValues.BookingTicket.TicketShowtime.id !== null
+
                 if (listBooking && listBooking.length > 0) {
-                    listBooking = listBooking.filter(item => item.BookingTicket.TicketShowtime.id !== null)
+                    listBooking = listBooking.filter(item => item.dataValues.BookingTicket[0].dataValues.TicketShowtime !== null)
                 }
 
                 resolve({
                     errCode: 0,
                     errMessage: 'OK',
-                    data: listBooking
+                    data: listBooking,
+                    totalData: listBooking.length
                 }); // return 
             }
 
@@ -573,6 +771,50 @@ let getDetailBooking = (id) => {
     })
 }
 
+
+
+var task = cron.schedule('59 * * * *', async () => {
+    let dateToday = moment(new Date()).format('MM-DD');
+
+    let bookingData = await db.Booking.findAll({
+        where: {
+            [Op.and]: [
+                db.sequelize.where(
+                    db.sequelize.cast(db.sequelize.col("Booking.createdAt"), "varchar"),
+                    { [Op.iLike]: `%${dateToday}%` }
+                ),
+                { status: 0 },
+            ]
+        },
+    })
+
+    if (bookingData && bookingData.length > 0) {
+        await Promise.all(bookingData.map(async item => {
+            var givenTime = moment(new Date(), "HH:mm:ss");
+            var minutesPassed = moment(item.createdAt, "HH:mm:ss").diff(givenTime, "minutes");
+
+            if (Math.abs(minutesPassed) > 15) {
+                await db.Ticket.destroy({
+                    where: { bookingId: item.id }
+                })
+                await db.Combo_Booking.destroy({
+                    where: { bookingId: item.id }
+                })
+                await db.Booking.destroy({
+                    where: { id: item.id }
+                })
+            }
+        }))
+    }
+
+    console.log('bookingData: ', bookingData)
+
+
+
+
+});
+
+task.start();
 
 
 module.exports = {

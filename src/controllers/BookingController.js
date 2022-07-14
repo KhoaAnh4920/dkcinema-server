@@ -38,13 +38,24 @@ let uploadCloud = (image, fName) => {
 
 
 let handleCreateBookingTicket = async (req, res) => {
-    console.log("Check req: ", req.body);
     let message = await BookingServices.createNewBookingTicket(req.body);
+    res.status(200).json(message)
+}
+
+
+let handleGetMomoPaymentLink = async (req, res) => {
+    let message = await BookingServices.getMomoPaymentLink(req.body);
     console.log("Check message: ", message);
     if (message.result)
         return res.status(200).json(jsonFormat.dataSuccess("Get Link successfully", message.result));
-    return res.status(200).json(message);
+    if (message)
+        return res.status(200).json({
+            statusCode: 200,
+            data: message
+        });
 }
+
+
 
 
 let handleBookingPayment = async (req, res) => {
@@ -175,5 +186,6 @@ module.exports = {
     testUpload,
     handleGetAllBooking,
     handleGetDetailBooking,
-    handleGetComboByBooking
+    handleGetComboByBooking,
+    handleGetMomoPaymentLink
 }
