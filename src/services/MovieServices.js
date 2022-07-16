@@ -51,6 +51,7 @@ let createNewMovie = (data) => {
                     duration: data.duration,
                     description: data.description,
                     brand: data.brand,
+                    director: data.director,
                     cast: data.cast,
                     status: data.status,
                     releaseTime: data.releaseTime,
@@ -72,7 +73,7 @@ let createNewMovie = (data) => {
                         obj.movieId = resMovie.dataValues.id;
                         obj.status = 1;
                         resUpload = await uploadCloud(item.image, item.fileName);
-                        console.log("Check resUpload: ", resUpload);
+
                         obj.url = resUpload.secure_url;
                         obj.public_id = resUpload.public_id;
                         obj.typeImage = item.typeImage;
@@ -138,6 +139,8 @@ let updateMovie = (data) => {
 
                         let resUpload = {};
 
+                        console.log('dataPoster: ', dataPoster)
+
                         await Promise.all(dataPoster.map(async item => {
                             if (item.image && item.fileName) {
                                 let obj = {};
@@ -147,6 +150,7 @@ let updateMovie = (data) => {
 
                                 obj.url = resUpload.secure_url;
                                 obj.public_id = resUpload.public_id;
+                                obj.typeImage = item.typeImage;
 
                                 await db.ImageMovie.create(obj);
                             }
@@ -159,6 +163,7 @@ let updateMovie = (data) => {
                     movie.duration = data.duration;
                     movie.description = data.description;
                     movie.brand = data.brand;
+                    movie.director = data.director;
                     movie.cast = data.cast;
                     movie.status = data.status;
                     movie.releaseTime = data.releaseTime;
@@ -178,7 +183,7 @@ let updateMovie = (data) => {
 
                     console.log("OK");
                     await Promise.all(dataType.map(async item => {
-                        console.log("Check item: ", item);
+                        // console.log("Check item: ", item);
                         await db.TypeOfMovie.create({
                             movieId: +data.id,
                             typeId: +item.id
@@ -298,6 +303,79 @@ let getMovieByKeyword = (data) => {
     })
 }
 
+let voteNewsRatingMovie = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+
+            if (data.rating) {
+
+                let check = await db.Vote_Movie.findOne({
+                    where: { cusId: data.cusId, movieId: data.movieId }
+                })
+                console.log(check);
+                if (!check) {
+                    await db.Vote_Movie.create({
+                        rating: +data.rating,
+                        cusId: data.cusId,
+                        movieId: data.movieId,
+                    });
+                    // update rating news //
+                    let voteFive = await db.Vote_Movie.count({ where: { rating: 5, movieId: data.movieId } });
+                    let voteFour = await db.Vote_Movie.count({ where: { rating: 4, movieId: data.movieId } });
+                    let voteThree = await db.Vote_Movie.count({ where: { rating: 3, movieId: data.movieId } });
+                    let voteTwo = await db.Vote_Movie.count({ where: { rating: 2, movieId: data.movieId } });
+                    let voteOne = await db.Vote_Movie.count({ where: { rating: 1, movieId: data.movieId } });
+
+                    // console.log('voteFive: ', voteFive);
+                    // console.log('voteFour: ', voteFour);
+                    // console.log('voteThree: ', voteThree);
+                    // console.log('voteTwo: ', voteTwo);
+                    // console.log('voteOne: ', voteOne);
+
+                    // (5*252 + 4*124 + 3*40 + 2*29 + 1*33) / (252+124+40+29+33) = 4.11 and change
+
+                    let calRating = (5 * voteFive + 4 * voteFour + 3 * voteThree + 2 * voteTwo + 1 * voteOne) / (voteFive + voteFour + voteThree + voteTwo + voteOne);
+
+                    console.log('calRating: ', calRating);
+
+                    let movieData = await db.Movie.findOne({
+                        where: { id: data.movieId },
+                        raw: false
+                    })
+
+                    if (movieData) {
+                        movieData.rating = calRating;
+                        movieData.save();
+                    }
+                } else {
+                    resolve({
+                        errCode: -1,
+                        errMessage: 'You has already vote'
+                    }); // return 
+                    return;
+                }
+
+
+                resolve({
+                    errCode: 0,
+                    errMessage: 'OK'
+                }); // return 
+                return;
+
+            } else {
+
+                resolve({
+                    errCode: -1,
+                    errMessage: 'Missing rating'
+                }); // return 
+            }
+
+
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
 
 let updateStatusMovie = async (data) => {
     return new Promise(async (resolve, reject) => {
@@ -435,7 +513,6 @@ let deleteImageMovie = (id) => {
             })
         }
 
-        console.log("Check imageMovie: ", imageMovie);
 
         if (imageMovie.url && imageMovie.public_id) {
             // Xóa hình cũ //
@@ -464,5 +541,6 @@ module.exports = {
     deleteImageMovie,
     deleteMovie,
     getMovieByStatus,
-    getMovieByKeyword
+    getMovieByKeyword,
+    voteNewsRatingMovie
 }

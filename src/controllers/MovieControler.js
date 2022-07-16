@@ -70,6 +70,12 @@ let handleDeleteImageMovie = async (req, res) => {
 }
 
 
+let handleVoteRatingMovie = async (req, res) => {
+    let message = await MovieServices.voteNewsRatingMovie(req.body);
+    return res.status(200).json(message);
+}
+
+
 
 module.exports = {
     handleCreateNewMovie,
@@ -80,5 +86,6 @@ module.exports = {
     handleDeleteImageMovie,
     handleDeleteMovie,
     handleGetMovieByStatus,
-    handleSearchMovie
+    handleSearchMovie,
+    handleVoteRatingMovie
 }

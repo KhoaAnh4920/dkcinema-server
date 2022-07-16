@@ -86,23 +86,26 @@ let updateRoom = (data) => {
                 }
 
                 if (room) {
-                    let existsName = await db.Room.findAll({
-                        where: {
-                            name: data.name
+                    if (data.name) {
+                        let existsName = await db.Room.findAll({
+                            where: {
+                                name: data.name
+                            }
+                        })
+
+                        let checkName = existsName.some(item => item.id !== data.id);
+
+                        if (checkName) {
+                            resolve({
+                                errCode: -1,
+                                errMessage: 'Name room is exists'
+                            });
+                            return;
                         }
-                    })
 
-                    let checkName = existsName.some(item => item.id !== data.id);
-
-                    if (checkName) {
-                        resolve({
-                            errCode: -1,
-                            errMessage: 'Name room is exists'
-                        });
-                        return;
+                        room.name = data.name;
                     }
 
-                    room.name = data.name;
                     room.numberOfColumn = data.numberOfColumn;
                     room.numberOfRow = data.numberOfRow;
                     room.movieTheaterId = data.movieTheaterId;

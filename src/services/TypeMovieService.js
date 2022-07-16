@@ -74,7 +74,7 @@ let getListTypeOfMovie = () => {
 
 let updateTypeMovie = (data) => {
     return new Promise(async (resolve, reject) => {
-        console.log("Check data: ", data);
+        // console.log("Check data: ", data);
         try {
             if (!data.id) {
                 resolve({
