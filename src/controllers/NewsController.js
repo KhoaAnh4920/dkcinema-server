@@ -25,6 +25,18 @@ let handleGetNews = async (req, res) => {
     return res.status(200).json(message);
 }
 
+let handleGetDetailComment = async (req, res) => {
+    let message = '';
+    if (!req.query || !req.query.newsId) {
+        return res.status(200).json({
+            errCode: 1,
+            errMessage: "Missing News id"
+        })
+    }
+    message = await NewsServices.getDetailComment(req.query);
+    return res.status(200).json(message);
+}
+
 
 
 let handleGetDetailNews = async (req, res) => {
@@ -61,6 +73,17 @@ let handleDeleteNews = async (req, res) => {
     return res.status(200).json(message);
 }
 
+let handleDeleteComment = async (req, res) => {
+    if (!req.params.id) {
+        return res.status(200).json({
+            errCode: 1,
+            errMessage: "Missing id"
+        })
+    }
+    let message = await NewsServices.deleteComment(req.params.id);
+    return res.status(200).json(message);
+}
+
 
 
 
@@ -72,5 +95,7 @@ module.exports = {
     handleEditNews,
     handleDeleteNews,
     handlePostComment,
-    handleVoteRating
+    handleVoteRating,
+    handleGetDetailComment,
+    handleDeleteComment
 }

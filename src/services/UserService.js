@@ -920,6 +920,38 @@ let signUpNewUser = (data) => {
 
 
 
+let feedbackCustomer = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!data) {
+                resolve({
+                    errCode: -1,
+                    errMessage: 'Missing data',
+                })
+            }
+
+            await db.Feedback.create({
+                email: data.email,
+                fullName: data.fullName,
+                phone: data.phoneNumber,
+                content: data.content,
+                cusId: data.cusId || null
+            })
+
+            resolve({
+                errCode: 0,
+                errMessage: 'OK',
+            })
+
+
+
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
+
 
 module.exports = {
     handleUserLogin,
@@ -938,5 +970,6 @@ module.exports = {
     sendMailResetPass,
     requiredResetPass,
     resetNewPass,
-    getAllStaff
+    getAllStaff,
+    feedbackCustomer
 }

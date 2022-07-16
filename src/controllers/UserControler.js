@@ -53,6 +53,11 @@ let handleSignUpNewUser = async (req, res) => {
     return res.status(200).json(message);
 }
 
+let handleFeedbackCustomer = async (req, res) => {
+    let message = await UserService.feedbackCustomer(req.body);
+    return res.status(200).json(message);
+}
+
 let handleGetAllUser = async (req, res) => {
     let user = await UserService.getAllUser();
     return res.status(200).json({
@@ -178,5 +183,6 @@ module.exports = {
     handleSendMailResetPass,
     handleRequiredResetPass,
     handleResetNewPass,
-    handleGetAllStaff
+    handleGetAllStaff,
+    handleFeedbackCustomer
 }

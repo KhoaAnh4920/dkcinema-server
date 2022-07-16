@@ -14,6 +14,7 @@ import BookingController from "../controllers/BookingController";
 import BannerController from "../controllers/BannerController";
 import NewsController from "../controllers/NewsController";
 import VoucherController from "../controllers/VoucherController";
+import FeedbackController from "../controllers/FeedbackController";
 var multipart = require('connect-multiparty');
 var multipartMiddleware = multipart();
 
@@ -83,6 +84,9 @@ let initWebRoutes = (app) => {
 *          description: Login OK!
 */
     router.post('/admin-login', UserController.handleLogin);
+
+
+
 
 
     /**
@@ -515,6 +519,87 @@ let initWebRoutes = (app) => {
 */
     router.post('/signUp-customer', UserController.handleSignUpNewUser);
 
+
+    /**
+* @swagger
+*  /feedback-customer:
+*    post:
+*      summary: Feedback Customer.
+*      consumes:
+*        - application/json
+*      tags:
+*        - Customer
+*      requestBody:
+*         content:
+*            application/json:
+*               schema:
+*                  type: object
+*                  properties:
+*                       email:
+*                         type: string
+*                       cusId:
+*                         type: integer
+*                       fullName:
+*                         type: string
+*                       phoneNumber:
+*                         type: string
+*                       content:
+*                         type: string
+*      responses:
+*        201:
+*          description: Feedback by customer!
+*/
+    router.post('/feedback-customer', UserController.handleFeedbackCustomer);
+
+
+    /** 
+* @swagger 
+* /get-list-feedback: 
+*   get: 
+*     tags: ["Feedback"]
+*     description: Get list feedback
+*     parameters:
+*       - in: query
+*         name: key
+*         schema:
+*         type: string
+*         required: false
+*         description: id feedback or name customer
+*       - in: query
+*         name: startTime
+*         type: integer
+*         example: 1640549137000
+*       - in: query
+*         name: endTime
+*         type: integer
+*         example: 1640549137000
+*     responses:  
+*       200: 
+*         description: Success  
+*   
+*/
+    router.get('/get-list-feedback', FeedbackController.handleGetListFeedback);
+
+
+    /** 
+ * @swagger 
+ * /feedback/{feedbackId}: 
+ *   get: 
+ *     tags: ["Feedback"]
+ *     summary: Get detail feedback
+ *     parameters:
+ *       - in: path
+ *         name: feedbackId
+ *         schema:
+ *         type: integer
+ *         required: true
+ *         description: feedbackId of the feedback to get
+ *     responses:  
+ *       200: 
+ *         description: Success  
+ *   
+ */
+    router.get('/feedback/:feedbackId', FeedbackController.handleGetDetailFeedback);
 
 
     /**
@@ -1071,6 +1156,35 @@ let initWebRoutes = (app) => {
  */
     router.delete('/image-movie/:id', MovieControler.handleDeleteImageMovie);
 
+
+    /**
+* @swagger
+*  /movie/vote:
+*    post:
+*      summary: Vote Films.
+*      consumes:
+*        - application/json
+*      tags:
+*        - Movie
+*      requestBody:
+*         content:
+*            application/json:
+*               schema:
+*                  type: object
+*                  properties:
+*                   rating:
+*                     type: integer
+*                   cusId:
+*                     example: 1
+*                     type: integer
+*                   movieId:
+*                     example: 1
+*                     type: integer
+*      responses:
+*        201:
+*          description: Rating news.
+*/
+    router.post('/movie/vote', MovieControler.handleVoteRatingMovie);
 
     /** 
 * @swagger 
@@ -2307,6 +2421,48 @@ let initWebRoutes = (app) => {
 */
     router.post('/news/comment', NewsController.handlePostComment);
 
+
+
+    /** 
+* @swagger 
+* /detail/comment: 
+*   get: 
+*     tags: ["News"]
+*     summary: Get a detail News by ID
+*     parameters:
+*       - in: query
+*         name: newsId
+*         schema:
+*         type: integer
+*         required: false
+*         description: Id post
+*     responses:  
+*       200: 
+*         description: Success  
+*   
+*/
+    router.get('/detail/comment', NewsController.handleGetDetailComment);
+
+
+    /** 
+ * @swagger 
+ * /comment/{id}: 
+ *   delete: 
+ *     tags: ["News"]
+ *     summary: Delete Comment
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *         type: integer
+ *         required: true
+ *         description: Numeric ID of the comment to delete
+ *     responses:  
+ *       200: 
+ *         description: Success  
+ *   
+ */
+    router.delete('/comment/:id', NewsController.handleDeleteComment);
 
     /**
 * @swagger

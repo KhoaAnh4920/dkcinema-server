@@ -98,7 +98,7 @@ let getListFood = (data) => {
 
 let updateFood = (data) => {
     return new Promise(async (resolve, reject) => {
-        console.log("Check data: ", data);
+        // console.log("Check data: ", data);
         try {
             if (!data.id) {
                 resolve({

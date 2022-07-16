@@ -50,6 +50,16 @@ module.exports = {
                 allowNull: true,
                 type: Sequelize.STRING
             },
+            rating: {
+                allowNull: true,
+                default: 0,
+                type: Sequelize.FLOAT
+            },
+            director: {
+                allowNull: true,
+                type: Sequelize.STRING
+            },
+
             createdAt: {
                 allowNull: true,
                 type: Sequelize.DATE

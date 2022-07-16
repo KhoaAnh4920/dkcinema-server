@@ -176,7 +176,7 @@ let getItemOfCombo = (id) => {
 
 let updateCombo = (data) => {
     return new Promise(async (resolve, reject) => {
-        console.log("Check data: ", data);
+
         try {
             if (!data.id) {
                 resolve({

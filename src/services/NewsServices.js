@@ -293,6 +293,42 @@ let getListNews = (data) => {
 }
 
 
+let getDetailComment = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+
+
+            let listComment = await db.Comment.findAll({
+                where: {
+                    newsId: data.newsId
+                },
+                include: [
+                    {
+                        model: db.Customer, as: 'CustomerComment', attributes: ['id', 'fullName'],
+                    },
+                ],
+
+                order: [
+                    ['id', 'DESC'],
+                ],
+                raw: false,
+                nest: true
+            })
+
+            resolve({
+                errCode: 0,
+                errMessage: 'OK',
+                data: listComment
+            }); // return 
+
+
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
+
 
 let getDetailNews = (id) => {
     return new Promise(async (resolve, reject) => {
@@ -454,6 +490,29 @@ let deleteNews = (id) => {
 }
 
 
+let deleteComment = (id) => {
+    return new Promise(async (resolve, reject) => {
+        let comments = await db.Comment.findOne({
+            where: { id: id }
+        })
+        if (!comments) {
+            resolve({
+                errCode: 2,
+                errMessage: 'Comments not found'
+            })
+        }
+
+
+        await db.Comment.destroy({
+            where: { id: id }
+        });
+        resolve({
+            errCode: 0,
+            errMessage: "Delete comments ok"
+        })
+    })
+}
+
 
 
 
@@ -466,5 +525,7 @@ module.exports = {
     updateNews,
     deleteNews,
     postComment,
-    voteNewsRating
+    voteNewsRating,
+    getDetailComment,
+    deleteComment
 }
