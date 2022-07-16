@@ -201,8 +201,6 @@ let updateBanner = (data) => {
                         }
                         // upload cloud //
                         result = await uploadCloud(data.image, data.fileName);
-
-
                     }
 
                     banner.name = data.name;

@@ -1,9 +1,47 @@
 import db from "../models/index";
+var cloudinary = require('cloudinary').v2;
+require('dotenv').config();
+
+
+
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+let uploadCloud = (image, fName) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            await cloudinary.uploader.upload(
+                image,
+                {
+                    resource_type: "raw",
+                    public_id: `image/Combo/${fName}`,
+                },
+                // Send cloudinary response or catch error
+                (err, result) => {
+                    if (err) console.log(err);
+                    if (result) {
+                        resolve(result)
+                    }
+
+                }
+            );
+        } catch (e) {
+            reject(e);
+        }
+    })
+
+}
+
 
 let createNewCombo = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
+            console.log("Check dataCombo: ", data);
             if (data) {
+
                 let checkData = await db.Combo.findOne({
                     where: { name: data.name }
                 })
@@ -15,9 +53,23 @@ let createNewCombo = (data) => {
                     });
                     return
                 }
+
+                let result = {};
+                if (data.image && data.fileName) {
+                    // upload cloud //
+                    result = await uploadCloud(data.image, data.fileName);
+                } else {
+                    resolve({
+                        errCode: -1,
+                        errMessage: 'Missing image'
+                    }); // return 
+                }
+
                 await db.Combo.create({
                     name: data.name,
                     price: data.price,
+                    image: (result && result.secure_url) ? result.secure_url : '',
+                    public_id_image: (result && result.public_id) ? result.public_id : '',
                 }).then(function (x) {
                     if (x.id) {
                         let foodItems = data.items;
@@ -140,9 +192,28 @@ let updateCombo = (data) => {
                     raw: false,
                 });
                 if (dataCombo) {
+                    let result = '';
+                    // Có truyền image //
+                    if (data.image && data.fileName) {
+                        if (dataCombo.image && dataCombo.public_id_image) // có lưu trong db //
+                        {
+                            // Xóa hình cũ //
+                            await cloudinary.uploader.destroy(dataCombo.public_id_image, { invalidate: true, resource_type: "raw" },
+                                function (err, result) { console.log(result) });
+
+                        }
+                        // upload cloud //
+                        result = await uploadCloud(data.image, data.fileName);
+                    }
+
 
                     dataCombo.name = data.name;
                     dataCombo.price = data.price;
+
+                    if (data.image && data.fileName) {
+                        dataCombo.image = result.secure_url;
+                        dataCombo.public_id_image = result.public_id;
+                    }
 
                     await dataCombo.save();
 

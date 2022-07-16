@@ -25,9 +25,12 @@
     "jsonwebtoken": "^8.5.1",
     "moment": "^2.29.3",
     "multer": "^1.4.4",
+    "node-cron": "^3.0.1",
     "nodemailer": "^6.7.5",
     "pg": "^8.7.3",
     "pg-hstore": "^2.3.4",
+    "qrcode": "^1.5.0",
+    "react-qr-reader": "^2.2.1",
     "sequelize": "^6.19.2",
     "swagger-jsdoc": "^6.2.1",
     "swagger-ui-express": "^4.4.0"

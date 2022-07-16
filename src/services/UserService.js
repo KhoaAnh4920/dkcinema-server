@@ -4,6 +4,12 @@ require('dotenv').config();
 var salt = bcrypt.genSaltSync(10);
 var cloudinary = require('cloudinary').v2;
 var jwt = require('jsonwebtoken');
+import emailService from '../services/emailService';
+import moment from 'moment';
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
+
+
 
 
 
@@ -72,15 +78,18 @@ let checkUserEmail = (email) => {
 let handleUserLogin = async (email, password) => {
     return new Promise(async (resolve, reject) => {
         try {
+
             let userData = {};
             let isExist = await checkUserEmail(email);
+
+
             if (isExist) {
                 let user = await db.Users.findOne({
                     where: { email: email, roleId: 4 },
-                    attributes: ['id', 'email', 'roleId', 'password', 'fullName', 'avatar', 'externalid', 'phone'],
+                    attributes: ['id', 'email', 'roleId', 'password', 'fullName', 'avatar', 'externalid', 'phone', 'isActive'],
                     raw: true
                 })
-                console.log('users: ', user);
+
                 if (user) {
                     // compare pass //
                     let check = bcrypt.compareSync(password, user.password);
@@ -89,6 +98,15 @@ let handleUserLogin = async (email, password) => {
                     console.log("Check user password: ", check);
 
                     if (check) {
+                        console.log('user: ', user)
+                        if (!user.isActive) {
+                            resolve({
+                                errCode: -1,
+                                errMessage: "User is not active"
+                            })
+                            return
+                        }
+
                         userData.errorCode = 0;
                         userData.errMessage = `Ok`;
 
@@ -107,7 +125,9 @@ let handleUserLogin = async (email, password) => {
                         userData.user = user;
 
                         // // Add token code //
-                        userData.user.accessToken = jwt.sign({ email: user.email, fullName: user.fullName, _id: user.id, roleId: user.roleId }, 'dkcinema');
+                        userData.user.accessToken = jwt.sign({ email: user.email, fullName: user.fullName, _id: user.id, roleId: user.roleId }, 'dkcinema', {
+                            expiresIn: "1h" // it will be expired after 1 hours
+                        });
 
                     } else {
                         userData.errorCode = 3;
@@ -167,7 +187,7 @@ let handleAdminLogin = async (email, password) => {
 
                             // Add token code //
                             userData.user.accessToken = jwt.sign({ email: user.email, fullName: user.fullName, _id: user.id, roleId: user.roleId }, 'dkcinema');
-                            userData.user.movieTheaterId = user.movietheaterid;
+                            userData.user.movietheaterid = user.movietheaterid;
 
                         } else {
                             userData.errorCode = 0;
@@ -238,6 +258,49 @@ let getUserById = (userId) => {
                 raw: true,
                 nest: true
             });
+
+            resolve({
+                errCode: 0,
+                errMessage: 'OK',
+                data: users
+            });
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
+let getUserByExternalId = (externalId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let users = await db.Users.findOne({
+                where: { externalid: externalId },
+                attributes: {
+                    exclude: ['password']
+                },
+                raw: true,
+                nest: true
+            });
+
+            console.log('users: ', users)
+
+            let customer = await db.Customer.findOne({
+                where: { externalId: externalId },
+                raw: true,
+                nest: true
+            });
+
+            if (!users || !customer) {
+                resolve({
+                    errCode: -1,
+                    errMessage: 'Users not found',
+                });
+            }
+
+            users.id = customer.id
+            users.point = customer.point;
+            users.rankId = customer.rankId
+
 
             resolve({
                 errCode: 0,
@@ -340,7 +403,7 @@ let createNewUser = (data) => {
                         phone: data.phone,
                         fullName: data.fullName,
                         point: null,
-                        rankId: null,
+                        rankId: 1,
                         externalId: externalId
                     })
                 }
@@ -380,23 +443,227 @@ let createNewUser = (data) => {
     })
 }
 
+let userVerifyEmail = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            console.log('data: ', data);
+            if (data.userId && data.userToken) {
+                let user = await db.Users.findOne({
+                    where: { id: data.userId, userToken: data.userToken },
+                    raw: false
+                })
+
+                if (user) {
+                    user.isActive = 1;
+                    await user.save();
+
+                    resolve({
+                        errCode: 0,
+                        message: "Active User Success"
+                    });
+                }
+            }
+
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
+let sendMailResetPass = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (data.email) {
+                let user = await db.Users.findOne({
+                    where: { email: data.email },
+                    raw: false
+                })
+
+                if (!user) {
+                    resolve({
+                        errCode: -1,
+                        errMessage: "User not found"
+                    });
+                    return;
+                }
+
+                let m_token = makeid(32);
+
+
+                await db.Reset_pass.create({
+                    m_email: data.email,
+                    m_numcheck: 0,
+                    m_token: m_token
+                })
+
+                // // send mail reset pass //
+                let obj = {};
+                obj.email = Buffer.from(data.email).toString('base64');
+                obj.m_token = m_token;
+                obj.reciverEmail = data.email;
+                emailService.sendEmailResetPass(obj);
+
+
+                resolve({
+                    errCode: 0,
+                    errMessage: "Send mail Success"
+                });
+            }
+
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
+
+let requiredResetPass = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (data.email && data.token) {
+                let user = await db.Reset_pass.findOne({
+                    where: { m_email: data.email },
+                    raw: true
+                })
+
+                if (!user) {
+                    resolve({
+                        errCode: -1,
+                        errMessage: "User not found"
+                    });
+                    return;
+                }
+
+
+                let numCheck = user.m_numcheck;
+
+
+                if (data.token !== user.m_token) {
+                    numCheck += 1;
+
+                    if (numCheck > 3) {
+                        await db.Reset_pass.destroy({
+                            where: { m_email: data.email }
+                        })
+                    }
+                    resolve({
+                        errCode: -1,
+                        errMessage: "Dữ liệu không hợp lệ"
+                    });
+                    return;
+                } else {
+                    var start = moment(user.createdAt, "YYYY-MM-DD");
+                    var end = moment(new Date(), "YYYY-MM-DD");
+
+                    let checkDay = moment.duration(start.diff(end)).asDays();
+
+                    if (checkDay > 1) {
+                        await db.Reset_pass.destroy({
+                            where: { m_email: data.email }
+                        })
+                        resolve({
+                            errCode: -1,
+                            errMessage: "Link reset password hết hạn"
+                        });
+                        return;
+                    }
+                }
+
+
+                resolve({
+                    errCode: 0,
+                    errMessage: "OK"
+                });
+            }
+
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
+
+
+let resetNewPass = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (data.email) {
+                let userRequired = await db.Reset_pass.findOne({
+                    where: { m_email: data.email },
+                    raw: false
+                })
+
+                if (!userRequired) {
+                    resolve({
+                        errCode: -1,
+                        errMessage: "User not found"
+                    });
+                    return;
+                }
+
+                let userData = await db.Users.findOne({
+                    where: { email: data.email },
+                    raw: false
+                })
+
+                if (!userData) {
+                    resolve({
+                        errCode: -1,
+                        errMessage: "User not found"
+                    });
+                    return;
+                }
+
+                let hashPass = await hashUserPassword(data.password);
+
+                userData.password = hashPass;
+
+                userData.save();
+
+                await db.Reset_pass.destroy({
+                    where: { m_email: data.email }
+                })
+
+
+                resolve({
+                    errCode: 0,
+                    errMessage: "OK"
+                });
+            }
+
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
+
 let updateUser = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
             // check email //
-            if (!data.id) {
+            if (!data.id && !data.externalid) {
                 resolve({
                     errorCode: 2,
                     errMessage: 'Missing id'
                 })
             } else {
-                let user = await db.Users.findOne({
-                    where: { id: data.id },
-                    raw: false
-                })
+                let user = {};
+                if (data.id) {
+                    user = await db.Users.findOne({
+                        where: { id: data.id },
+                        raw: false
+                    })
+                }
+                if (data.externalid) {
+                    user = await db.Users.findOne({
+                        where: { externalid: data.externalid },
+                        raw: false
+                    })
+                }
+
                 if (user) {
                     let result = {};
-
                     // Có truyền image //
                     if (data.avatar && data.fileName) {
                         if (user.avatar && user.public_id_image) // có lưu trong db //
@@ -408,14 +675,13 @@ let updateUser = (data) => {
                         }
                         // upload cloud //
                         result = await uploadCloud(data.avatar, data.fileName);
-
-
                     }
+
 
                     user.fullName = data.fullName;
                     user.birthday = data.birthday;
                     user.gender = data.gender;
-                    user.roleId = data.roleId;
+                    // user.roleId = data.roleId;
                     user.phone = data.phone;
                     user.cityCode = data.cityCode;
                     user.districtCode = data.districtCode;
@@ -453,6 +719,59 @@ let updateUser = (data) => {
         }
     })
 }
+
+let getAllStaff = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (data) {
+                let listUsers = [];
+                if (data.movieTheaterId) {
+                    listUsers = await db.Users.findAll({
+                        where: {
+                            [Op.and]: [
+
+                                data.movieTheaterId &&
+                                {
+                                    movietheaterid: data.movieTheaterId
+                                },
+                                {
+                                    roleId: {
+                                        [Op.or]: [3, 5]
+                                    }
+                                }
+                            ]
+                        },
+
+                        attributes: {
+                            exclude: ['password']
+                        },
+                        include: [
+                            { model: db.Roles, as: 'UserRoles' },
+                            { model: db.MovieTheater, as: 'UserMovieTheater' },
+                        ],
+                        raw: true,
+                        nest: true
+                    });
+                }
+
+                resolve({
+                    errCode: 0,
+                    errMessage: 'OK',
+                    data: listUsers
+                }); // return 
+            }
+
+            resolve({
+                errCode: 2,
+                errMessage: 'Missing data'
+            }); // return 
+
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
 
 
 let deleteUser = (id) => {
@@ -534,6 +853,17 @@ let signUpNewUser = (data) => {
                 // Create external Id
 
                 let externalId = makeid(16);
+                let userToken = makeid(30);
+
+                await db.Customer.create({
+                    email: data.email,
+                    phone: data.phone,
+                    fullName: data.fullName,
+                    point: null,
+                    rankId: null,
+                    externalId: externalId
+                })
+
 
                 await db.Users.create({
                     email: data.email,
@@ -546,20 +876,32 @@ let signUpNewUser = (data) => {
                     roleId: 4,
                     avatar: avatar,
                     public_id_image: '',
-                    cityCode: data.cityCode,
-                    districtCode: data.districtCode,
-                    wardCode: data.wardCode,
-                    address: data.addres,
-                    externalid: externalId
-                })
+                    cityCode: data.cityCode || null,
+                    districtCode: data.districtCode || null,
+                    wardCode: data.wardCode || null,
+                    address: data.address || null,
+                    externalid: externalId,
+                    userToken: userToken
+                }).then(function (x) {
+                    if (x.id) {
 
-                await db.Customer.create({
-                    email: data.email,
-                    phone: data.phone,
-                    fullName: data.fullName,
-                    point: null,
-                    rankId: null,
-                    externalId: externalId
+                        // send mail //
+                        let obj = {};
+                        obj.userId = x.id;
+                        obj.userToken = userToken;
+                        obj.reciverEmail = data.email;
+
+                        emailService.sendEmailActive(obj);
+
+
+                        resolve({
+                            errCode: 0,
+                            errMessage: 'OK',
+                            result: x.id
+                        });
+                        return
+
+                    }
                 })
 
                 resolve({
@@ -589,5 +931,11 @@ module.exports = {
     signUpNewUser,
     getUserByRole,
     // getMovieTheaterByUser,
-    handleAdminLogin
+    handleAdminLogin,
+    getUserByExternalId,
+    userVerifyEmail,
+    sendMailResetPass,
+    requiredResetPass,
+    resetNewPass,
+    getAllStaff
 }

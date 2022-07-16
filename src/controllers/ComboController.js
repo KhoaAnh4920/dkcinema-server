@@ -3,7 +3,6 @@ import ComboServices from '../services/ComboServices';
 
 
 let handleCreateNewCombo = async (req, res) => {
-    console.log("Check req: ", req.body);
     let message = await ComboServices.createNewCombo(req.body);
     return res.status(200).json(message);
 }

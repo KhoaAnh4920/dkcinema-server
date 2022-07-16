@@ -1,9 +1,11 @@
 import db from "../models/index";
 import bcrypt from 'bcryptjs';
 require('dotenv').config();
-var salt = bcrypt.genSaltSync(10);
 var cloudinary = require('cloudinary').v2;
-var jwt = require('jsonwebtoken');
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
+
+
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -219,6 +221,84 @@ let getListMovie = () => {
 }
 
 
+let getMovieByKeyword = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (data) {
+                let listMovie = [];
+
+                if (data.kw) {
+                    let kw = `%${data.kw}%`
+                    listMovie = await db.Movie.findAll({
+                        where: {
+                            [Op.or]: [
+                                {
+                                    name: {
+                                        [Sequelize.Op.iLike]: kw
+                                    }
+                                },
+                                {
+                                    transName: {
+                                        [Sequelize.Op.iLike]: data.kw
+                                    }
+                                },
+                                {
+                                    description: {
+                                        [Sequelize.Op.iLike]: data.kw
+                                    }
+                                },
+
+
+                            ]
+                        },
+                        include: [
+                            { model: db.ImageMovie, as: 'ImageOfMovie' },
+                            { model: db.TypeMovie, as: 'MovieOfType' },
+                        ],
+                        limit: 10,
+                        order: [
+                            ['id', 'DESC'],
+                        ],
+                        raw: false,
+                        nest: true
+                    });
+                } else {
+                    listMovie = await db.Movie.findAll({
+
+                        include: [
+                            { model: db.ImageMovie, as: 'ImageOfMovie' },
+                            { model: db.TypeMovie, as: 'MovieOfType' },
+                        ],
+                        order: [
+                            ['id', 'DESC'],
+                        ],
+                        limit: 10,
+                        raw: false,
+                        nest: true
+                    });
+                }
+
+                // console.log('listMovie: ', listMovie)
+
+                resolve({
+                    errCode: 0,
+                    errMessage: 'OK',
+                    data: listMovie
+                }); // return 
+            }
+
+            resolve({
+                errCode: 2,
+                errMessage: 'Missing data'
+            }); // return 
+
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
+
 let updateStatusMovie = async (data) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -307,8 +387,8 @@ let getMovieByStatus = (query) => {
     const page = (query.page) ? +query.page : 1;
     const PerPage = (query.PerPage) ? +query.PerPage : 6;
     const skip = (page - 1) * PerPage;
-    console.log("Check page: ", page);
-    console.log("Check PerPage: ", PerPage);
+    // console.log("Check page: ", page);
+    // console.log("Check PerPage: ", PerPage);
     return new Promise(async (resolve, reject) => {
         try {
             let total = await db.Movie.count({ where: { status: +query.status, isDelete: false } });
@@ -383,5 +463,6 @@ module.exports = {
     updateMovie,
     deleteImageMovie,
     deleteMovie,
-    getMovieByStatus
+    getMovieByStatus,
+    getMovieByKeyword
 }

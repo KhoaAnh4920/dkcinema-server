@@ -16,7 +16,6 @@ let handleGetAllFood = async (req, res) => {
         errMessage: 'OK',
         dataFood
     })
-
 }
 
 let handleGetFoodById = async (req, res) => {

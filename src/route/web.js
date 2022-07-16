@@ -142,6 +142,27 @@ let initWebRoutes = (app) => {
  */
     router.get('/get-list-users', authToken, UserController.handleGetAllUser);
 
+
+    /** 
+ * @swagger 
+ * /get-list-staff: 
+ *   get: 
+ *     tags: ["Users"]
+ *     summary: Get a user by ID
+ *     parameters:
+ *       - in: query
+ *         name: movieTheaterId
+ *         schema:
+ *         type: integer
+ *         required: false
+ *         description: Movie Theater ID
+ *     responses:  
+ *       200: 
+ *         description: Success  
+ *   
+ */
+    router.get('/get-list-staff', UserController.handleGetAllStaff);
+
     /** 
  * @swagger 
  * /users/{userId}: 
@@ -161,6 +182,27 @@ let initWebRoutes = (app) => {
  *   
  */
     router.get('/users/:userId', UserController.handleGetUserById);
+
+
+    /** 
+ * @swagger 
+ * /customer/{externalId}: 
+ *   get: 
+ *     tags: ["Users"]
+ *     summary: Get a customer by external ID
+ *     parameters:
+ *       - in: path
+ *         name: externalId
+ *         schema:
+ *         type: integer
+ *         required: true
+ *         description: Numeric ID of the user to get
+ *     responses:  
+ *       200: 
+ *         description: Success  
+ *   
+ */
+    router.get('/customer/:externalId', UserController.handleGetUserByExternalId);
 
 
     /** 
@@ -255,6 +297,107 @@ let initWebRoutes = (app) => {
 *          description: Admin create User!
 */
     router.post('/users', UserController.handleCreateNewUser);
+
+
+    /**
+* @swagger
+*  /verify/users:
+*    post:
+*      summary: Verify email
+*      consumes:
+*        - application/json
+*      tags:
+*        - Users
+*      requestBody:
+*         content:
+*            application/json:
+*               schema:
+*                  type: object
+*                  properties:
+*                      userId:
+*                        type: integer
+*                      userToken:
+*                        type: string
+*      responses:
+*        201:
+*          description: Admin create User!
+*/
+    router.post('/verify/users', UserController.handleVerifyEmail);
+
+    /**
+* @swagger
+*  /send-mail-reset-pass:
+*    post:
+*      summary: Verify email
+*      consumes:
+*        - application/json
+*      tags:
+*        - Users
+*      requestBody:
+*         content:
+*            application/json:
+*               schema:
+*                  type: object
+*                  properties:
+*                      mail:
+*                        type: string
+*      responses:
+*        201:
+*          description: Admin create User!
+*/
+    router.post('/send-mail-reset-pass', UserController.handleSendMailResetPass);
+
+
+    /**
+* @swagger
+*  /required-reset-pass:
+*    post:
+*      summary: Check email reset pass
+*      consumes:
+*        - application/json
+*      tags:
+*        - Users
+*      requestBody:
+*         content:
+*            application/json:
+*               schema:
+*                  type: object
+*                  properties:
+*                      email:
+*                        type: string
+*                      token:
+*                        type: string
+*      responses:
+*        201:
+*          description: Admin create User!
+*/
+    router.post('/required-reset-pass', UserController.handleRequiredResetPass);
+
+
+    /**
+* @swagger
+*  /reset-new-password:
+*    post:
+*      summary: Check email reset pass
+*      consumes:
+*        - application/json
+*      tags:
+*        - Users
+*      requestBody:
+*         content:
+*            application/json:
+*               schema:
+*                  type: object
+*                  properties:
+*                      email:
+*                        type: string
+*                      password:
+*                        type: string
+*      responses:
+*        201:
+*          description: Admin create User!
+*/
+    router.post('/reset-new-password', UserController.handleResetNewPass);
 
 
     /**
@@ -425,6 +568,34 @@ let initWebRoutes = (app) => {
     router.post('/movieTheater', MovieTheaterController.handleCreateNewMovieTheater);
 
 
+
+    /** 
+* @swagger 
+* /check-merchant-movieTheater: 
+*   get: 
+*     tags: ["MovieTheater"]
+*     description: Check movie theater has merchant
+*     parameters:
+*       - in: query
+*         name: movieTheaterId
+*         schema:
+*         type: integer
+*         required: false
+*         description: Movie Theater ID
+*       - in: query
+*         name: roleId
+*         schema:
+*         type: integer
+*         required: false
+*         description: RoleId user
+*     responses:  
+*       200: 
+*         description: Success  
+*   
+*/
+    router.get('/check-merchant-movieTheater', MovieTheaterController.handleCheckMerchant);
+
+
     /**
 * @swagger
 *  /movieTheater:
@@ -551,6 +722,10 @@ let initWebRoutes = (app) => {
     *   
     */
     router.get('/get-list-movieTheater', MovieTheaterController.handleGetAllMovieTheater);
+
+
+
+
 
 
     /**
@@ -896,6 +1071,26 @@ let initWebRoutes = (app) => {
  */
     router.delete('/image-movie/:id', MovieControler.handleDeleteImageMovie);
 
+
+    /** 
+* @swagger 
+* /search-movie: 
+*   get: 
+*     tags: ["Movie"]
+*     summary: Search Movie by keyword
+*     parameters:
+*       - in: query
+*         name: kw
+*         schema:
+*         type: string
+*         required: false
+*         description: keyword
+*     responses:  
+*       200: 
+*         description: Success  
+*   
+*/
+    router.get('/search-movie', MovieControler.handleSearchMovie);
 
 
 
@@ -1374,6 +1569,12 @@ let initWebRoutes = (app) => {
     *                         type: number
     *                         format: double
     *                         example: 20000
+    *                     image:
+    *                         example: "https://res.cloudinary.com/cdmedia/image/upload/v1646921892/image/avatar/Unknown_b4jgka.png"
+    *                         type: string
+    *                     fileName:
+    *                         example: "file-name.png"
+    *                         type: string
     *                     items:
     *                         type: array
     *                         required: false
@@ -1473,6 +1674,12 @@ let initWebRoutes = (app) => {
     *                         type: number
     *                         format: double
     *                         example: 20000
+    *                     image:
+    *                         example: "https://res.cloudinary.com/cdmedia/image/upload/v1646921892/image/avatar/Unknown_b4jgka.png"
+    *                         type: string
+    *                     fileName:
+    *                         example: "file-name.png"
+    *                         type: string
     *                     items:
     *                         type: array
     *                         required: false
@@ -1602,6 +1809,12 @@ let initWebRoutes = (app) => {
 *         required: false
 *         description: Date of booking
 *       - in: query
+*         name: id
+*         schema:
+*         type: integer
+*         required: false
+*         description: id of booking
+*       - in: query
 *         name: movieTheaterId
 *         schema:
 *         type: integer
@@ -1613,6 +1826,24 @@ let initWebRoutes = (app) => {
 *         type: integer
 *         required: false
 *         description: status to get list booking
+*       - in: query
+*         name: nameCus
+*         schema:
+*         type: string
+*         required: false
+*         description: nameCus to get list booking
+*       - in: query
+*         name: page
+*         schema:
+*         type: integer
+*         required: false
+*         description: Page of the booking to get
+*       - in: query
+*         name: PerPage
+*         schema:
+*         type: integer
+*         required: false
+*         description: PerPage of the booking to get
 *     responses:  
 *       200: 
 *         description: Success  
@@ -1656,6 +1887,18 @@ let initWebRoutes = (app) => {
  *         type: integer
  *         required: true
  *         description: Bookingid of ticket to get
+ *       - in: query
+ *         name: page
+ *         schema:
+ *         type: integer
+ *         required: false
+ *         description: Page of the ticket to get
+ *       - in: query
+ *         name: PerPage
+ *         schema:
+ *         type: integer
+ *         required: false
+ *         description: PerPage of the ticket to get
  *     responses:  
  *       200: 
  *         description: Success  
@@ -2139,6 +2382,202 @@ let initWebRoutes = (app) => {
 
 
 
+    /** 
+* @swagger 
+* /get-list-voucher: 
+*   get: 
+*     tags: ["Voucher"]
+*     summary: Get a Voucher by date
+*     parameters:
+*       - in: query
+*         name: date
+*         schema:
+*         type: string
+*         required: false
+*         description: Time start voucher
+*       - in: query
+*         name: code
+*         schema:
+*         type: integer
+*         required: false
+*         description: Voucher code
+*       - in: query
+*         name: name
+*         schema:
+*         type: integer
+*         required: false
+*         description: Voucher name
+*       - in: query
+*         name: status
+*         schema:
+*         type: integer
+*         required: false
+*         description: Status voucher
+*     responses:  
+*       200: 
+*         description: Success  
+*   
+*/
+    router.get('/get-list-voucher', VoucherController.handleGetListVoucher);
+
+
+    /** 
+ * @swagger 
+ * /voucher/{id}: 
+ *   get: 
+ *     tags: ["Voucher"]
+ *     summary: Get Voucher
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *         type: integer
+ *         required: true
+ *         description: Numeric ID of the vocuher
+ *     responses:  
+ *       200: 
+ *         description: Success  
+ *   
+ */
+    router.get('/voucher/:id', VoucherController.handleGetDetailVoucherByIdOrCode);
+
+
+    /** 
+ * @swagger 
+ * /code/voucher/{code}: 
+ *   get: 
+ *     tags: ["Voucher"]
+ *     summary: Get Voucher
+ *     parameters:
+ *       - in: path
+ *         name: code
+ *         schema:
+ *         type: string
+ *         required: true
+ *         description: Code of the vocuher
+ *     responses:  
+ *       200: 
+ *         description: Success  
+ *   
+ */
+    router.get('/code/voucher/:code', VoucherController.handleGetDetailVoucherByIdOrCode);
+
+
+
+    /** 
+ * @swagger 
+ * /apply-voucher/{code}: 
+ *   get: 
+ *     tags: ["Voucher"]
+ *     summary: Get Voucher
+ *     parameters:
+ *       - in: path
+ *         name: code
+ *         schema:
+ *         type: string
+ *         required: true
+ *         description: Code of the vocuher
+ *     responses:  
+ *       200: 
+ *         description: Success  
+ *   
+ */
+    router.get('/apply-voucher/:code', VoucherController.handleCusApplyVoucher);
+
+
+
+    /**
+* @swagger
+*  /voucher:
+*    put:
+*      summary: Update voucher.
+*      consumes:
+*        - application/json
+*      tags:
+*        - Voucher
+*      requestBody:
+*         content:
+*            application/json:
+*               schema:
+*                  type: object
+*                  properties:
+*                   id:
+*                     type: integer
+*                   name:
+*                     type: string
+*                   description:
+*                     type: string
+*                   discount:
+*                     type: integer
+*                   condition:
+*                     type: integer
+*                   maxUses:
+*                     type: integer
+*                   timeStart:
+*                     type: integer
+*                   timeEnd:
+*                     type: integer
+*      responses:
+*        201:
+*          description: Create Banner.
+*/
+    router.put('/voucher', VoucherController.handleUpdateVoucher);
+
+
+
+
+    /**
+* @swagger
+*  /status/voucher:
+*    put:
+*      summary: Update status voucher.
+*      consumes:
+*        - application/json
+*      tags:
+*        - Voucher
+*      requestBody:
+*         content:
+*            application/json:
+*               schema:
+*                  type: object
+*                  properties:
+*                    id:
+*                      type: integer
+*                    status:
+*                      type: integer
+*      responses:
+*        201:
+*          description: OK!
+*/
+    router.put('/status/voucher', VoucherController.handleUpdateStatusVoucher);
+
+
+
+
+    /** 
+ * @swagger 
+ * /voucher/{id}: 
+ *   delete: 
+ *     tags: ["Voucher"]
+ *     summary: Delete Voucher
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *         type: integer
+ *         required: true
+ *         description: Numeric ID of the voucher to delete
+ *     responses:  
+ *       200: 
+ *         description: Success  
+ *   
+ */
+    router.delete('/voucher/:id', VoucherController.handleDeleteVoucher);
+
+
+
+
+    router.post('/get-momo-payment-link', BookingController.handleGetMomoPaymentLink);
 
     router.post('/test-send-mail', BookingController.testSendMail);
 
