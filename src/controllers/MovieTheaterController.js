@@ -24,6 +24,13 @@ let handleGetMovieTheaterById = async (req, res) => {
     return res.status(200).json(message);
 }
 
+let handleCountTurnoverByMovieTheater = async (req, res) => {
+    let message = '';
+    if (req.query && req.query.movieTheaterId)
+        message = await MovieTheaterServices.countTurnoverByMovieTheater(req.query.movieTheaterId);
+    return res.status(200).json(message);
+}
+
 let handleEditMovieTheater = async (req, res) => {
     let data = req.body;
     let message = await MovieTheaterServices.updateMovieTheater(data);
@@ -71,5 +78,6 @@ module.exports = {
     handleEditMovieTheater,
     handleDeleteMovieTheater,
     handleDeleteImageMovieTheater,
-    handleCheckMerchant
+    handleCheckMerchant,
+    handleCountTurnoverByMovieTheater
 }

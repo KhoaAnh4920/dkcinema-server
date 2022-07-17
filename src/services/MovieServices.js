@@ -226,6 +226,52 @@ let getListMovie = () => {
 }
 
 
+let countTicket = () => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let dataTicket = await db.Ticket.findAll({
+                attributes: ['TicketShowtime->ShowtimeMovie.id', [Sequelize.fn('COUNT', Sequelize.col('Ticket.id')), 'TicketCount']],
+
+                include: [
+
+                    {
+                        model: db.Showtime, as: 'TicketShowtime', include: [{ model: db.Movie, as: 'ShowtimeMovie' }]
+                    },
+                ],
+                group: ['TicketShowtime->ShowtimeMovie.id', 'TicketShowtime.id'],
+
+                raw: true,
+                nest: true
+            });
+
+            console.log('dataTicket: ', dataTicket)
+
+
+            if (dataTicket) {
+                let result = []
+                let res = dataTicket.map((item, index) => {
+                    let obj = {};
+                    obj.id = index;
+                    obj.nameMovie = item.TicketShowtime.ShowtimeMovie.name;
+                    obj.count = +item.TicketCount
+                    result.push(obj);
+                })
+
+                console.log('result: ', result);
+                resolve(result);
+
+            } else {
+                resolve([]);
+            }
+
+
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
+
 let getMovieByKeyword = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -542,5 +588,6 @@ module.exports = {
     deleteMovie,
     getMovieByStatus,
     getMovieByKeyword,
-    voteNewsRatingMovie
+    voteNewsRatingMovie,
+    countTicket
 }

@@ -283,7 +283,7 @@ let getUserByExternalId = (externalId) => {
                 nest: true
             });
 
-            console.log('users: ', users)
+            // console.log('users: ', users)
 
             let customer = await db.Customer.findOne({
                 where: { externalId: externalId },
@@ -639,6 +639,54 @@ let resetNewPass = (data) => {
 }
 
 
+let customerNewPass = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (data.email && data.currentPassword && data.newPassword) {
+                let userRequired = await db.Users.findOne({
+                    where: { email: data.email },
+                    raw: false
+                })
+
+                if (!userRequired) {
+                    resolve({
+                        errCode: -1,
+                        errMessage: "User not found"
+                    });
+                    return;
+                }
+
+                let check = bcrypt.compareSync(data.currentPassword, userRequired.password);
+
+                // let hashPassCurrent = await hashUserPassword(data.currentPassword);
+
+
+                if (check) {
+                    let hashPass = await hashUserPassword(data.newPassword);
+
+                    userRequired.password = hashPass;
+                    userRequired.save();
+                } else {
+                    resolve({
+                        errCode: -1,
+                        errMessage: "Mật khẩu hiện tại không chính xác"
+                    });
+                    return;
+                }
+
+                resolve({
+                    errCode: 0,
+                    errMessage: "OK"
+                });
+            }
+
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
+
 let updateUser = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -971,5 +1019,6 @@ module.exports = {
     requiredResetPass,
     resetNewPass,
     getAllStaff,
-    feedbackCustomer
+    feedbackCustomer,
+    customerNewPass
 }

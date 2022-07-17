@@ -28,7 +28,6 @@ let getListFeedback = (data) => {
                 dateFormatEnd = moment(new Date(+data.endTime)).format('YYYY-MM-DD');
             }
 
-            console.log('data: ', data)
 
             let listFeed = [];
             if (Object.keys(data).length === 0) {
