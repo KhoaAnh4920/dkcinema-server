@@ -20,7 +20,7 @@ let app = express();
 // Add headers before the routes are defined
 app.use(function (req, res, next) {
 
-    const allowedOrigins = ['http://localhost:3000', 'http://localhost:3001'];
+    const allowedOrigins = ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002'];
     const origin = req.headers.origin;
     if (allowedOrigins.includes(origin)) {
         res.setHeader('Access-Control-Allow-Origin', origin);

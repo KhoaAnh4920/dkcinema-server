@@ -20,7 +20,7 @@ var redirectUrl = "http://localhost:3001/";
 
 // var ipnUrl = "https://57ce-2402-800-6371-a14a-ed0d-ccd6-cbe9-5ced.ngrok.io/api/handle-order";
 
-var notifyUrl = "https://1ae7-14-241-244-237.ap.ngrok.io/api/handle-booking";
+var notifyUrl = "https://b728-115-73-209-26.ap.ngrok.io/api/handle-booking";
 // var ipnUrl = redirectUrl = "https://webhook.site/454e7b77-f177-4ece-8236-ddf1c26ba7f8";
 var requestType = "captureWallet";
 import emailService from '../services/emailService';
@@ -734,6 +734,92 @@ let getAllBooking = (data) => {
 }
 
 
+let getBookingByCustomer = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (data) {
+                let dateFormatStart = null;
+                let dateFormatEnd = null;
+                if (data.startTime) {
+                    dateFormatStart = moment(new Date(+data.startTime)).format('YYYY-MM-DD');
+                }
+                if (data.endTime) {
+                    dateFormatEnd = moment(new Date(+data.endTime)).format('YYYY-MM-DD');
+                }
+
+                let whereClause = {};
+                if (dateFormatStart || dateFormatEnd) {
+                    if (dateFormatStart && !dateFormatEnd) {
+                        whereClause = { [Op.gte]: `%${dateFormatStart}%` }
+                    } else if (!dateFormatStart && dateFormatEnd)
+                        whereClause = { [Op.lte]: `%${dateFormatEnd}%` }
+                    else
+                        whereClause = { [Op.gte]: `%${dateFormatStart}%`, [Op.lte]: `%${dateFormatEnd}%` }
+                }
+
+
+                let listBooking = await db.Booking.findAll({
+
+                    where: {
+                        [Op.and]: [
+
+                            data.cusId &&
+                            {
+                                customerId: +data.cusId
+                            },
+                            (dateFormatStart || dateFormatEnd) &&
+
+                            db.sequelize.where(
+                                db.sequelize.cast(db.sequelize.col("Booking.createdAt"), "varchar"),
+                                whereClause
+                            ),
+                        ]
+                    },
+                    include: [
+                        {
+                            model: db.Ticket, as: 'BookingTicket',
+                            include: [{
+                                model: db.Showtime, as: 'TicketShowtime',
+                                include: [{
+                                    model: db.Room, as: 'RoomShowTime',
+                                    include: [{
+                                        model: db.MovieTheater, as: 'MovieTheaterRoom',
+                                    }]
+                                },
+                                { model: db.Movie, as: 'ShowtimeMovie', }
+                                ]
+                            }]
+                        },
+
+                    ],
+                    order: [
+                        ['id', 'DESC'],
+                    ],
+                    raw: false,
+                    nest: true
+                });
+
+                resolve({
+                    errCode: 0,
+                    errMessage: 'OK',
+                    data: listBooking,
+                    totalData: listBooking.length
+                }); // return 
+            }
+
+
+            resolve({
+                errCode: 2,
+                errMessage: 'Missing data'
+            }); // return 
+
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
+
 
 let getDetailBooking = (id) => {
     return new Promise(async (resolve, reject) => {
@@ -827,7 +913,8 @@ module.exports = {
     getBookingSeet,
     getAllBooking,
     getDetailBooking,
-    getComboByBooking
+    getComboByBooking,
+    getBookingByCustomer
 }
 
 

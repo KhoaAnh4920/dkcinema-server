@@ -23,6 +23,16 @@ let handleGetAllMovie = async (req, res) => {
 
 }
 
+let countTicketMovie = async (req, res) => {
+    let dataMovie = await MovieServices.countTicket();
+    return res.status(200).json({
+        errCode: 0,
+        errMessage: 'OK',
+        dataMovie
+    })
+
+}
+
 
 let handleUpdateStatusMovie = async (req, res) => {
     let data = req.body;
@@ -87,5 +97,6 @@ module.exports = {
     handleDeleteMovie,
     handleGetMovieByStatus,
     handleSearchMovie,
-    handleVoteRatingMovie
+    handleVoteRatingMovie,
+    countTicketMovie
 }

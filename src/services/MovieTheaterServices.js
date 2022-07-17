@@ -198,6 +198,78 @@ let getMovieTheaterById = (movieTheaterId) => {
     })
 }
 
+
+
+let countTurnoverByMovieTheater = (movieTheaterId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+
+            let data2 = await db.MovieTheater.findAll({
+                attributes:
+                    ['id', 'MovieTheaterRoom->RoomShowTime->TicketShowtime->BookingTicket.createdAt', db.sequelize.fn('SUM', db.sequelize.col('MovieTheaterRoom->RoomShowTime->TicketShowtime->BookingTicket.price'))],
+
+                where: {
+                    id: movieTheaterId,
+
+                },
+                include: [
+                    {
+                        model: db.Room, as: 'MovieTheaterRoom', required: true, include: [
+                            {
+                                model: db.Showtime, as: 'RoomShowTime', required: true, include: [
+                                    {
+                                        model: db.Ticket, as: 'TicketShowtime', required: true, include: {
+                                            model: db.Booking, as: 'BookingTicket', required: true, where: {
+                                                createdAt: {
+                                                    [Op.gte]: Sequelize.literal("NOW() - (INTERVAL '6 MONTHS')"),
+                                                }
+                                            }
+                                        }
+                                    }]
+                            },
+                        ],
+
+                    },
+
+
+                ],
+
+                group: ['MovieTheater.id', 'MovieTheaterRoom.id',
+                    'MovieTheaterRoom->RoomShowTime.id', 'MovieTheaterRoom->RoomShowTime->TicketShowtime.id',
+                    'MovieTheaterRoom->RoomShowTime->TicketShowtime->BookingTicket.id',
+                    // 'MONTH(MovieTheaterRoom->RoomShowTime->TicketShowtime->BookingTicket.createdAt)'
+                ],
+
+                raw: true,
+                nest: true
+            })
+
+
+
+
+            let index = 0;
+            const result = data2.reduce((r, { createdAt, sum }) => {
+                let dateObj = new Date(createdAt);
+                let monthyear = dateObj.toLocaleString("en-us", { month: "long", year: 'numeric' });
+                if (!r[monthyear]) r[monthyear] = { monthyear, price: sum, id: index++ }
+                else { r[monthyear].price += sum };
+                return r;
+            }, {})
+
+
+
+            resolve({
+                errCode: 0,
+                errMessage: 'OK',
+                data: Object.values(result).reverse()
+            });
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
+
 let deleteMovieTheater = (id) => {
     return new Promise(async (resolve, reject) => {
         let movieTheater = await db.MovieTheater.findOne({
@@ -320,5 +392,6 @@ module.exports = {
     getMovieTheaterById,
     deleteMovieTheater,
     deleteImageMovieTheater,
-    checkMerchantMovieTheater
+    checkMerchantMovieTheater,
+    countTurnoverByMovieTheater
 }

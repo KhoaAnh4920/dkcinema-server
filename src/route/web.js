@@ -356,7 +356,7 @@ let initWebRoutes = (app) => {
 * @swagger
 *  /required-reset-pass:
 *    post:
-*      summary: Check email reset pass
+*      summary: required reset pass for user
 *      consumes:
 *        - application/json
 *      tags:
@@ -373,7 +373,7 @@ let initWebRoutes = (app) => {
 *                        type: string
 *      responses:
 *        201:
-*          description: Admin create User!
+*          description: required Reset new pass!
 */
     router.post('/required-reset-pass', UserController.handleRequiredResetPass);
 
@@ -402,6 +402,10 @@ let initWebRoutes = (app) => {
 *          description: Admin create User!
 */
     router.post('/reset-new-password', UserController.handleResetNewPass);
+
+
+
+
 
 
     /**
@@ -550,6 +554,34 @@ let initWebRoutes = (app) => {
 *          description: Feedback by customer!
 */
     router.post('/feedback-customer', UserController.handleFeedbackCustomer);
+
+
+    /**
+* @swagger
+*  /customer-new-password:
+*    post:
+*      summary: Customer change pass
+*      consumes:
+*        - application/json
+*      tags:
+*        - Customer
+*      requestBody:
+*         content:
+*            application/json:
+*               schema:
+*                  type: object
+*                  properties:
+*                      email:
+*                        type: string
+*                      currentPassword:
+*                        type: string
+*                      newPassword:
+*                        type: string
+*      responses:
+*        201:
+*          description: Customer change pass
+*/
+    router.post('/customer-new-password', UserController.handleCustomerNewPass);
 
 
     /** 
@@ -1966,6 +1998,33 @@ let initWebRoutes = (app) => {
     router.get('/get-list-booking', BookingController.handleGetAllBooking);
 
 
+    /** 
+* @swagger 
+* /get-booking-customer: 
+*   get: 
+*     tags: ["Booking Ticket"]
+*     summary: Get list booking
+*     parameters:
+*       - in: query
+*         name: startTime
+*         type: integer
+*         example: 1640549137000
+*       - in: query
+*         name: endTime
+*         type: integer
+*         example: 1640549137000
+*       - in: query
+*         name: cusId
+*         schema:
+*         type: integer
+*         required: true
+*         description: cusId of booking
+*     responses:  
+*       200: 
+*         description: Success  
+*   
+*/
+    router.get('/get-booking-customer', BookingController.handleGetBookingByCustomer);
 
     /** 
 * @swagger 
@@ -2731,6 +2790,39 @@ let initWebRoutes = (app) => {
     router.delete('/voucher/:id', VoucherController.handleDeleteVoucher);
 
 
+
+    /** 
+ * @swagger 
+ * /count-ticket-of-movie: 
+ *   get: 
+ *     tags: ["Dashboard"]
+ *     summary: Count ticket of movie
+ *     responses:  
+ *       200: 
+ *         description: Success  
+ *   
+ */
+    router.get('/count-ticket-of-movie', MovieControler.countTicketMovie);
+
+    /** 
+ * @swagger 
+ * /count-turnover-of-movieTheater: 
+ *   get: 
+ *     tags: ["Dashboard"]
+ *     summary: Count turnover of movie
+ *     parameters:
+ *       - in: query
+ *         name: movieTheaterId
+ *         schema:
+ *         type: integer
+ *         required: false
+ *         description: Movie Theater ID
+ *     responses:  
+ *       200: 
+ *         description: Success  
+ *   
+ */
+    router.get('/count-turnover-of-movieTheater', MovieTheaterController.handleCountTurnoverByMovieTheater);
 
 
     router.post('/get-momo-payment-link', BookingController.handleGetMomoPaymentLink);

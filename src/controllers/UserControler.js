@@ -93,6 +93,11 @@ let handleResetNewPass = async (req, res) => {
     return res.status(200).json(message);
 }
 
+let handleCustomerNewPass = async (req, res) => {
+    let message = await UserService.customerNewPass(req.body);
+    return res.status(200).json(message);
+}
+
 let handleGetUserById = async (req, res) => {
     let message = '';
 
@@ -184,5 +189,6 @@ module.exports = {
     handleRequiredResetPass,
     handleResetNewPass,
     handleGetAllStaff,
-    handleFeedbackCustomer
+    handleFeedbackCustomer,
+    handleCustomerNewPass
 }

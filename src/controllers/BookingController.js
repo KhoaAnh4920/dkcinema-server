@@ -155,14 +155,11 @@ let handleGetBookingSeet = async (req, res) => {
 
 let handleGetAllBooking = async (req, res) => {
     let message = await BookingServices.getAllBooking(req.query);;
-    console.log(req.query);
-    // if (req.query)
-    //     message = await ScheduleService.getAllBooking(req.query);
-    // else
-    //     return res.status(200).json({
-    //         errCode: 1,
-    //         errMessage: "Missing params"
-    //     })
+    return res.status(200).json(message);
+}
+
+let handleGetBookingByCustomer = async (req, res) => {
+    let message = await BookingServices.getBookingByCustomer(req.query);;
     return res.status(200).json(message);
 }
 
@@ -187,5 +184,6 @@ module.exports = {
     handleGetAllBooking,
     handleGetDetailBooking,
     handleGetComboByBooking,
-    handleGetMomoPaymentLink
+    handleGetMomoPaymentLink,
+    handleGetBookingByCustomer
 }
