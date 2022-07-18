@@ -20,7 +20,7 @@ var redirectUrl = "http://localhost:3001/";
 
 // var ipnUrl = "https://57ce-2402-800-6371-a14a-ed0d-ccd6-cbe9-5ced.ngrok.io/api/handle-order";
 
-var notifyUrl = "https://b728-115-73-209-26.ap.ngrok.io/api/handle-booking";
+var notifyUrl = "https://e992-14-161-20-253.ap.ngrok.io/api/handle-booking";
 // var ipnUrl = redirectUrl = "https://webhook.site/454e7b77-f177-4ece-8236-ddf1c26ba7f8";
 var requestType = "captureWallet";
 import emailService from '../services/emailService';
@@ -402,7 +402,7 @@ let testSendMail = async (req) => {
 
 
     const orderCurrent = await db.Booking.findOne({
-        where: { id: 42 },
+        where: { id: 66 },
     });
 
     console.log("Check orderCurrent: ", orderCurrent);
@@ -449,10 +449,30 @@ let sendMailBooking = (data) => {
                     ],
                     raw: true,
                     nest: true
-
                 })
 
-                let obj = {}
+                let dataCombo = await db.Combo_Booking.findAll({
+                    where: {
+                        bookingId: +data.id
+                    },
+                    include: [
+                        { model: db.Combo, as: 'Combo' },
+                    ],
+                    raw: true,
+                    nest: true
+                })
+                let obj = {};
+
+                if (dataCombo.length > 0) {
+                    obj.combo = '';
+                    dataCombo.map(item => {
+                        obj.combo += item.Combo.name + ', '
+                    })
+
+                    obj.combo = obj.combo.replace(/,\s*$/, "");
+                }
+
+
                 obj.nameMovie = ticket[0].TicketShowtime.ShowtimeMovie.name;
                 // 05/06/2022 - 22:00 //
                 let ngayChieu = moment(ticket[0].TicketShowtime.premiereDate).format("DD/MM/YYYY");
@@ -475,14 +495,30 @@ let sendMailBooking = (data) => {
 
 
 
-                let soGhe = ''
+                let soGheDefault = '';
+                let soGheVip = ''
                 ticket.map((item, index) => {
-                    soGhe += alphabet[+item.TicketSeet.posOfColumn];
-                    soGhe = soGhe + (+item.TicketSeet.posOfRow + 1) + ', '
-                })
-                soGhe = soGhe.replace(/,\s*$/, "");
+                    if (item.TicketSeet.typeId === 1) {
+                        soGheDefault += alphabet[+item.TicketSeet.posOfColumn];
+                        soGheDefault = soGheDefault + (+item.TicketSeet.posOfRow + 1) + ', '
+                    } else {
+                        soGheVip += alphabet[+item.TicketSeet.posOfColumn];
+                        soGheVip = soGheVip + (+item.TicketSeet.posOfRow + 1) + ', '
+                    }
 
-                obj.seet = '1' + ' - (' + soGhe + ')';
+                })
+                soGheDefault = soGheDefault.replace(/,\s*$/, "");
+                soGheVip = soGheVip.replace(/,\s*$/, "");
+
+                obj.seet = '';
+                if (soGheDefault !== '') {
+                    obj.seet += 'Ghế tiêu chuẩn(' + soGheDefault + ')' + ',';
+                }
+                if (soGheVip !== '') {
+                    obj.seet += ' Ghế Vip(' + soGheVip + ')';
+                }
+
+
 
                 const imgQRCode = await QRCode.toDataURL(`${data.id}`);
 
@@ -858,6 +894,37 @@ let getDetailBooking = (id) => {
 }
 
 
+let deleteBooking = (id) => {
+    return new Promise(async (resolve, reject) => {
+        let dataBooking = await db.Booking.findOne({
+            where: { id: id },
+        });
+        if (!dataBooking) {
+            resolve({
+                errCode: 2,
+                errMessage: 'Booking ko ton tai'
+            })
+        }
+
+        await db.Ticket.destroy({
+            where: { bookingId: id }
+        })
+        await db.Combo_Booking.destroy({
+            where: { bookingId: id }
+        })
+
+
+        await db.Booking.destroy({
+            where: { id: id }
+        });
+        resolve({
+            errCode: 0,
+            errMessage: "Delete Booking ok"
+        })
+    })
+}
+
+
 
 var task = cron.schedule('59 * * * *', async () => {
     let dateToday = moment(new Date()).format('MM-DD');
@@ -880,6 +947,7 @@ var task = cron.schedule('59 * * * *', async () => {
             var minutesPassed = moment(item.createdAt, "HH:mm:ss").diff(givenTime, "minutes");
 
             if (Math.abs(minutesPassed) > 15) {
+                console.log('Math.abs(minutesPassed): ', Math.abs(minutesPassed))
                 await db.Ticket.destroy({
                     where: { bookingId: item.id }
                 })
@@ -914,7 +982,8 @@ module.exports = {
     getAllBooking,
     getDetailBooking,
     getComboByBooking,
-    getBookingByCustomer
+    getBookingByCustomer,
+    deleteBooking
 }
 
 

@@ -97,6 +97,7 @@ let handleUserLogin = async (email, password) => {
 
                     console.log("Check user password: ", check);
 
+
                     if (check) {
                         console.log('user: ', user)
                         if (!user.isActive) {
@@ -106,7 +107,6 @@ let handleUserLogin = async (email, password) => {
                             })
                             return
                         }
-
                         userData.errorCode = 0;
                         userData.errMessage = `Ok`;
 
@@ -126,9 +126,8 @@ let handleUserLogin = async (email, password) => {
 
                         // // Add token code //
                         userData.user.accessToken = jwt.sign({ email: user.email, fullName: user.fullName, _id: user.id, roleId: user.roleId }, 'dkcinema', {
-                            expiresIn: "1h" // it will be expired after 1 hours
+                            expiresIn: "5h" // it will be expired after 5 hours
                         });
-
                     } else {
                         userData.errorCode = 3;
                         userData.errMessage = `Wrong pass`;

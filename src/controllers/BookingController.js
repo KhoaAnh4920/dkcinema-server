@@ -173,6 +173,19 @@ let handleGetDetailBooking = async (req, res) => {
 }
 
 
+let handleDeleteBooking = async (req, res) => {
+
+    if (!req.params.id) {
+        return res.status(200).json({
+            errCode: 1,
+            errMessage: "Missing id"
+        })
+    }
+    let message = await BookingServices.deleteBooking(req.params.id);
+    return res.status(200).json(message);
+}
+
+
 module.exports = {
     handleCreateBookingTicket,
     handleBookingPayment,
@@ -185,5 +198,6 @@ module.exports = {
     handleGetDetailBooking,
     handleGetComboByBooking,
     handleGetMomoPaymentLink,
-    handleGetBookingByCustomer
+    handleGetBookingByCustomer,
+    handleDeleteBooking
 }
