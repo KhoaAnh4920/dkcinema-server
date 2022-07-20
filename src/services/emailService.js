@@ -21,7 +21,7 @@ let sendSimpleEmail = async (dataSend) => {
 
     // send mail with defined transport object
     let info = await transporter.sendMail({
-        from: '"DK Cinemas Booking Ticket 👻" <khoadido@gmail.com>', // sender address
+        from: '"DK Cinemas Booking Ticket" <khoadido@gmail.com>', // sender address
         to: dataSend.reciverEmail, // list of receivers
         subject: "Thông tin đặt vé", // Subject line
         html: getBodyEmailHTML(dataSend), // html body
@@ -285,8 +285,14 @@ let getBodyEmailHTML = (dataSend) => {
                             </tr>
                             <tr>
                                 <td class="text-left">loại vé và số ghế</td>
-                                <td class="text-right">${dataSend.seet} - ${dataSend.price} VND</td>
+                                <td class="text-right">${dataSend.seet}</td>
                             </tr>
+                            ${dataSend.combo &&
+        `<tr>
+                                <td class="text-left">Combo</td>
+                                <td class="text-right">${dataSend.combo}</td>
+                            </tr>`
+        }
                             <tr>
                                 <td class="text-left">rạp và phòng chiếu</td>
                                 <td class="text-right">${dataSend.room}</td>

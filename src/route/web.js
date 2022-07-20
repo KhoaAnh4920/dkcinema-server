@@ -2000,6 +2000,26 @@ let initWebRoutes = (app) => {
 
     /** 
 * @swagger 
+* /booking/{id}: 
+*   delete: 
+*     tags: ["Booking Ticket"]
+*     summary: Delete Booking Ticket
+*     parameters:
+*       - in: path
+*         name: id
+*         schema:
+*         type: integer
+*         required: true
+*         description: Numeric ID of the booking to delete
+*     responses:  
+*       200: 
+*         description: Success  
+*   
+*/
+    router.delete('/booking/:id', BookingController.handleDeleteBooking);
+
+    /** 
+* @swagger 
 * /get-booking-customer: 
 *   get: 
 *     tags: ["Booking Ticket"]
