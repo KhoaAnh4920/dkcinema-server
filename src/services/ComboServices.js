@@ -300,11 +300,13 @@ let deleteCombo = (id) => {
 
 
 
+
 module.exports = {
     createNewCombo,
     getItemOfCombo,
     getListCombo,
     getDetailCombo,
     updateCombo,
-    deleteCombo
+    deleteCombo,
+
 }
