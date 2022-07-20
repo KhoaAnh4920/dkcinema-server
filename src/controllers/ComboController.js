@@ -59,5 +59,5 @@ module.exports = {
     handleGetItemCombo,
     handleGetDetailCombo,
     handleEditCombo,
-    handleDeleteCombo
+    handleDeleteCombo,
 }
