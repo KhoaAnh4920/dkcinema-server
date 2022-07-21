@@ -285,16 +285,33 @@ let deleteCombo = (id) => {
             })
         }
 
-        await db.Combo_Food.destroy({
-            where: { comboId: id }
+        // Check combo has booking //
+        let existsCombo = await db.Combo_Booking.findAll({
+            where: { comboId: id, status: 0 }
         })
-        await db.Combo.destroy({
-            where: { id: id }
-        });
-        resolve({
-            errCode: 0,
-            errMessage: "Delete combo success"
-        })
+
+
+        if (existsCombo) {
+            resolve({
+                errCode: -1,
+                errMessage: "Combo already booking"
+            })
+            return;
+        } else {
+            await db.Combo_Food.destroy({
+                where: { comboId: id }
+            })
+            await db.Combo.destroy({
+                where: { id: id }
+            });
+            resolve({
+                errCode: 0,
+                errMessage: "Delete combo success"
+            })
+            return;
+        }
+
+
     })
 }
 

@@ -206,7 +206,9 @@ let getListVoucher = (data) => {
                                 status: {
                                     [Op.or]: [(data.status) ? data.status : null, null]
                                 }
-                            }
+                            },
+                            { isdelete: false }
+
                         ]
                     },
 
@@ -257,6 +259,7 @@ let getVoucherById = (key) => {
                                     [Op.or]: [(key) ? key : null, null]
                                 }
                             },
+                            { isdelete: false }
                         ]
                     },
 
@@ -272,7 +275,8 @@ let getVoucherById = (key) => {
                                 code: {
                                     [Op.or]: [(key) ? key : null, null]
                                 }
-                            }
+                            },
+                            { isdelete: false }
                         ]
                     },
 
@@ -304,7 +308,7 @@ let getVoucheryCustomer = (key) => {
         try {
 
             let voucher = await db.Voucher.findOne({
-                where: { code: key, status: true },
+                where: { code: key, status: true, isdelete: false },
                 raw: false,
                 nest: true
             });
@@ -316,7 +320,20 @@ let getVoucheryCustomer = (key) => {
                 });
             }
 
-            // console.log(schedule);
+            if (voucher.timeStart && voucher.timeEnd) {
+                var compareDate = moment(new Date(), "DD/MM/YYYY");
+                var startDate = moment(voucher.timeStart, "DD/MM/YYYY");
+                var endDate = moment(voucher.timeEnd, "DD/MM/YYYY");
+
+                let check = compareDate.isBetween(startDate, endDate);
+                if (!check) {
+                    resolve({
+                        errCode: -1,
+                        errMessage: 'Expired voucher',
+                    });
+                }
+
+            }
 
             resolve({
                 errCode: 0,
@@ -370,25 +387,34 @@ let updateStatusVoucher = async (data) => {
 let deleteVoucher = (id) => {
     return new Promise(async (resolve, reject) => {
         let voucher = await db.Voucher.findOne({
-            where: { id: id }
+            where: { id: id },
+            raw: false,
+            nest: true
         })
         if (!voucher) {
             resolve({
                 errCode: 2,
                 errMessage: 'Voucher not found'
             })
+            return;
         }
 
+        voucher.isdelete = true;
+        await voucher.save();
 
-        await db.Voucher.destroy({
-            where: { id: id }
-        });
+
+        console.log('voucher: ', voucher);
+
+        // await db.Voucher.destroy({
+        //     where: { id: id }
+        // });
         resolve({
             errCode: 0,
             errMessage: "Delete voucher ok"
         })
     })
 }
+
 
 
 

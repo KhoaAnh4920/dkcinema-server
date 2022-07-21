@@ -42,6 +42,9 @@ let getAllMovieTheater = () => {
     return new Promise(async (resolve, reject) => {
         try {
             let movieTheater = await db.MovieTheater.findAll({
+                where: {
+                    isdelete: false
+                },
                 include: [
                     // { model: db.Users, as: 'UserMovieTheater' },
                     { model: db.ImageMovieTheater, as: 'MovieTheaterImage' },
@@ -177,7 +180,7 @@ let getMovieTheaterById = (movieTheaterId) => {
     return new Promise(async (resolve, reject) => {
         try {
             let movieTheater = await db.MovieTheater.findOne({
-                where: { id: movieTheaterId },
+                where: { id: movieTheaterId, isdelete: false },
 
                 include: [
                     // { model: db.Users, as: 'UserMovieTheater' },
@@ -210,6 +213,7 @@ let countTurnoverByMovieTheater = (movieTheaterId) => {
 
                 where: {
                     id: movieTheaterId,
+                    isdelete: false
 
                 },
                 include: [
@@ -274,6 +278,7 @@ let deleteMovieTheater = (id) => {
     return new Promise(async (resolve, reject) => {
         let movieTheater = await db.MovieTheater.findOne({
             where: { id: id },
+            raw: false,
         });
         if (!movieTheater) {
             resolve({
@@ -282,15 +287,14 @@ let deleteMovieTheater = (id) => {
             })
         }
 
-        // if (user.avatar && user.public_id_image) {
-        //     // Xóa hình cũ //
-        //     await cloudinary.uploader.destroy(user.public_id_image, { invalidate: true, resource_type: "raw" },
-        //         function (err, result) { console.log(result) });
-        // }
 
-        await db.MovieTheater.destroy({
-            where: { id: id }
-        });
+        // await db.MovieTheater.destroy({
+        //     where: { id: id }
+        // });
+
+        movieTheater.isdelete = true;
+        await movieTheater.save();
+
         resolve({
             errCode: 0,
             errMessage: "Delete MovieTheater ok"
@@ -306,36 +310,74 @@ let checkMerchantMovieTheater = (data) => {
 
                 let dataMerchant = [];
                 if (data.movieTheaterId && data.roleId) {
-                    dataMerchant = await db.Users.findOne({
-                        where: {
-                            [Op.and]: [
-                                data.movieTheaterId &&
-                                {
-                                    movietheaterid: {
-                                        [Op.or]: [(data.movieTheaterId) ? +data.movieTheaterId : null, null]
-                                    }
-                                },
-                                data.roleId &&
-                                {
-                                    roleId: {
-                                        [Op.or]: [(data.roleId) ? +data.roleId : null, null]
-                                    }
-                                },
-                            ]
-                        },
+                    dataMerchant = await db.MovieTheater.findOne({
+
+                        include: [
+                            {
+                                model: db.Users, as: 'UserMovieTheater', required: true, where: {
+                                    movietheaterid: +data.movieTheaterId,
+                                    roleId: +data.roleId
+
+                                }
+
+                            },
+
+
+                        ],
 
                         raw: false,
                         nest: true
                     });
+
+                    if (!dataMerchant) {
+                        let result = await db.MovieTheater.findOne({
+
+                            where: {
+                                isdelete: false,
+                                id: data.movieTheaterId
+                            },
+
+                            raw: false,
+                            nest: true
+                        });
+
+                        console.log('result: ', result)
+
+                        resolve({
+                            errCode: 0,
+                            errMessage: 'OK',
+                            data: result
+                        });
+                        return
+                    }
+
+                    resolve({
+                        errCode: 0,
+                        errMessage: 'OK',
+                        data: null
+                    }); // return 
+
+
+                    // dataMerchant = await db.Users.findOne({
+                    //     where: {
+                    //         [Op.and]: [
+                    //             data.movieTheaterId &&
+                    //             {
+                    //                 movietheaterid: +data.movieTheaterId
+                    //             },
+                    //             data.roleId &&
+                    //             {
+                    //                 roleId: +data.roleId
+                    //             },
+                    //         ]
+                    //     },
+
+                    //     raw: false,
+                    //     nest: true
+                    // });
                 }
 
-                console.log('dataMerchant: ', dataMerchant)
 
-                resolve({
-                    errCode: 0,
-                    errMessage: 'OK',
-                    data: dataMerchant
-                }); // return 
             }
 
             resolve({

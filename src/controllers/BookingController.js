@@ -186,6 +186,13 @@ let handleDeleteBooking = async (req, res) => {
 }
 
 
+let handleUpdateStatusComboBooking = async (req, res) => {
+    let data = req.body;
+    let message = await BookingServices.handleUpdateStatusComboBooking(data);
+    return res.status(200).json(message)
+}
+
+
 module.exports = {
     handleCreateBookingTicket,
     handleBookingPayment,
@@ -199,5 +206,6 @@ module.exports = {
     handleGetComboByBooking,
     handleGetMomoPaymentLink,
     handleGetBookingByCustomer,
-    handleDeleteBooking
+    handleDeleteBooking,
+    handleUpdateStatusComboBooking
 }

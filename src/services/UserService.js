@@ -178,6 +178,21 @@ let handleAdminLogin = async (email, password) => {
                                 return;
                             }
 
+                            let checkTheater = await db.MovieTheater.findOne({
+                                where: { id: user.movietheaterid, isdelete: false },
+
+                                raw: true,
+                                nest: true
+                            });
+
+
+                            if (!checkTheater) {
+                                userData.errorCode = 4;
+                                userData.errMessage = `Unmanaged users cinema`;
+                                resolve(userData);
+                                return;
+                            }
+
                             userData.errorCode = 0;
                             userData.errMessage = `Ok`;
 
@@ -831,6 +846,7 @@ let deleteUser = (id) => {
                 errCode: 2,
                 errMessage: 'User ko ton tai'
             })
+            return;
         }
 
         if (user.avatar && user.public_id_image) {
@@ -892,6 +908,7 @@ let signUpNewUser = (data) => {
                     errCode: 1,
                     message: "Email da ton tai"
                 })
+                return;
             } else {
                 let hashPass = await hashUserPassword(data.password);
 
@@ -974,6 +991,7 @@ let feedbackCustomer = (data) => {
                     errCode: -1,
                     errMessage: 'Missing data',
                 })
+                return;
             }
 
             await db.Feedback.create({

@@ -22,6 +22,7 @@ module.exports = (sequelize, DataTypes) => {
         bookingId: DataTypes.INTEGER,
         comboId: DataTypes.INTEGER,
         amount: DataTypes.INTEGER,
+        status: DataTypes.BOOLEAN
     }, {
         sequelize,
         modelName: 'Combo_Booking',
