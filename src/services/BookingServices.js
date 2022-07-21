@@ -926,6 +926,47 @@ let deleteBooking = (id) => {
 
 
 
+let handleUpdateStatusComboBooking = async (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!data.bookingId) {
+                resolve({
+                    errorCode: 2,
+                    errMessage: 'Missing params'
+                })
+            } else {
+                let dataComboBook = await db.Combo_Booking.findOne({
+                    where: { bookingId: data.bookingId },
+                    raw: false
+                })
+
+                if (dataComboBook) {
+                    dataComboBook.status = true;
+                    await dataComboBook.save();
+                    resolve({
+                        errCode: 0,
+                        message: "Update Status combo Success"
+                    });
+                    return
+                }
+
+
+                resolve({
+                    errCode: 0,
+                    message: "OK"
+                });
+
+
+
+            }
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
+
+
 var task = cron.schedule('59 * * * *', async () => {
     let dateToday = moment(new Date()).format('MM-DD');
 
@@ -983,7 +1024,8 @@ module.exports = {
     getDetailBooking,
     getComboByBooking,
     getBookingByCustomer,
-    deleteBooking
+    deleteBooking,
+    handleUpdateStatusComboBooking
 }
 
 

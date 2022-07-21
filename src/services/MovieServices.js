@@ -472,7 +472,7 @@ let deleteMovie = async (data) => {
 
                 resolve({
                     errCode: 0,
-                    message: "Delete movie Success"
+                    errMessage: "Delete movie Success"
                 });
             }
         } catch (e) {

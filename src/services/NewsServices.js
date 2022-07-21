@@ -479,6 +479,13 @@ let deleteNews = (id) => {
                 function (err, result) { console.log(result) });
         }
 
+        await db.Comment.destroy({
+            where: { newsId: id }
+        });
+        await db.Vote_News.destroy({
+            where: { newsId: id }
+        });
+
         await db.News.destroy({
             where: { id: id }
         });

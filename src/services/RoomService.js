@@ -8,7 +8,8 @@ let createNewRoom = (data) => {
                 let existsName = await db.Room.findOne({
                     where: {
                         name: data.name,
-                        movieTheaterId: data.movieTheaterId
+                        movieTheaterId: data.movieTheaterId,
+                        isdelete: false
                     }
                 })
                 if (existsName) {
@@ -187,7 +188,8 @@ let getAllRoom = (data) => {
                     { model: db.Seet, as: 'RoomSeet' }
                 ],
                 where: {
-                    movieTheaterId: data.movieTheaterId || 1
+                    movieTheaterId: data.movieTheaterId || 1,
+                    isdelete: false
                 },
                 order: [
                     ['id', 'DESC'],
@@ -212,7 +214,7 @@ let getRoomById = (roomId) => {
                     { model: db.MovieTheater, as: 'MovieTheaterRoom' },
                     { model: db.Seet, as: 'RoomSeet' }
                 ],
-                where: { id: roomId },
+                where: { id: roomId, isdelete: false },
 
                 raw: false,
                 nest: true
@@ -233,7 +235,8 @@ let getRoomById = (roomId) => {
 let deleteRoom = (id) => {
     return new Promise(async (resolve, reject) => {
         let room = await db.Room.findOne({
-            where: { id: id }
+            where: { id: id },
+            raw: false
         })
         if (!room) {
             resolve({
@@ -244,15 +247,35 @@ let deleteRoom = (id) => {
 
         // Check lich chieu //
 
-        ///////////
+        let checkExist = db.Showtime.findOne({
+            where: {
+                [Op.and]: [
+                    {
+                        roomId: id
+                    },
+                ]
+            },
 
-        await db.Seet.destroy({
-            where: { roomId: id }
         })
 
-        await db.Room.destroy({
-            where: { id: id }
-        });
+        if (checkExist) {
+            room.isdelete = true;
+            room.save();
+
+        } else {
+            await db.Seet.destroy({
+                where: { roomId: id }
+            })
+
+            await db.Room.destroy({
+                where: { id: id }
+            });
+
+        }
+
+        ///////////
+
+
         resolve({
             errCode: 0,
             errMessage: "Delete room ok"

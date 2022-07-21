@@ -811,7 +811,7 @@ let initWebRoutes = (app) => {
  * /image-movie-theater/{id}: 
  *   delete: 
  *     tags: ["MovieTheater"]
- *     summary: Delete MovieTheater
+ *     summary: Delete image MovieTheater
  *     parameters:
  *       - in: path
  *         name: id
@@ -2141,6 +2141,31 @@ let initWebRoutes = (app) => {
  *   
  */
     router.get('/booking-seet', BookingController.handleGetBookingSeet);
+
+
+
+    /**
+* @swagger
+*  /status/caomboBooking:
+*    put:
+*      summary: Update status combo booking.
+*      consumes:
+*        - application/json
+*      tags:
+*        - Booking Ticket
+*      requestBody:
+*         content:
+*            application/json:
+*               schema:
+*                  type: object
+*                  properties:
+*                    bookingId:
+*                      type: integer
+*      responses:
+*        201:
+*          description: OK!
+*/
+    router.put('/status/commboBooking', BookingController.handleUpdateStatusComboBooking);
 
 
 

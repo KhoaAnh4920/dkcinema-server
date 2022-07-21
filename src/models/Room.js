@@ -24,7 +24,8 @@ module.exports = (sequelize, DataTypes) => {
         numberOfColumn: DataTypes.INTEGER,
         numberOfRow: DataTypes.INTEGER,
         movieTheaterId: DataTypes.INTEGER,
-        name: DataTypes.STRING
+        name: DataTypes.STRING,
+        isdelete: DataTypes.BOOLEAN
     }, {
         sequelize,
         modelName: 'Room',

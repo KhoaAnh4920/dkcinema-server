@@ -27,6 +27,7 @@ module.exports = (sequelize, DataTypes) => {
         description: DataTypes.STRING,
         timeStart: DataTypes.DATE,
         timeEnd: DataTypes.DATE,
+        isdelete: DataTypes.BOOLEAN
     }, {
         sequelize,
         modelName: 'Voucher',
