@@ -253,11 +253,9 @@ let getVoucherById = (key) => {
             if (typeof (key) === 'number') {
                 voucher = await db.Voucher.findOne({
                     where: {
-                        [Op.or]: [
+                        [Op.and]: [
                             {
-                                id: {
-                                    [Op.or]: [(key) ? key : null, null]
-                                }
+                                id: key
                             },
                             { isdelete: false }
                         ]
@@ -270,11 +268,9 @@ let getVoucherById = (key) => {
             } else {
                 voucher = await db.Voucher.findOne({
                     where: {
-                        [Op.or]: [
+                        [Op.and]: [
                             {
-                                code: {
-                                    [Op.or]: [(key) ? key : null, null]
-                                }
+                                code: key
                             },
                             { isdelete: false }
                         ]
