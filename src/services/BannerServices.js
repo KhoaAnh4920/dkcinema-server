@@ -250,7 +250,7 @@ let deleteBanner = (id) => {
             })
         }
 
-        if (banner.image && banner.public_id_image) {
+        if (banner.url && banner.public_id_image) {
             // Xóa hình cũ //
             await cloudinary.uploader.destroy(banner.public_id_image, { invalidate: true, resource_type: "raw" },
                 function (err, result) { console.log(result) });

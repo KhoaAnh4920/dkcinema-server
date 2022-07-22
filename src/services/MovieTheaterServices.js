@@ -49,7 +49,7 @@ let getAllMovieTheater = () => {
                     // { model: db.Users, as: 'UserMovieTheater' },
                     { model: db.ImageMovieTheater, as: 'MovieTheaterImage' },
                 ],
-                raw: true,
+                raw: false,
                 nest: true
             });
 
@@ -186,8 +186,7 @@ let getMovieTheaterById = (movieTheaterId) => {
                     // { model: db.Users, as: 'UserMovieTheater' },
                     { model: db.ImageMovieTheater, as: 'MovieTheaterImage' },
                 ],
-                raw: true,
-                nest: true
+                raw: false,
             });
 
             resolve({

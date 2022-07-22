@@ -700,9 +700,7 @@ let getAllBooking = (data) => {
                             },
                             data.id &&
                             {
-                                id: {
-                                    [Op.or]: [(data.id) ? +data.id : null, null]
-                                }
+                                id: +data.id
                             },
                         ]
                     },

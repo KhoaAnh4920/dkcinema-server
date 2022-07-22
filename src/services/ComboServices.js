@@ -287,11 +287,13 @@ let deleteCombo = (id) => {
 
         // Check combo has booking //
         let existsCombo = await db.Combo_Booking.findAll({
-            where: { comboId: id, status: 0 }
+            where: { comboId: id, status: false }
         })
 
+        console.log('existsCombo: ', existsCombo);
 
-        if (existsCombo) {
+
+        if (existsCombo && existsCombo.length > 0) {
             resolve({
                 errCode: -1,
                 errMessage: "Combo already booking"
