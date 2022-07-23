@@ -235,7 +235,7 @@ let countTicket = () => {
                 include: [
 
                     {
-                        model: db.Showtime, as: 'TicketShowtime', include: [{ model: db.Movie, as: 'ShowtimeMovie' }]
+                        model: db.Showtime, as: 'TicketShowtime', include: [{ model: db.Movie, as: 'ShowtimeMovie', where: { status: 1 } }]
                     },
                 ],
                 group: ['TicketShowtime->ShowtimeMovie.id', 'TicketShowtime.id'],
