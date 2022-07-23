@@ -157,7 +157,7 @@ let deleteFood = (id) => {
         }
 
         // Check if food exists in table Combo //
-        let existsFood = await db.Combo_Food.findOne({ foodId: id })
+        let existsFood = await db.Combo_Food.findOne({ where: { foodId: id } })
 
         if (existsFood) {
             resolve({
