@@ -3,11 +3,10 @@ import db from "../models/index";
 const crypto = require("crypto");
 const https = require("https");
 import moment from 'moment';
-const Sequelize = require('sequelize');
-const Op = Sequelize.Op;
+const sequelize = require('sequelize');
+const Op = sequelize.Op;
 import QRCode from 'qrcode';
 var cron = require('node-cron');
-
 
 
 
@@ -965,6 +964,26 @@ let handleUpdateStatusComboBooking = async (data) => {
 
 
 
+let countSalesAllMovieTheater = async () => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let dataSales = await db.Booking.findAll({
+                attributes: [db.sequelize.fn('date_trunc', 'month', db.sequelize.col('createdAt')), [db.sequelize.fn('sum', db.sequelize.col('price')), 'PriceCount']],
+
+                group: 'date_trunc',
+
+                raw: true,
+                nest: true
+            });
+            resolve(dataSales.reverse());
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
+
+
 var task = cron.schedule('59 * * * *', async () => {
     let dateToday = moment(new Date()).format('MM-DD');
 
@@ -1023,7 +1042,8 @@ module.exports = {
     getComboByBooking,
     getBookingByCustomer,
     deleteBooking,
-    handleUpdateStatusComboBooking
+    handleUpdateStatusComboBooking,
+    countSalesAllMovieTheater
 }
 
 

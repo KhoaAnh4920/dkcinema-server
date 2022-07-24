@@ -247,8 +247,7 @@ let countTurnoverByMovieTheater = (movieTheaterId) => {
                 nest: true
             })
 
-
-
+            data2 = Object.values(data2.reduce((acc, cur) => Object.assign(acc, { [cur.createdAt]: cur }), {}))
 
             let index = 0;
             const result = data2.reduce((r, { createdAt, sum }) => {
@@ -265,6 +264,29 @@ let countTurnoverByMovieTheater = (movieTheaterId) => {
                 errCode: 0,
                 errMessage: 'OK',
                 data: Object.values(result).reverse()
+            });
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
+
+
+let countRoomByMovieTheater = (movieTheaterId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+
+            let dataRoom = await db.Room.findAll({
+                where: { movieTheaterId: movieTheaterId }
+            })
+
+
+
+            resolve({
+                errCode: 0,
+                errMessage: 'OK',
+                data: dataRoom.length
             });
         } catch (e) {
             reject(e);
@@ -394,8 +416,6 @@ let checkMerchantMovieTheater = (data) => {
 
 let deleteImageMovieTheater = (id) => {
 
-    console.log("Check publicImageId: ", id);
-
     return new Promise(async (resolve, reject) => {
         let imageMovieTheater = await db.ImageMovieTheater.findOne({
             where: { id: id }
@@ -406,8 +426,6 @@ let deleteImageMovieTheater = (id) => {
                 errMessage: 'imageMovieTheater ko ton tai'
             })
         }
-
-        console.log("Check imageMovieTheater: ", imageMovieTheater);
 
         if (imageMovieTheater.url && imageMovieTheater.public_id) {
             // Xóa hình cũ //
@@ -434,5 +452,6 @@ module.exports = {
     deleteMovieTheater,
     deleteImageMovieTheater,
     checkMerchantMovieTheater,
-    countTurnoverByMovieTheater
+    countTurnoverByMovieTheater,
+    countRoomByMovieTheater
 }

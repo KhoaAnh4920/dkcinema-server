@@ -1,4 +1,6 @@
 import db from "../models/index";
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
 
 let createNewRoom = (data) => {
     return new Promise(async (resolve, reject) => {

@@ -193,6 +193,16 @@ let handleUpdateStatusComboBooking = async (req, res) => {
 }
 
 
+let handleCountSalesAllMovieTheater = async (req, res) => {
+    let dataSales = await BookingServices.countSalesAllMovieTheater();
+    return res.status(200).json({
+        errCode: 0,
+        errMessage: 'OK',
+        dataSales
+    })
+
+}
+
 module.exports = {
     handleCreateBookingTicket,
     handleBookingPayment,
@@ -207,5 +217,6 @@ module.exports = {
     handleGetMomoPaymentLink,
     handleGetBookingByCustomer,
     handleDeleteBooking,
-    handleUpdateStatusComboBooking
+    handleUpdateStatusComboBooking,
+    handleCountSalesAllMovieTheater
 }

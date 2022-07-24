@@ -2850,8 +2850,43 @@ let initWebRoutes = (app) => {
     router.get('/count-ticket-of-movie', MovieControler.countTicketMovie);
 
     /** 
+* @swagger 
+* /count-sales-all-movieTheater: 
+*   get: 
+*     tags: ["Dashboard"]
+*     summary: Count sales all movieTheater
+*     responses:  
+*       200: 
+*         description: Success  
+*   
+*/
+    router.get('/count-sales-all-movieTheater', BookingController.handleCountSalesAllMovieTheater);
+
+    /** 
  * @swagger 
  * /count-turnover-of-movieTheater: 
+ *   get: 
+ *     tags: ["Dashboard"]
+ *     summary: Count room of movieTheater
+ *     parameters:
+ *       - in: query
+ *         name: movieTheaterId
+ *         schema:
+ *         type: integer
+ *         required: false
+ *         description: Movie Theater ID
+ *     responses:  
+ *       200: 
+ *         description: Success  
+ *   
+ */
+    router.get('/count-turnover-of-movieTheater', MovieTheaterController.handleCountTurnoverByMovieTheater);
+
+
+
+    /** 
+ * @swagger 
+ * /count-room-of-movieTheater: 
  *   get: 
  *     tags: ["Dashboard"]
  *     summary: Count turnover of movie
@@ -2867,7 +2902,7 @@ let initWebRoutes = (app) => {
  *         description: Success  
  *   
  */
-    router.get('/count-turnover-of-movieTheater', MovieTheaterController.handleCountTurnoverByMovieTheater);
+    router.get('/count-room-of-movieTheater', MovieTheaterController.handleCountRoomByMovieTheater);
 
 
     router.post('/get-momo-payment-link', BookingController.handleGetMomoPaymentLink);
