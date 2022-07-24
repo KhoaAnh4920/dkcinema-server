@@ -19,7 +19,7 @@ var redirectUrl = "http://localhost:3000/";
 
 // var ipnUrl = "https://57ce-2402-800-6371-a14a-ed0d-ccd6-cbe9-5ced.ngrok.io/api/handle-order";
 
-var notifyUrl = "https://7319-14-241-244-237.ap.ngrok.io/api/handle-booking";
+var notifyUrl = "https://a545-123-21-34-220.ap.ngrok.io/api/handle-booking";
 // var ipnUrl = redirectUrl = "https://webhook.site/454e7b77-f177-4ece-8236-ddf1c26ba7f8";
 var requestType = "captureWallet";
 import emailService from '../services/emailService';
@@ -188,7 +188,7 @@ let getMomoPaymentLink = async (data) => {
 
 
         booking.price = data.amount;
-        booking.voucherId = (voucher && voucher.id) ? voucherId : null;
+        booking.voucherId = (voucher && voucher.id) ? voucher.id : null;
         booking.nameCus = data.nameCus;
         booking.email = data.email;
         booking.phoneNumber = data.phoneNumber
@@ -347,15 +347,27 @@ let handleBookingPayment = async (req) => {
 
 
         console.log('cusId in handleBookingPayment: ', cusId);
-        let totalBooking = await db.Booking.findOne({
+        let totalBooking = await db.Booking.findAll({
             where: { customerId: cusId, status: 1 },
-            attributes: [
-                'customerId',
-                [Sequelize.fn('SUM', Sequelize.cast(Sequelize.col('Booking.price'), "integer")), 'total_Price'],
-            ],
-            group: ['customerId'],
+            // attributes: [
+            //     'customerId',
+            //     [Sequelize.fn('SUM', Sequelize.cast(Sequelize.col('Booking.price'), "double")), 'total_Price'],
+            // ],
+            // group: ['customerId'],
             raw: true,
+            nest: true
         })
+
+        console.log('totalBooking: ', totalBooking)
+
+        let sum = 0;
+        totalBooking.map((item, index) => {
+            sum += item.price;
+        })
+
+        console.log('sum: ', sum);
+
+
 
         let customer = await db.Customer.findOne({
             where: { id: cusId },
@@ -364,12 +376,12 @@ let handleBookingPayment = async (req) => {
 
         console.log('totalBooking: ', totalBooking)
 
-        if (totalBooking && +totalBooking.total_Price > 0) {
-            if (+totalBooking.total_Price > 1000000 && +totalBooking.total_Price <= 2000000) {
+        if (totalBooking && sum > 0) {
+            if (sum > 1000000 && sum <= 2000000) {
                 customer.rankId = 2;
                 await customer.save();
             }
-            if (+totalBooking.total_Price > 2000000) {
+            if (sum > 2000000) {
                 customer.rankId = 3;
                 await customer.save();
             }

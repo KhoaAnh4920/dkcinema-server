@@ -300,411 +300,411 @@ let templateActiveAccount = (dataSend) => {
 }
 
 
-// let templateBooking= (dataSend) => {
-//     let result = '';
-//     if(dataSend.combo){
-//         result =
-//         `
-//             <!DOCTYPE html>
-//             <html lang="en">
+let templateBooking = (dataSend) => {
+    let result = '';
+    if (dataSend.combo) {
+        result =
+            `
+            <!DOCTYPE html>
+            <html lang="en">
 
-//             <head>
-//                 <meta charset="UTF-8">
-//                 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-//                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-//                 <title>Document</title>
-//                 <style type="text/css">
-//                     @media screen {
-//                         @font-face {
-//                             font-family: 'Lato';
-//                             font-style: normal;
-//                             font-weight: 400;
-//                             src: local('Lato Regular'), local('Lato-Regular'), url(https://fonts.gstatic.com/s/lato/v11/qIIYRU-oROkIk8vfvxw6QvesZW2xOQ-xsNqO47m55DA.woff) format('woff');
-//                         }
+            <head>
+                <meta charset="UTF-8">
+                <meta http-equiv="X-UA-Compatible" content="IE=edge">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Document</title>
+                <style type="text/css">
+                    @media screen {
+                        @font-face {
+                            font-family: 'Lato';
+                            font-style: normal;
+                            font-weight: 400;
+                            src: local('Lato Regular'), local('Lato-Regular'), url(https://fonts.gstatic.com/s/lato/v11/qIIYRU-oROkIk8vfvxw6QvesZW2xOQ-xsNqO47m55DA.woff) format('woff');
+                        }
 
-//                         @font-face {
-//                             font-family: 'Lato';
-//                             font-style: normal;
-//                             font-weight: 700;
-//                             src: local('Lato Bold'), local('Lato-Bold'), url(https://fonts.gstatic.com/s/lato/v11/qdgUG4U09HnJwhYI-uK18wLUuEpTyoUstqEm5AMlJo4.woff) format('woff');
-//                         }
+                        @font-face {
+                            font-family: 'Lato';
+                            font-style: normal;
+                            font-weight: 700;
+                            src: local('Lato Bold'), local('Lato-Bold'), url(https://fonts.gstatic.com/s/lato/v11/qdgUG4U09HnJwhYI-uK18wLUuEpTyoUstqEm5AMlJo4.woff) format('woff');
+                        }
 
-//                         @font-face {
-//                             font-family: 'Lato';
-//                             font-style: italic;
-//                             font-weight: 400;
-//                             src: local('Lato Italic'), local('Lato-Italic'), url(https://fonts.gstatic.com/s/lato/v11/RYyZNoeFgb0l7W3Vu1aSWOvvDin1pK8aKteLpeZ5c0A.woff) format('woff');
-//                         }
+                        @font-face {
+                            font-family: 'Lato';
+                            font-style: italic;
+                            font-weight: 400;
+                            src: local('Lato Italic'), local('Lato-Italic'), url(https://fonts.gstatic.com/s/lato/v11/RYyZNoeFgb0l7W3Vu1aSWOvvDin1pK8aKteLpeZ5c0A.woff) format('woff');
+                        }
 
-//                         @font-face {
-//                             font-family: 'Lato';
-//                             font-style: italic;
-//                             font-weight: 700;
-//                             src: local('Lato Bold Italic'), local('Lato-BoldItalic'), url(https://fonts.gstatic.com/s/lato/v11/HkF_qI1x_noxlxhrhMQYELO3LdcAZYWl9Si6vvxL-qU.woff) format('woff');
-//                         }
-//                     }
+                        @font-face {
+                            font-family: 'Lato';
+                            font-style: italic;
+                            font-weight: 700;
+                            src: local('Lato Bold Italic'), local('Lato-BoldItalic'), url(https://fonts.gstatic.com/s/lato/v11/HkF_qI1x_noxlxhrhMQYELO3LdcAZYWl9Si6vvxL-qU.woff) format('woff');
+                        }
+                    }
 
-//                     body,
-//                     table,
-//                     td,
-//                     a {
-//                         -webkit-text-size-adjust: 100%;
-//                         -ms-text-size-adjust: 100%;
-//                     }
+                    body,
+                    table,
+                    td,
+                    a {
+                        -webkit-text-size-adjust: 100%;
+                        -ms-text-size-adjust: 100%;
+                    }
 
-//                     table,
-//                     td {
-//                         mso-table-lspace: 0pt;
-//                         mso-table-rspace: 0pt;
-//                     }
+                    table,
+                    td {
+                        mso-table-lspace: 0pt;
+                        mso-table-rspace: 0pt;
+                    }
 
-//                     body {
-//                         height: 100% !important;
-//                         margin: 0 auto;
-//                         padding: 0 !important;
-//                         width: 50% !important;
-//                     }
+                    body {
+                        height: 100% !important;
+                        margin: 0 auto;
+                        padding: 0 !important;
+                        width: 50% !important;
+                    }
 
-//                     .form-main {
-//                         width: 70%;
-//                         height: 500px;
-//                         border-radius: 10px;
-//                         border: 1px solid #ffb42b;
+                    .form-main {
+                        width: 70%;
+                        height: 500px;
+                        border-radius: 10px;
+                        border: 1px solid #ffb42b;
 
-//                     }
+                    }
 
-//                     .form-header {
-//                         background-color: #ffb42b;
-//                         padding: 3px 2px;
-//                         border-top-left-radius: 10px;
-//                         border-top-right-radius: 10px;
-//                     }
+                    .form-header {
+                        background-color: #ffb42b;
+                        padding: 3px 2px;
+                        border-top-left-radius: 10px;
+                        border-top-right-radius: 10px;
+                    }
 
-//                     .form-header h3 {
-//                         padding-left: 10px;
-//                     }
+                    .form-header h3 {
+                        padding-left: 10px;
+                    }
 
-//                     .form-body p {
-//                         padding-left: 10px;
-//                     }
+                    .form-body p {
+                        padding-left: 10px;
+                    }
 
-//                     .form-body span {
-//                         font-weight: bold;
-//                     }
+                    .form-body span {
+                        font-weight: bold;
+                    }
 
-//                     .form-body table {
-//                         width: 100%;
-//                     }
+                    .form-body table {
+                        width: 100%;
+                    }
 
-//                     .form-body table tr .text-left {
-//                         text-transform: capitalize;
-//                         padding-left: 30px;
-//                         font-weight: 800;
-//                     }
+                    .form-body table tr .text-left {
+                        text-transform: capitalize;
+                        padding-left: 30px;
+                        font-weight: 800;
+                    }
 
-//                     .form-body table tr .text-right {
-//                         text-transform: capitalize;
-//                         color: rgb(20, 128, 216);
-//                         font-weight: 700;
-//                     }
+                    .form-body table tr .text-right {
+                        text-transform: capitalize;
+                        color: rgb(20, 128, 216);
+                        font-weight: 700;
+                    }
 
-//                     .form-body table tr .text-last {
-//                         text-transform: uppercase;
-//                     }
+                    .form-body table tr .text-last {
+                        text-transform: uppercase;
+                    }
 
-//                     .form-body table tr .link a {
-//                         text-decoration: none;
-//                         color: rgb(31, 136, 168);
-//                     }
+                    .form-body table tr .link a {
+                        text-decoration: none;
+                        color: rgb(31, 136, 168);
+                    }
 
-//                     .form-body table tr .image {
-//                         padding-top: 20px;
-//                     }
+                    .form-body table tr .image {
+                        padding-top: 20px;
+                    }
 
-//                     .form-body table tr .image img {
-//                         width: 50%;
-//                         object-fit: contain;
-//                     }
-//                     .qr-booking{
-//                         width: 100%;
-//                     display: flex;
-//                     justify-content: center;
-//                     margin-bottom: 20px;
-//                 }
-//                 </style>
-//             </head>
+                    .form-body table tr .image img {
+                        width: 50%;
+                        object-fit: contain;
+                    }
+                    .qr-booking{
+                        width: 100%;
+                    display: flex;
+                    justify-content: center;
+                    margin-bottom: 20px;
+                }
+                </style>
+            </head>
 
-//             <body>
-//                 <div class="form-main">
-//                     <div class="form-header">
-//                         <h3>Mã đặt vé của bạn: ${dataSend.bookingId}</h3>
-//                     </div>
-//                     <div class="form-body">
-//                         <p>Xin chào <span>${dataSend.name}</span> </p>
-//                         <p>Chúc mừng bạn đã thanh toán thành công tại DKCINEMAS</p>
-//                         <p>Đây là thông tin đặt vé của bạn:</p>
-//                         <div class="qr-booking"> 
-// 	<img style="width: 200px" src=${dataSend.QRcode} cid: 'unique@cid' />
-// </div>
-//                         <table>
-//                             <tr>
-//                                 <td class="text-left">Mã đặt vé</td>
-//                                 <td class="text-right">${dataSend.bookingId}</td>
-//                             </tr>
-//                             <tr>
-//                                 <td class="text-left">Phim</td>
-//                                 <td class="text-right">${dataSend.nameMovie}</td>
-//                             </tr>
-//                             <tr>
-//                                 <td class="text-left">ngày và giờ chiếu</td>
-//                                 <td class="text-right">${dataSend.time}</td>
-//                             </tr>
-//                             <tr>
-//                                 <td class="text-left">loại vé và số ghế</td>
-//                                 <td class="text-right">${dataSend.seet}</td>
-//                             </tr>
-//                             <tr>
-//                                 <td class="text-left">Combo</td>
-//                                 <td class="text-right">${dataSend.combo}</td>
-//                             </tr>
-//                             <tr>
-//                                 <td class="text-left">rạp và phòng chiếu</td>
-//                                 <td class="text-right">${dataSend.room}</td>
-//                             </tr>
-//                             <tr>
-//                                 <td class="text-left">hình thức thanh toán</td>
-//                                 <td class="text-right">${dataSend.paymentMethod}</td>
-//                             </tr>
-//                             <tr>
-//                                 <td class="text-left">tổng tiền</td>
-//                                 <td class="text-right">${dataSend.price} VND</td>
-//                             </tr>
-//                             <tr>
-//                                 <td>&nbsp;</td>
-//                             </tr>
-//                             <tr align="center">
-//                                 <td colspan="2" class="text-last">cảm ơn bạn và hẹn gặp bạn tại DK Cinemas</td>
-//                             </tr>
-//                             <tr align="center">
-//                                 <td colspan="2" class="link">
-//                                     <a href="https://www.dkcinemas.vn/">https://www.dkcinemas.vn/</a>
-//                                 </td>
-//                             </tr>
-//                             <tr align="center">
-//                                 <td colspan="2" class="image">
-//                                     <img style="width: 150px" src="https://res.cloudinary.com/dpo9d3otr/image/upload/v1656596213/Image/Logo/DKCinema_wx0dza.png" alt="">
-//                                 </td>
-//                             </tr>
-//                         </table>
-//                     </div>
-//                 </div>
-//             </body>
+            <body>
+                <div class="form-main">
+                    <div class="form-header">
+                        <h3>Mã đặt vé của bạn: ${dataSend.bookingId}</h3>
+                    </div>
+                    <div class="form-body">
+                        <p>Xin chào <span>${dataSend.name}</span> </p>
+                        <p>Chúc mừng bạn đã thanh toán thành công tại DKCINEMAS</p>
+                        <p>Đây là thông tin đặt vé của bạn:</p>
+                        <div class="qr-booking"> 
+	<img style="width: 200px" src=${dataSend.QRcode} cid: 'unique@cid' />
+</div>
+                        <table>
+                            <tr>
+                                <td class="text-left">Mã đặt vé</td>
+                                <td class="text-right">${dataSend.bookingId}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-left">Phim</td>
+                                <td class="text-right">${dataSend.nameMovie}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-left">ngày và giờ chiếu</td>
+                                <td class="text-right">${dataSend.time}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-left">loại vé và số ghế</td>
+                                <td class="text-right">${dataSend.seet}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-left">Combo</td>
+                                <td class="text-right">${dataSend.combo}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-left">rạp và phòng chiếu</td>
+                                <td class="text-right">${dataSend.room}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-left">hình thức thanh toán</td>
+                                <td class="text-right">${dataSend.paymentMethod}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-left">tổng tiền</td>
+                                <td class="text-right">${dataSend.price} VND</td>
+                            </tr>
+                            <tr>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr align="center">
+                                <td colspan="2" class="text-last">cảm ơn bạn và hẹn gặp bạn tại DK Cinemas</td>
+                            </tr>
+                            <tr align="center">
+                                <td colspan="2" class="link">
+                                    <a href="https://www.dkcinemas.vn/">https://www.dkcinemas.vn/</a>
+                                </td>
+                            </tr>
+                            <tr align="center">
+                                <td colspan="2" class="image">
+                                    <img style="width: 150px" src="https://res.cloudinary.com/dpo9d3otr/image/upload/v1656596213/Image/Logo/DKCinema_wx0dza.png" alt="">
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </body>
 
-//             </html>
-
-
-//         `
-//     }else{
-//         result =
-//         `
-//             <!DOCTYPE html>
-//             <html lang="en">
-
-//             <head>
-//                 <meta charset="UTF-8">
-//                 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-//                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-//                 <title>Document</title>
-//                 <style type="text/css">
-//                     @media screen {
-//                         @font-face {
-//                             font-family: 'Lato';
-//                             font-style: normal;
-//                             font-weight: 400;
-//                             src: local('Lato Regular'), local('Lato-Regular'), url(https://fonts.gstatic.com/s/lato/v11/qIIYRU-oROkIk8vfvxw6QvesZW2xOQ-xsNqO47m55DA.woff) format('woff');
-//                         }
-
-//                         @font-face {
-//                             font-family: 'Lato';
-//                             font-style: normal;
-//                             font-weight: 700;
-//                             src: local('Lato Bold'), local('Lato-Bold'), url(https://fonts.gstatic.com/s/lato/v11/qdgUG4U09HnJwhYI-uK18wLUuEpTyoUstqEm5AMlJo4.woff) format('woff');
-//                         }
-
-//                         @font-face {
-//                             font-family: 'Lato';
-//                             font-style: italic;
-//                             font-weight: 400;
-//                             src: local('Lato Italic'), local('Lato-Italic'), url(https://fonts.gstatic.com/s/lato/v11/RYyZNoeFgb0l7W3Vu1aSWOvvDin1pK8aKteLpeZ5c0A.woff) format('woff');
-//                         }
-
-//                         @font-face {
-//                             font-family: 'Lato';
-//                             font-style: italic;
-//                             font-weight: 700;
-//                             src: local('Lato Bold Italic'), local('Lato-BoldItalic'), url(https://fonts.gstatic.com/s/lato/v11/HkF_qI1x_noxlxhrhMQYELO3LdcAZYWl9Si6vvxL-qU.woff) format('woff');
-//                         }
-//                     }
-
-//                     body,
-//                     table,
-//                     td,
-//                     a {
-//                         -webkit-text-size-adjust: 100%;
-//                         -ms-text-size-adjust: 100%;
-//                     }
-
-//                     table,
-//                     td {
-//                         mso-table-lspace: 0pt;
-//                         mso-table-rspace: 0pt;
-//                     }
-
-//                     body {
-//                         height: 100% !important;
-//                         margin: 0 auto;
-//                         padding: 0 !important;
-//                         width: 50% !important;
-//                     }
-
-//                     .form-main {
-//                         width: 70%;
-//                         height: 500px;
-//                         border-radius: 10px;
-//                         border: 1px solid #ffb42b;
-
-//                     }
-
-//                     .form-header {
-//                         background-color: #ffb42b;
-//                         padding: 3px 2px;
-//                         border-top-left-radius: 10px;
-//                         border-top-right-radius: 10px;
-//                     }
-
-//                     .form-header h3 {
-//                         padding-left: 10px;
-//                     }
-
-//                     .form-body p {
-//                         padding-left: 10px;
-//                     }
-
-//                     .form-body span {
-//                         font-weight: bold;
-//                     }
-
-//                     .form-body table {
-//                         width: 100%;
-//                     }
-
-//                     .form-body table tr .text-left {
-//                         text-transform: capitalize;
-//                         padding-left: 30px;
-//                         font-weight: 800;
-//                     }
-
-//                     .form-body table tr .text-right {
-//                         text-transform: capitalize;
-//                         color: rgb(20, 128, 216);
-//                         font-weight: 700;
-//                     }
-
-//                     .form-body table tr .text-last {
-//                         text-transform: uppercase;
-//                     }
-
-//                     .form-body table tr .link a {
-//                         text-decoration: none;
-//                         color: rgb(31, 136, 168);
-//                     }
-
-//                     .form-body table tr .image {
-//                         padding-top: 20px;
-//                     }
-
-//                     .form-body table tr .image img {
-//                         width: 50%;
-//                         object-fit: contain;
-//                     }
-//                     .qr-booking{
-//                         width: 100%;
-//                     display: flex;
-//                     justify-content: center;
-//                     margin-bottom: 20px;
-//                 }
-//                 </style>
-//             </head>
-
-//             <body>
-//                 <div class="form-main">
-//                     <div class="form-header">
-//                         <h3>Mã đặt vé của bạn: ${dataSend.bookingId}</h3>
-//                     </div>
-//                     <div class="form-body">
-//                         <p>Xin chào <span>${dataSend.name}</span> </p>
-//                         <p>Chúc mừng bạn đã thanh toán thành công tại DKCINEMAS</p>
-//                         <p>Đây là thông tin đặt vé của bạn:</p>
-//                         <div class="qr-booking"> 
-// 	<img style="width: 200px" src=${dataSend.QRcode} cid: 'unique@cid' />
-// </div>
-//                         <table>
-//                             <tr>
-//                                 <td class="text-left">Mã đặt vé</td>
-//                                 <td class="text-right">${dataSend.bookingId}</td>
-//                             </tr>
-//                             <tr>
-//                                 <td class="text-left">Phim</td>
-//                                 <td class="text-right">${dataSend.nameMovie}</td>
-//                             </tr>
-//                             <tr>
-//                                 <td class="text-left">ngày và giờ chiếu</td>
-//                                 <td class="text-right">${dataSend.time}</td>
-//                             </tr>
-//                             <tr>
-//                                 <td class="text-left">loại vé và số ghế</td>
-//                                 <td class="text-right">${dataSend.seet}</td>
-//                             </tr>
-//                             <tr>
-//                                 <td class="text-left">rạp và phòng chiếu</td>
-//                                 <td class="text-right">${dataSend.room}</td>
-//                             </tr>
-//                             <tr>
-//                                 <td class="text-left">hình thức thanh toán</td>
-//                                 <td class="text-right">${dataSend.paymentMethod}</td>
-//                             </tr>
-//                             <tr>
-//                                 <td class="text-left">tổng tiền</td>
-//                                 <td class="text-right">${dataSend.price} VND</td>
-//                             </tr>
-//                             <tr>
-//                                 <td>&nbsp;</td>
-//                             </tr>
-//                             <tr align="center">
-//                                 <td colspan="2" class="text-last">cảm ơn bạn và hẹn gặp bạn tại DK Cinemas</td>
-//                             </tr>
-//                             <tr align="center">
-//                                 <td colspan="2" class="link">
-//                                     <a href="https://www.dkcinemas.vn/">https://www.dkcinemas.vn/</a>
-//                                 </td>
-//                             </tr>
-//                             <tr align="center">
-//                                 <td colspan="2" class="image">
-//                                     <img style="width: 150px" src="https://res.cloudinary.com/dpo9d3otr/image/upload/v1656596213/Image/Logo/DKCinema_wx0dza.png" alt="">
-//                                 </td>
-//                             </tr>
-//                         </table>
-//                     </div>
-//                 </div>
-//             </body>
-
-//             </html>
+            </html>
 
 
-//         `
-//     }
-//     return result;
-// }
+        `
+    } else {
+        result =
+            `
+            <!DOCTYPE html>
+            <html lang="en">
+
+            <head>
+                <meta charset="UTF-8">
+                <meta http-equiv="X-UA-Compatible" content="IE=edge">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Document</title>
+                <style type="text/css">
+                    @media screen {
+                        @font-face {
+                            font-family: 'Lato';
+                            font-style: normal;
+                            font-weight: 400;
+                            src: local('Lato Regular'), local('Lato-Regular'), url(https://fonts.gstatic.com/s/lato/v11/qIIYRU-oROkIk8vfvxw6QvesZW2xOQ-xsNqO47m55DA.woff) format('woff');
+                        }
+
+                        @font-face {
+                            font-family: 'Lato';
+                            font-style: normal;
+                            font-weight: 700;
+                            src: local('Lato Bold'), local('Lato-Bold'), url(https://fonts.gstatic.com/s/lato/v11/qdgUG4U09HnJwhYI-uK18wLUuEpTyoUstqEm5AMlJo4.woff) format('woff');
+                        }
+
+                        @font-face {
+                            font-family: 'Lato';
+                            font-style: italic;
+                            font-weight: 400;
+                            src: local('Lato Italic'), local('Lato-Italic'), url(https://fonts.gstatic.com/s/lato/v11/RYyZNoeFgb0l7W3Vu1aSWOvvDin1pK8aKteLpeZ5c0A.woff) format('woff');
+                        }
+
+                        @font-face {
+                            font-family: 'Lato';
+                            font-style: italic;
+                            font-weight: 700;
+                            src: local('Lato Bold Italic'), local('Lato-BoldItalic'), url(https://fonts.gstatic.com/s/lato/v11/HkF_qI1x_noxlxhrhMQYELO3LdcAZYWl9Si6vvxL-qU.woff) format('woff');
+                        }
+                    }
+
+                    body,
+                    table,
+                    td,
+                    a {
+                        -webkit-text-size-adjust: 100%;
+                        -ms-text-size-adjust: 100%;
+                    }
+
+                    table,
+                    td {
+                        mso-table-lspace: 0pt;
+                        mso-table-rspace: 0pt;
+                    }
+
+                    body {
+                        height: 100% !important;
+                        margin: 0 auto;
+                        padding: 0 !important;
+                        width: 50% !important;
+                    }
+
+                    .form-main {
+                        width: 70%;
+                        height: 500px;
+                        border-radius: 10px;
+                        border: 1px solid #ffb42b;
+
+                    }
+
+                    .form-header {
+                        background-color: #ffb42b;
+                        padding: 3px 2px;
+                        border-top-left-radius: 10px;
+                        border-top-right-radius: 10px;
+                    }
+
+                    .form-header h3 {
+                        padding-left: 10px;
+                    }
+
+                    .form-body p {
+                        padding-left: 10px;
+                    }
+
+                    .form-body span {
+                        font-weight: bold;
+                    }
+
+                    .form-body table {
+                        width: 100%;
+                    }
+
+                    .form-body table tr .text-left {
+                        text-transform: capitalize;
+                        padding-left: 30px;
+                        font-weight: 800;
+                    }
+
+                    .form-body table tr .text-right {
+                        text-transform: capitalize;
+                        color: rgb(20, 128, 216);
+                        font-weight: 700;
+                    }
+
+                    .form-body table tr .text-last {
+                        text-transform: uppercase;
+                    }
+
+                    .form-body table tr .link a {
+                        text-decoration: none;
+                        color: rgb(31, 136, 168);
+                    }
+
+                    .form-body table tr .image {
+                        padding-top: 20px;
+                    }
+
+                    .form-body table tr .image img {
+                        width: 50%;
+                        object-fit: contain;
+                    }
+                    .qr-booking{
+                        width: 100%;
+                    display: flex;
+                    justify-content: center;
+                    margin-bottom: 20px;
+                }
+                </style>
+            </head>
+
+            <body>
+                <div class="form-main">
+                    <div class="form-header">
+                        <h3>Mã đặt vé của bạn: ${dataSend.bookingId}</h3>
+                    </div>
+                    <div class="form-body">
+                        <p>Xin chào <span>${dataSend.name}</span> </p>
+                        <p>Chúc mừng bạn đã thanh toán thành công tại DKCINEMAS</p>
+                        <p>Đây là thông tin đặt vé của bạn:</p>
+                        <div class="qr-booking"> 
+	<img style="width: 200px" src=${dataSend.QRcode} cid: 'unique@cid' />
+</div>
+                        <table>
+                            <tr>
+                                <td class="text-left">Mã đặt vé</td>
+                                <td class="text-right">${dataSend.bookingId}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-left">Phim</td>
+                                <td class="text-right">${dataSend.nameMovie}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-left">ngày và giờ chiếu</td>
+                                <td class="text-right">${dataSend.time}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-left">loại vé và số ghế</td>
+                                <td class="text-right">${dataSend.seet}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-left">rạp và phòng chiếu</td>
+                                <td class="text-right">${dataSend.room}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-left">hình thức thanh toán</td>
+                                <td class="text-right">${dataSend.paymentMethod}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-left">tổng tiền</td>
+                                <td class="text-right">${dataSend.price} VND</td>
+                            </tr>
+                            <tr>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr align="center">
+                                <td colspan="2" class="text-last">cảm ơn bạn và hẹn gặp bạn tại DK Cinemas</td>
+                            </tr>
+                            <tr align="center">
+                                <td colspan="2" class="link">
+                                    <a href="https://www.dkcinemas.vn/">https://www.dkcinemas.vn/</a>
+                                </td>
+                            </tr>
+                            <tr align="center">
+                                <td colspan="2" class="image">
+                                    <img style="width: 150px" src="https://res.cloudinary.com/dpo9d3otr/image/upload/v1656596213/Image/Logo/DKCinema_wx0dza.png" alt="">
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </body>
+
+            </html>
+
+
+        `
+    }
+    return result;
+}
 
 
 
@@ -713,7 +713,7 @@ let templateActiveAccount = (dataSend) => {
 
 module.exports = {
     templateResetPass,
-    templateActiveAccount
-
+    templateActiveAccount,
+    templateBooking
 }
 

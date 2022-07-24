@@ -625,7 +625,7 @@ let resetNewPass = (data) => {
                 if (!userData) {
                     resolve({
                         errCode: -1,
-                        errMessage: "User not found"
+                        errMessage: "Người dùng không tồn tại"
                     });
                     return;
                 }
@@ -644,6 +644,11 @@ let resetNewPass = (data) => {
                 resolve({
                     errCode: 0,
                     errMessage: "OK"
+                });
+            } else {
+                resolve({
+                    errCode: -1,
+                    errMessage: "Liên kết hết hiệu lực hoặc đã được sử dụng trước đó"
                 });
             }
 
@@ -999,7 +1004,7 @@ let feedbackCustomer = (data) => {
             await db.Feedback.create({
                 email: data.email,
                 fullName: data.fullName,
-                phone: data.phoneNumber,
+                phone: data.phone,
                 content: data.content,
                 cusId: data.cusId || null
             })
