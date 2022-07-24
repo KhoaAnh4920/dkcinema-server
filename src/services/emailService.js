@@ -52,7 +52,7 @@ let sendEmailActive = async (dataSend) => {
         from: '"DK Cinemas" <khoadido@gmail.com>', // sender address
         to: dataSend.reciverEmail, // list of receivers
         subject: "Xác thực email", // Subject line
-        html: getBodyEmailActiveHTML(dataSend), // html body
+        html: TemplateEmail.templateActiveAccount(dataSend), // html body
     });
 }
 
@@ -287,6 +287,7 @@ let getBodyEmailHTML = (dataSend) => {
                                 <td class="text-left">loại vé và số ghế</td>
                                 <td class="text-right">${dataSend.seet}</td>
                             </tr>
+                            
                             ${dataSend.combo &&
         `<tr>
                                 <td class="text-left">Combo</td>
@@ -313,7 +314,7 @@ let getBodyEmailHTML = (dataSend) => {
                             </tr>
                             <tr align="center">
                                 <td colspan="2" class="link">
-                                    <a href="https://www.megagscinemas.vn/">https://www.dkcinemas.vn/</a>
+                                    <a href="https://www.dkcinemas.vn/">https://www.dkcinemas.vn/</a>
                                 </td>
                             </tr>
                             <tr align="center">

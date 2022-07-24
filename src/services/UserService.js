@@ -62,9 +62,11 @@ let hashUserPassword = (password) => {
 let checkUserEmail = (email) => {
     return new Promise(async (resolve, reject) => {
         try {
+            console.log('email: ', email);
             let user = await db.Users.findOne({
                 where: { email: email }
             })
+            console.log('user: ', user);
             if (user)
                 resolve(true);
             else
@@ -95,7 +97,7 @@ let handleUserLogin = async (email, password) => {
                     let check = bcrypt.compareSync(password, user.password);
 
 
-                    console.log("Check user password: ", check);
+                    // console.log("Check user password: ", check);
 
 
                     if (check) {
@@ -103,7 +105,7 @@ let handleUserLogin = async (email, password) => {
                         if (!user.isActive) {
                             resolve({
                                 errCode: -1,
-                                errMessage: "User is not active"
+                                errMessage: "Tài khoản chưa được kích hoạt"
                             })
                             return
                         }
@@ -903,10 +905,11 @@ let signUpNewUser = (data) => {
         try {
             // check email //
             let check = await checkUserEmail(data.email);
-            if (check === true) {
+            // console.log('check: ', check)
+            if (check) {
                 resolve({
                     errCode: 1,
-                    message: "Email da ton tai"
+                    message: "Email đã tồn tại"
                 })
                 return;
             } else {
@@ -923,8 +926,7 @@ let signUpNewUser = (data) => {
                     email: data.email,
                     phone: data.phone,
                     fullName: data.fullName,
-                    point: null,
-                    rankId: null,
+                    rankId: 1,
                     externalId: externalId
                 })
 
