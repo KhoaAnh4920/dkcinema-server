@@ -123,7 +123,7 @@ let createNewScheduleMovie = (data) => {
                     if (checkFlag) {
                         resolve({
                             errCode: 1,
-                            errMessage: 'Invalid data'
+                            errMessage: 'The room is busy'
                         });
                         return;
                     }
@@ -151,7 +151,7 @@ let createNewScheduleMovie = (data) => {
                     if (Math.abs(minutesPassed) < 16) {
                         resolve({
                             errCode: 3,
-                            errMessage: 'Waiting time should not be less than 15 minutes'
+                            errMessage: 'Phòng đang có lịch chiếu'
                         });
                         return;
                     } else {
