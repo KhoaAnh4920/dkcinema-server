@@ -24,12 +24,26 @@ let handleGetMovieTheaterById = async (req, res) => {
     return res.status(200).json(message);
 }
 
-let handleCountTurnoverByMovieTheater = async (req, res) => {
+let handleCountTicketByMovieTheater = async (req, res) => {
     let message = '';
-    if (req.query && req.query.movieTheaterId)
-        message = await MovieTheaterServices.countTurnoverByMovieTheater(req.query.movieTheaterId);
+    message = await MovieTheaterServices.countTicketByMovieTheater(req.query);
+
     return res.status(200).json(message);
 }
+
+
+let handleCountTurnoverByMovieTheater = async (req, res) => {
+    let message = '';
+    message = await MovieTheaterServices.countTurnoverByMovieTheater(req.query.movieTheaterId, req.query.type);
+    return res.status(200).json(message);
+}
+
+let handleEachTheaterRevenue = async (req, res) => {
+    let message = '';
+    message = await MovieTheaterServices.eachTheaterRevenue(req.query);
+    return res.status(200).json(message);
+}
+
 
 let handleCountRoomByMovieTheater = async (req, res) => {
     let message = '';
@@ -87,5 +101,7 @@ module.exports = {
     handleDeleteImageMovieTheater,
     handleCheckMerchant,
     handleCountTurnoverByMovieTheater,
-    handleCountRoomByMovieTheater
+    handleCountRoomByMovieTheater,
+    handleCountTicketByMovieTheater,
+    handleEachTheaterRevenue
 }

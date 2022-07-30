@@ -2200,6 +2200,7 @@ let initWebRoutes = (app) => {
 */
     router.post('/banner', BannerController.handleCreateNewBanner);
 
+
     /** 
 * @swagger 
 * /get-list-banner: 
@@ -2682,6 +2683,27 @@ let initWebRoutes = (app) => {
 
 
     /** 
+* @swagger 
+* /get-voucher-customer: 
+*   get: 
+*     tags: ["Voucher"]
+*     summary: Get a Voucher by customer
+*     parameters:
+*       - in: query
+*         name: cusId
+*         schema:
+*         type: integer
+*         required: false
+*         description: CustomerId
+*     responses:  
+*       200: 
+*         description: Success  
+*   
+*/
+    router.get('/get-voucher-customer', VoucherController.handleGetListVoucherByCustomer);
+
+
+    /** 
  * @swagger 
  * /voucher/{id}: 
  *   get: 
@@ -2849,6 +2871,53 @@ let initWebRoutes = (app) => {
  */
     router.get('/count-ticket-of-movie', MovieControler.countTicketMovie);
 
+
+    /** 
+ * @swagger 
+ * /count-booking-type-of-movie: 
+ *   get: 
+ *     tags: ["Dashboard"]
+ *     summary: Count booking type of movie
+ *     responses:  
+ *       200: 
+ *         description: Success  
+ *   
+ */
+    router.get('/count-booking-type-of-movie', MovieControler.countBookingTypeOfMovie);
+
+    /** 
+* @swagger 
+* /get-movie-revenue: 
+*   get: 
+*     tags: ["Dashboard"]
+*     summary: Movie Revenue
+*     parameters:
+*       - in: query
+*         name: type
+*         schema:
+*         type: integer
+*         required: false
+*         description: type
+*     responses:  
+*       200: 
+*         description: Success  
+*   
+*/
+    router.get('/get-movie-revenue', MovieControler.handleGetMovieRevenue);
+
+    /** 
+ * @swagger 
+ * /sales-ticket-of-movie: 
+ *   get: 
+ *     tags: ["Dashboard"]
+ *     summary: Sales ticket of movie
+ *     responses:  
+ *       200: 
+ *         description: Success  
+ *   
+ */
+    router.get('/sales-ticket-of-movie', MovieControler.handleSalesTicketMovie);
+
     /** 
 * @swagger 
 * /count-sales-all-movieTheater: 
@@ -2867,7 +2936,7 @@ let initWebRoutes = (app) => {
  * /count-turnover-of-movieTheater: 
  *   get: 
  *     tags: ["Dashboard"]
- *     summary: Count room of movieTheater
+ *     summary: Count turnover of movieTheater
  *     parameters:
  *       - in: query
  *         name: movieTheaterId
@@ -2875,6 +2944,12 @@ let initWebRoutes = (app) => {
  *         type: integer
  *         required: false
  *         description: Movie Theater ID
+ *       - in: query
+ *         name: type
+ *         schema:
+ *         type: integer
+ *         required: false
+ *         description: type
  *     responses:  
  *       200: 
  *         description: Success  
@@ -2883,6 +2958,32 @@ let initWebRoutes = (app) => {
     router.get('/count-turnover-of-movieTheater', MovieTheaterController.handleCountTurnoverByMovieTheater);
 
 
+
+    /** 
+ * @swagger 
+ * /get-each-theater-revenue: 
+ *   get: 
+ *     tags: ["Dashboard"]
+ *     summary: Get each theater revenue
+ *     parameters:
+ *       - in: query
+ *         name: movieTheaterId
+ *         schema:
+ *         type: integer
+ *         required: false
+ *         description: Movie Theater ID
+ *       - in: query
+ *         name: type
+ *         schema:
+ *         type: string
+ *         required: false
+ *         description: today or Month
+ *     responses:  
+ *       200: 
+ *         description: Success  
+ *   
+ */
+    router.get('/get-each-theater-revenue', MovieTheaterController.handleEachTheaterRevenue);
 
     /** 
  * @swagger 
@@ -2905,9 +3006,40 @@ let initWebRoutes = (app) => {
     router.get('/count-room-of-movieTheater', MovieTheaterController.handleCountRoomByMovieTheater);
 
 
+
+    /** 
+ * @swagger 
+ * /count-ticket-by-movieTheater: 
+ *   get: 
+ *     tags: ["Dashboard"]
+ *     summary: Count ticket by movie theater
+ *     parameters:
+ *       - in: query
+ *         name: movieTheaterId
+ *         schema:
+ *         type: integer
+ *         required: false
+ *         description: Movie Theater ID
+ *       - in: query
+ *         name: time
+ *         schema:
+ *         type: integer
+ *         example: 1658734404000
+ *         required: false
+ *         description: Time
+ *     responses:  
+ *       200: 
+ *         description: Success  
+ *   
+ */
+    router.get('/count-ticket-by-movieTheater', MovieTheaterController.handleCountTicketByMovieTheater);
+
+
     router.post('/get-momo-payment-link', BookingController.handleGetMomoPaymentLink);
 
     router.post('/test-send-mail', BookingController.testSendMail);
+    router.post('/test-get-type-movie-booking', BookingController.testGetTypeMovieBooking);
+    router.post('/test-get-customer-top-type', MovieControler.testGetCustomerTypeMovie);
 
     router.post('/test-signature', BookingController.testSignature);
 

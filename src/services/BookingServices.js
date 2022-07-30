@@ -10,6 +10,8 @@ var cron = require('node-cron');
 
 
 
+
+
 //parameters
 var partnerCode = "MOMO";
 var accessKey = "F8BBA842ECF85";
@@ -19,7 +21,7 @@ var redirectUrl = "http://localhost:3000/";
 
 // var ipnUrl = "https://57ce-2402-800-6371-a14a-ed0d-ccd6-cbe9-5ced.ngrok.io/api/handle-order";
 
-var notifyUrl = "https://a545-123-21-34-220.ap.ngrok.io/api/handle-booking";
+var notifyUrl = "https://fc2b-123-21-34-220.ap.ngrok.io/api/handle-booking";
 // var ipnUrl = redirectUrl = "https://webhook.site/454e7b77-f177-4ece-8236-ddf1c26ba7f8";
 var requestType = "captureWallet";
 import emailService from '../services/emailService';
@@ -34,21 +36,6 @@ let createNewBookingTicket = (data) => {
         try {
             if (data) {
                 let bookingId = '';
-                // let voucher = null;
-                // if (data.voucherCode) {
-                //     voucher = await db.Voucher.findOne({
-                //         where: { id: data.voucherCode },
-                //         raw: false
-                //     })
-
-                //     if (!voucher) {
-                //         resolve({
-                //             errCode: 2,
-                //             errMessage: 'Voucher not found'
-                //         });
-                //         return
-                //     }
-                // }
 
 
                 // Check seet //
@@ -318,9 +305,22 @@ let handleBookingPayment = async (req) => {
         const orderCurrent = await db.Booking.findOne({
             where: { id: +req.body.extraData },
         });
+        const orderCurrentAll = await db.Booking.findAll({
+            where: { id: +req.body.extraData },
+            include: [
+                {
+                    model: db.Ticket, as: 'BookingTicket', require: true, include: [{
+                        model: db.Showtime, as: 'TicketShowtime', require: true,
+                        include: [{ model: db.Movie, as: 'ShowtimeMovie', require: true, include: { model: db.TypeMovie, as: 'MovieOfType', require: true } }]
+                    }]
+                },
+            ],
 
-        // const orderCurrentData = orderCurrent.dataValues;
-        // console.log("orderCurrentData dataValues: ", orderCurrentData);
+            raw: false,
+            nest: true
+
+        });
+
         orderCurrent.status = 1;
 
         if (orderCurrent.voucherId) {
@@ -387,6 +387,38 @@ let handleBookingPayment = async (req) => {
             }
         }
 
+        // Update hobby customer
+
+        if (orderCurrentAll[0] && orderCurrentAll[0].BookingTicket[0] && orderCurrentAll[0].BookingTicket[0].TicketShowtime && orderCurrentAll[0].BookingTicket[0].TicketShowtime.ShowtimeMovie) {
+            let dataType = orderCurrentAll[0].BookingTicket[0].TicketShowtime.ShowtimeMovie.MovieOfType;
+
+
+            console.log('dataType: ', dataType)
+
+            await Promise.all(dataType.map(async item => {
+                let checkIsExists = await db.TypeMovieCustomer.findOne({
+                    where: {
+                        typeId: item.id,
+                        cusId: orderCurrentAll[0].customerId
+                    },
+                    raw: false
+                })
+                console.log('checkIsExists: ', checkIsExists)
+                if (checkIsExists) {
+                    checkIsExists.amount += 1;
+                    checkIsExists.save();
+                } else {
+                    db.TypeMovieCustomer.create({
+                        typeId: item.id,
+                        cusId: orderCurrentAll[0].customerId,
+                        amount: 1
+                    })
+                }
+            }))
+        }
+
+
+
 
         // send mail //
         sendMailBooking(orderCurrent)
@@ -421,6 +453,56 @@ let testSendMail = async (req) => {
     sendMailBooking(orderCurrent)
 
     return false;
+};
+
+let testGetTypeMovieBooking = async (req) => {
+
+
+    const orderCurrent = await db.Booking.findAll({
+        where: { id: 88 },
+        include: [
+            {
+                model: db.Ticket, as: 'BookingTicket', require: true, include: [{
+                    model: db.Showtime, as: 'TicketShowtime', require: true,
+                    include: [{ model: db.Movie, as: 'ShowtimeMovie', require: true, include: { model: db.TypeMovie, as: 'MovieOfType', require: true } }]
+                }]
+            },
+        ],
+
+        raw: false,
+        nest: true
+
+    });
+
+    let dataType = orderCurrent[0].BookingTicket[0].TicketShowtime.ShowtimeMovie.MovieOfType;
+
+
+    console.log('dataType: ', dataType)
+
+    await Promise.all(dataType.map(async item => {
+        let checkIsExists = await db.TypeMovieCustomer.findOne({
+            where: {
+                typeId: item.id,
+                cusId: orderCurrent[0].customerId
+            },
+            raw: false
+        })
+        console.log('checkIsExists: ', checkIsExists)
+        if (checkIsExists) {
+            checkIsExists.amount += 1;
+            checkIsExists.save();
+        } else {
+            db.TypeMovieCustomer.create({
+                typeId: item.id,
+                cusId: orderCurrent[0].customerId,
+                amount: 1
+            })
+        }
+    }))
+
+
+
+    return orderCurrent;
 };
 
 
@@ -987,6 +1069,11 @@ let countSalesAllMovieTheater = async () => {
                 raw: true,
                 nest: true
             });
+
+            dataSales.sort((a, b) => a.date_trunc.getTime() - b.date_trunc.getTime());
+
+            // console.log('dataSales: ', dataSales)
+
             resolve(dataSales.reverse());
         } catch (e) {
             reject(e);
@@ -1055,7 +1142,8 @@ module.exports = {
     getBookingByCustomer,
     deleteBooking,
     handleUpdateStatusComboBooking,
-    countSalesAllMovieTheater
+    countSalesAllMovieTheater,
+    testGetTypeMovieBooking
 }
 
 

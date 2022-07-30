@@ -115,10 +115,52 @@ let sendEmailVoucherGif = (dataSend) => {
             console.log(e);
             reject(e);
         }
-
-
     });
+}
 
+
+let sendEmailTypeMovie = (maiList, dataSend) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            // create reusable transporter object using the default SMTP transport
+            console.log('maiList: ', maiList);
+            let transporter = nodemailer.createTransport({
+                host: "smtp.gmail.com",
+                port: 587,
+                secure: false, // true for 465, false for other ports
+                auth: {
+                    user: process.env.EMAIL_APP, // generated ethereal user
+                    pass: process.env.EMAIL_APP_PASSWORD, // generated ethereal password
+                },
+            });
+            let info = await transporter.sendMail({
+                from: '"DK Cinemas" <khoadido@gmail.com>', // sender address
+                to: maiList, // list of receivers
+                subject: "Có phim mới nè !!!", // Subject line
+                html: TemplateEmail.templateMovieIncoming(dataSend), // html body
+            });
+
+            // if (dataSend && dataSend.length > 0) {
+
+            //     await Promise.all(dataSend.map(async (item, index) => {
+
+            //         // send mail with defined transport object
+            //         await transporter.sendMail({
+            //             from: '"DK Cinemas" <khoadido@gmail.com>', // sender address
+            //             to: dataSend, // list of receivers
+            //             subject: "Test mail giới thiệu phim mới", // Subject line
+            //             html: `
+            //                 <p>Test index ${index}</p>
+            //                 <p>Test Phim</p>
+            //                 `, // html body
+            //         });
+            //     }))
+            // }
+        } catch (e) {
+            console.log(e);
+            reject(e);
+        }
+    });
 }
 
 
@@ -534,5 +576,6 @@ module.exports = {
     sendSimpleEmail,
     sendEmailActive,
     sendEmailResetPass,
-    sendEmailVoucherGif
+    sendEmailVoucherGif,
+    sendEmailTypeMovie
 }

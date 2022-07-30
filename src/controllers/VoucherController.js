@@ -13,6 +13,12 @@ let handleGetListVoucher = async (req, res) => {
     return res.status(200).json(message);
 }
 
+let handleGetListVoucherByCustomer = async (req, res) => {
+    let message = '';
+    message = await VoucherServices.getListVoucherByCustomer(req.query);
+    return res.status(200).json(message);
+}
+
 
 let handleGetDetailVoucherByIdOrCode = async (req, res) => {
 
@@ -75,5 +81,6 @@ module.exports = {
     handleUpdateVoucher,
     handleUpdateStatusVoucher,
     handleDeleteVoucher,
-    handleCusApplyVoucher
+    handleCusApplyVoucher,
+    handleGetListVoucherByCustomer
 }
