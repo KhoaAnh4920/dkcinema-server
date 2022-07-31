@@ -179,7 +179,7 @@ let getListVoucher = (data) => {
                 let dateFormat = moment(new Date(+data.timeStart)).format('YYYY-MM-DD');
 
 
-                let listSchedule = await db.Voucher.findAll({
+                let listVoucher = await db.Voucher.findAll({
                     where: {
                         // ["premiereDate::timestamp"]: {
                         //     [Op.iLike]: `%${data.date}%`
@@ -222,13 +222,69 @@ let getListVoucher = (data) => {
                 console.log(data.type);
 
                 console.log(moment().utcOffset(0).startOf('day').subtract(1, "days").format());
-                // console.log("listSchedule: ", listSchedule);
+                // console.log("listVoucher: ", listVoucher);
 
 
                 resolve({
                     errCode: 0,
                     errMessage: 'OK',
-                    data: listSchedule
+                    data: listVoucher
+                }); // return 
+            }
+
+            resolve({
+                errCode: 2,
+                errMessage: 'Missing data'
+            }); // return 
+
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
+
+let getListVoucherByCustomer = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (data) {
+
+                console.log(data);
+
+                let listVoucher = await db.Voucher.findAll({
+                    where: {
+                        // ["premiereDate::timestamp"]: {
+                        //     [Op.iLike]: `%${data.date}%`
+                        // },
+                        [Op.and]: [
+                            data.cusId &&
+                            {
+                                cusId: {
+                                    [Op.or]: [(data.cusId) ? data.cusId : null, null]
+                                }
+                            },
+                            { isdelete: false }
+
+                        ]
+                    },
+
+                    order: [
+                        ['id', 'DESC'],
+                    ],
+                    raw: true,
+                    nest: true
+                });
+
+                console.log(data.type);
+
+                console.log(moment().utcOffset(0).startOf('day').subtract(1, "days").format());
+                // console.log("listVoucher: ", listVoucher);
+
+
+                resolve({
+                    errCode: 0,
+                    errMessage: 'OK',
+                    data: listVoucher
                 }); // return 
             }
 
@@ -342,6 +398,8 @@ let getVoucheryCustomer = (key) => {
         }
     })
 }
+
+
 
 
 
@@ -480,6 +538,7 @@ var task = cron.schedule('* 6 * * *', async () => {
                 description: 'Hapby dob',
                 timeStart: null,
                 timeEnd: null,
+                cusId: customer.id
             })
 
             // send mail 
@@ -508,6 +567,6 @@ module.exports = {
     updateVoucher,
     updateStatusVoucher,
     deleteVoucher,
-    getVoucheryCustomer
+    getListVoucherByCustomer
 }
 

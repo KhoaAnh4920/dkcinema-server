@@ -1,21 +1,15 @@
 {
   "development": {
-    "username": "djtjrokxqhvbec",
-    "password": "0a2c711e629c74cea53e899241370b7b48014e4e25e844eef948ba3e68b5b8cb",
-    "database": "dcb4atevm2mn3j",
-    "host": "ec2-52-22-136-117.compute-1.amazonaws.com",
+    "username": "postgres",
+    "password": "123456",
+    "database": "dkcinema",
+    "host": "127.0.0.1",
     "dialect": "postgres",
     "logging": false,
     "query": {
       "raw": true
     },
-    "timezone": "+07:00",
-    "dialectOptions": {
-      "ssl": {
-        "require": true,
-        "rejectUnauthorized": false
-      }
-    }
+    "timezone": "+07:00"
   },
   "test": {
     "username": "postgres",

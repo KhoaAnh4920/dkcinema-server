@@ -4,6 +4,8 @@ require('dotenv').config();
 var cloudinary = require('cloudinary').v2;
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
+import moment from 'moment';
+import emailService from '../services/emailService';
 
 
 
@@ -84,12 +86,38 @@ let createNewMovie = (data) => {
 
                     // Add type of movie //
 
+                    let str = '';
                     await Promise.all(dataType.map(async item => {
                         await db.TypeOfMovie.create({
                             movieId: resMovie.dataValues.id,
                             typeId: +item
                         })
+
+                        let type = await db.TypeMovie.findOne({
+                            where: { id: +item },
+
+                            raw: false
+                        })
+
+                        // console.log('type: ', type);
+
+                        str += type.name + ' •'
+
                     }))
+
+                    str = str.substring(0, str.length - 1);
+
+                    console.log('str: ', str);
+
+
+
+                    let dataSend = data;
+
+                    dataSend.poster = result.filter(item => item.typeImage === 1)
+                    dataSend.typeMovie = str
+
+
+                    await sendMailCustomerTypeMovie(dataType, dataSend);
                 }
             }
 
@@ -104,6 +132,48 @@ let createNewMovie = (data) => {
         }
     })
 }
+
+let sendMailCustomerTypeMovie = async (dataType, dataMovie) => {
+
+    // let dataType = [11, 12];
+    //movieId: 28,
+    let result = [];
+    await Promise.all(dataType.map(async item => {
+        // Get top customer //
+        let dataCus = await db.TypeMovieCustomer.findAll({
+            where: {
+                typeId: +item
+            },
+            include: [
+                {
+                    model: db.Customer, as: 'Customer'
+                },
+            ],
+            limit: 2,
+            order: [['amount', 'DESC']],
+
+            raw: true,
+            nest: true
+        })
+
+        console.log('dataCus: ', dataCus)
+        dataCus.map(item => {
+            if (item.Customer.email)
+                result.push(item.Customer.email)
+        })
+
+    }))
+
+    if (result.length > 0) {
+        // Send mail //
+        emailService.sendEmailTypeMovie(result, dataMovie);
+
+        return result;
+    }
+    return;
+
+
+};
 
 
 let updateMovie = (data) => {
@@ -235,7 +305,7 @@ let countTicket = () => {
                 include: [
 
                     {
-                        model: db.Showtime, as: 'TicketShowtime', include: [{ model: db.Movie, as: 'ShowtimeMovie', where: { status: 1 } }]
+                        model: db.Showtime, as: 'TicketShowtime', required: true, include: [{ model: db.Movie, as: 'ShowtimeMovie', required: true, where: { status: 1 } }]
                     },
                 ],
                 group: ['TicketShowtime->ShowtimeMovie.id', 'TicketShowtime.id'],
@@ -244,7 +314,7 @@ let countTicket = () => {
                 nest: true
             });
 
-            console.log('dataTicket: ', dataTicket)
+            // console.log('dataTicket: ', dataTicket)
 
 
             if (dataTicket) {
@@ -253,12 +323,30 @@ let countTicket = () => {
                     let obj = {};
                     obj.id = index;
                     obj.nameMovie = item.TicketShowtime.ShowtimeMovie.name;
+                    obj.ScheduleId = item.TicketShowtime.id
+                    obj.movieId = item.TicketShowtime.ShowtimeMovie.id;
                     obj.count = +item.TicketCount
                     result.push(obj);
                 })
 
-                console.log('result: ', result);
-                resolve(result);
+                // console.log('result: ', result);
+
+                var result2 = [];
+                result.reduce(function (res, value) {
+                    // console.log('res: ', res);
+                    // console.log('value: ', value);
+
+                    if (!res[value.movieId]) {
+                        res[value.movieId] = { id: value.movieId, count: 0, nameMovie: value.nameMovie };
+                        result2.push(res[value.movieId])
+                    }
+                    res[value.movieId].count += value.count;
+                    return res;
+                }, {});
+
+                // console.log(result2)
+
+                resolve(result2);
 
             } else {
                 resolve([]);
@@ -271,6 +359,215 @@ let countTicket = () => {
     })
 }
 
+
+let countBookingTypeOfMovie = () => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let dataTicket = await db.TypeMovieCustomer.findAll({
+                attributes: ['TypeMovieCustomer.id', [Sequelize.fn('sum', Sequelize.col('TypeMovieCustomer.amount')), 'BookingCount']],
+
+                include: [
+                    {
+                        model: db.TypeMovie, as: 'TypeMovie', required: true
+                    },
+                ],
+                group: ['TypeMovieCustomer.id', 'TypeMovie.id'],
+
+                raw: true,
+                nest: true
+            });
+
+            if (dataTicket) {
+                let result = []
+                let res = dataTicket.map((item, index) => {
+                    let obj = {};
+                    obj.id = index;
+                    obj.nameType = item.TypeMovie.name;
+                    obj.typeId = item.TypeMovie.id;
+                    obj.count = +item.BookingCount
+                    result.push(obj);
+                })
+
+                var result2 = [];
+                result.reduce(function (res, value) {
+
+
+                    if (!res[value.typeId]) {
+                        res[value.typeId] = { id: value.typeId, count: 0, nameType: value.nameType };
+                        result2.push(res[value.typeId])
+                    }
+                    res[value.typeId].count += value.count;
+                    return res;
+                }, {});
+
+
+                resolve(result2);
+
+            } else {
+                resolve([]);
+            }
+
+
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
+
+
+let getMovieRevenue = (data) => {
+    return new Promise(async (resolve, reject) => {
+
+        let dateFormat = null;
+        if (data.type)
+            dateFormat = moment(new Date()).format('YYYY-MM-DD');
+
+        try {
+            let dataTicket = await db.Ticket.findAll({
+                attributes: ['TicketShowtime->ShowtimeMovie.id', [Sequelize.fn('sum', Sequelize.col('BookingTicket.price')), 'SalesCount']],
+
+                include: [
+
+                    {
+                        model: db.Showtime, as: 'TicketShowtime', required: true, include: [
+                            { model: db.Movie, as: 'ShowtimeMovie', required: true, where: { status: 1 } },
+                        ]
+                    },
+                    {
+                        model: db.Booking, as: 'BookingTicket', where: {
+                            [Op.and]: [
+                                dateFormat &&
+                                db.sequelize.where(
+                                    db.sequelize.cast(db.sequelize.col("BookingTicket.createdAt"), "varchar"),
+                                    { [Op.iLike]: `%${dateFormat}%` }
+                                ),
+                            ]
+                        }
+                    }
+                ],
+                group: ['TicketShowtime->ShowtimeMovie.id', 'TicketShowtime.id', 'BookingTicket.id'],
+
+
+                raw: true,
+                nest: true
+            });
+
+            // console.log('dataTicket: ', dataTicket)
+
+
+            if (dataTicket) {
+                let result = []
+                let res = dataTicket.map((item, index) => {
+                    let obj = {};
+                    obj.id = index;
+                    obj.nameMovie = item.TicketShowtime.ShowtimeMovie.name;
+                    obj.ScheduleId = item.TicketShowtime.id
+                    obj.movieId = item.TicketShowtime.ShowtimeMovie.id;
+                    obj.sum = +item.SalesCount
+                    result.push(obj);
+                })
+
+                console.log('result: ', result);
+
+                var result2 = [];
+                result.reduce(function (res, value) {
+                    // console.log('res: ', res);
+                    // console.log('value: ', value);
+
+                    if (!res[value.movieId]) {
+                        res[value.movieId] = { id: value.movieId, sum: 0, nameMovie: value.nameMovie };
+                        result2.push(res[value.movieId])
+                    }
+                    res[value.movieId].sum += value.sum;
+                    return res;
+                }, {});
+
+                // console.log(result2)
+
+                resolve(result2);
+
+            } else {
+                resolve([]);
+            }
+
+
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
+
+let salesTicket = () => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let dateFormat = moment(new Date()).format('YYYY-MM-DD');
+            let dataTicket = await db.Ticket.findAll({
+
+                include: [
+
+                    {
+                        model: db.Showtime, as: 'TicketShowtime', required: true, include: [{ model: db.Movie, as: 'ShowtimeMovie', required: true, where: { status: 1 } }]
+                    },
+                ],
+
+                where: {
+                    [Op.and]: [
+                        dateFormat &&
+                        db.sequelize.where(
+                            db.sequelize.cast(db.sequelize.col("Ticket.createdAt"), "varchar"),
+                            { [Op.iLike]: `%${dateFormat}%` }
+                        ),
+                    ]
+                },
+
+                raw: true,
+                nest: true
+            });
+
+            console.log('dataTicket: ', dataTicket)
+
+
+            if (dataTicket) {
+                // let result = []
+                // let res = dataTicket.map((item, index) => {
+                //     let obj = {};
+                //     obj.id = index;
+                //     obj.nameMovie = item.TicketShowtime.ShowtimeMovie.name;
+                //     obj.ScheduleId = item.TicketShowtime.id
+                //     obj.movieId = item.TicketShowtime.ShowtimeMovie.id;
+                //     obj.count = +item.TicketCount
+                //     result.push(obj);
+                // })
+
+                // // console.log('result: ', result);
+
+                // var result2 = [];
+                // result.reduce(function (res, value) {
+                //     // console.log('res: ', res);
+                //     // console.log('value: ', value);
+
+                //     if (!res[value.movieId]) {
+                //         res[value.movieId] = { id: value.movieId, count: 0, nameMovie: value.nameMovie };
+                //         result2.push(res[value.movieId])
+                //     }
+                //     res[value.movieId].count += value.count;
+                //     return res;
+                // }, {});
+
+                // console.log(result2)
+
+                resolve(dataTicket);
+
+            } else {
+                resolve([]);
+            }
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
 
 let getMovieByKeyword = (data) => {
     return new Promise(async (resolve, reject) => {
@@ -578,6 +875,47 @@ let deleteImageMovie = (id) => {
 
 
 
+
+
+let testGetCustomerTypeMovie = async (req) => {
+
+    let dataType = [11, 12];
+    //movieId: 28,
+    let result = [];
+    await Promise.all(dataType.map(async item => {
+        // Get top customer //
+        let dataCus = await db.TypeMovieCustomer.findAll({
+            where: {
+                typeId: item
+            },
+            include: [
+                {
+                    model: db.Customer, as: 'Customer'
+                },
+            ],
+            limit: 2,
+            order: [['amount', 'DESC']],
+
+            raw: true,
+            nest: true
+        })
+
+        console.log('dataCus: ', dataCus)
+        dataCus.map(item => {
+            if (item.Customer.email)
+                result.push(item.Customer.email)
+        })
+
+    }))
+
+    // Send mail //
+    emailService.sendEmailTypeMovie(result, 'Hmm');
+
+    return result;
+};
+
+
+
 module.exports = {
     createNewMovie,
     getListMovie,
@@ -589,5 +927,9 @@ module.exports = {
     getMovieByStatus,
     getMovieByKeyword,
     voteNewsRatingMovie,
-    countTicket
+    countTicket,
+    salesTicket,
+    testGetCustomerTypeMovie,
+    getMovieRevenue,
+    countBookingTypeOfMovie
 }

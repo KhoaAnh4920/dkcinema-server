@@ -96,6 +96,21 @@ let testSendMail = async (req, res) => {
     }
 };
 
+let testGetTypeMovieBooking = async (req, res) => {
+    try {
+        const result = await BookingServices.testGetTypeMovieBooking(req);
+        return res
+            .status(200).json(result);
+    } catch (e) {
+        console.log(e)
+        return res
+            .status(400)
+            .json({
+                message: 'Fail'
+            })
+    }
+};
+
 let testSignature = async (req, res) => {
     try {
         const result = await BookingServices.testSignature(req);
@@ -218,5 +233,6 @@ module.exports = {
     handleGetBookingByCustomer,
     handleDeleteBooking,
     handleUpdateStatusComboBooking,
-    handleCountSalesAllMovieTheater
+    handleCountSalesAllMovieTheater,
+    testGetTypeMovieBooking
 }

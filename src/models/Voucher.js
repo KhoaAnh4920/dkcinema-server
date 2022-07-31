@@ -15,6 +15,7 @@ module.exports = (sequelize, DataTypes) => {
             // Một rạp có nhiều phòng chiếu //
 
             Voucher.hasMany(models.Booking, { foreignKey: 'voucherId', as: 'VoucherBooking' })
+            Voucher.belongsTo(models.Customer, { foreignKey: 'cusId', targetKey: 'id', as: 'CustomerVoucher' });
         }
     };
     Voucher.init({
@@ -27,7 +28,8 @@ module.exports = (sequelize, DataTypes) => {
         description: DataTypes.STRING,
         timeStart: DataTypes.DATE,
         timeEnd: DataTypes.DATE,
-        isdelete: DataTypes.BOOLEAN
+        isdelete: DataTypes.BOOLEAN,
+        cusId: DataTypes.INTEGER
     }, {
         sequelize,
         modelName: 'Voucher',

@@ -3,7 +3,7 @@ require('dotenv').config();
 var cloudinary = require('cloudinary').v2;
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
-
+import moment from 'moment';
 
 
 
@@ -183,7 +183,7 @@ let getMovieTheaterById = (movieTheaterId) => {
                 where: { id: movieTheaterId, isdelete: false },
 
                 include: [
-                    // { model: db.Users, as: 'UserMovieTheater' },
+
                     { model: db.ImageMovieTheater, as: 'MovieTheaterImage' },
                 ],
                 raw: false,
@@ -202,18 +202,23 @@ let getMovieTheaterById = (movieTheaterId) => {
 
 
 
-let countTurnoverByMovieTheater = (movieTheaterId) => {
+let countTurnoverByMovieTheater = (movieTheaterId, type) => {
     return new Promise(async (resolve, reject) => {
         try {
+            let dateFormat = moment(new Date()).format('YYYY-MM-DD');
+
+            // console.log('dateFormat: ', dateFormat)
 
             let data2 = await db.MovieTheater.findAll({
                 attributes:
                     ['id', 'MovieTheaterRoom->RoomShowTime->TicketShowtime->BookingTicket.createdAt', db.sequelize.fn('SUM', db.sequelize.col('MovieTheaterRoom->RoomShowTime->TicketShowtime->BookingTicket.price'))],
 
                 where: {
-                    id: movieTheaterId,
-                    isdelete: false
-
+                    [Op.and]: [
+                        movieTheaterId &&
+                        { id: { [Op.or]: [(movieTheaterId) ? +movieTheaterId : null, null] } },
+                        { isdelete: false }
+                    ]
                 },
                 include: [
                     {
@@ -223,12 +228,26 @@ let countTurnoverByMovieTheater = (movieTheaterId) => {
                                     {
                                         model: db.Ticket, as: 'TicketShowtime', required: true, include: {
                                             model: db.Booking, as: 'BookingTicket', required: true, where: {
-                                                createdAt: {
-                                                    [Op.gte]: Sequelize.literal("NOW() - (INTERVAL '6 MONTHS')"),
-                                                }
+                                                [Op.or]: [
+                                                    !type &&
+                                                    {
+                                                        createdAt: {
+                                                            [Op.gte]: Sequelize.literal("NOW() - (INTERVAL '6 MONTHS')"),
+                                                        }
+                                                    },
+                                                    type &&
+                                                    {
+                                                        createdAt: db.sequelize.where(
+                                                            db.sequelize.cast(db.sequelize.col("MovieTheaterRoom->RoomShowTime->TicketShowtime->BookingTicket.createdAt"), "varchar"),
+                                                            { [Op.iLike]: `%${dateFormat}%` }
+                                                        ),
+                                                    }
+                                                ]
+
                                             }
                                         }
-                                    }]
+                                    }
+                                ]
                             },
                         ],
 
@@ -247,6 +266,8 @@ let countTurnoverByMovieTheater = (movieTheaterId) => {
                 nest: true
             })
 
+            //console.log('data2: ', data2);
+
             data2 = Object.values(data2.reduce((acc, cur) => Object.assign(acc, { [cur.createdAt]: cur }), {}))
 
             let index = 0;
@@ -263,7 +284,7 @@ let countTurnoverByMovieTheater = (movieTheaterId) => {
             resolve({
                 errCode: 0,
                 errMessage: 'OK',
-                data: Object.values(result).reverse()
+                data: result
             });
         } catch (e) {
             reject(e);
@@ -273,6 +294,243 @@ let countTurnoverByMovieTheater = (movieTheaterId) => {
 
 
 
+let countTicketByMovieTheater = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let dateFormat = null;
+
+            console.log('data.movieTheaterId: ', data.movieTheaterId)
+            if (!data.time)
+                dateFormat = moment(new Date()).format('YYYY-MM-DD');
+            else dateFormat = moment(new Date(+data.time)).format('YYYY-MM-DD');
+
+            let data2 = await db.MovieTheater.findAll({
+                // attributes: ['MovieTheater.id', [Sequelize.fn('COUNT', Sequelize.col('Ticket.id')), 'TicketCount']],
+
+                where: {
+                    [Op.and]: [
+                        +data.movieTheaterId &&
+                        { id: { [Op.or]: [(data.movieTheaterId) ? +data.movieTheaterId : null, null] } },
+                        { isdelete: false }
+                    ]
+
+                },
+                include: [
+                    {
+                        model: db.Room, as: 'MovieTheaterRoom', required: true, include: [
+                            {
+                                model: db.Showtime, as: 'RoomShowTime', required: true, include: [
+                                    {
+                                        model: db.Ticket, as: 'TicketShowtime', required: true, where: {
+                                            [Op.and]: [
+                                                dateFormat &&
+                                                db.sequelize.where(
+                                                    db.sequelize.cast(db.sequelize.col("MovieTheaterRoom->RoomShowTime->TicketShowtime.createdAt"), "varchar"),
+                                                    { [Op.iLike]: `%${dateFormat}%` }
+                                                ),
+                                            ]
+                                        }
+                                    }]
+                            },
+                        ],
+
+                    },
+
+                ],
+
+                // group: ['MovieTheater.id', 'MovieTheaterRoom.id',
+                //     'MovieTheaterRoom->RoomShowTime.id', 'MovieTheaterRoom->RoomShowTime->TicketShowtime.id',
+                // ],
+
+                raw: false,
+                nest: true
+            })
+
+            console.log('data2: ', data2)
+
+            let result = [];
+
+            data2.map(item => {
+                let obj = {};
+                obj.id = item.id;
+                obj.nameTheater = item.tenRap;
+                obj.countTicket = item.MovieTheaterRoom[0].RoomShowTime[0].TicketShowtime.length;
+                result.push(obj);
+            })
+
+            console.log('result: ', result)
+
+
+
+            resolve({
+                errCode: 0,
+                errMessage: 'OK',
+                data: result
+            });
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
+
+
+
+let eachTheaterRevenue = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let dateFormat = null;
+
+            if (+data.type === 2)
+                dateFormat = moment(new Date()).format('YYYY-MM-DD');
+            else dateFormat = moment(new Date()).format('YYYY-MM');
+
+            let data2 = await db.MovieTheater.findAll({
+                attributes:
+                    ['id', 'tenRap', 'MovieTheaterRoom->RoomShowTime->TicketShowtime->BookingTicket.createdAt', db.sequelize.fn('SUM', db.sequelize.col('MovieTheaterRoom->RoomShowTime->TicketShowtime->BookingTicket.price'))],
+
+                where: {
+                    [Op.and]: [
+                        +data.movieTheaterId &&
+                        { id: { [Op.or]: [(data.movieTheaterId) ? +data.movieTheaterId : null, null] } },
+                        { isdelete: false }
+                    ]
+
+                },
+                include: [
+                    {
+                        model: db.Room, as: 'MovieTheaterRoom', required: true, include: [
+                            {
+                                model: db.Showtime, as: 'RoomShowTime', required: true, include: [
+                                    {
+                                        model: db.Ticket, as: 'TicketShowtime', required: true, include: [
+                                            {
+                                                model: db.Booking, as: 'BookingTicket', where: {
+                                                    [Op.or]: [
+                                                        +data.type === 2 &&
+                                                        {
+                                                            createdAt: {
+                                                                [Op.gte]: Sequelize.literal("NOW() - (INTERVAL '6 MONTHS')"),
+                                                            }
+                                                        },
+                                                        +data.type === 1 &&
+                                                        {
+                                                            createdAt: {
+                                                                [Op.gte]: moment().subtract(7, 'days').toDate()
+                                                            }
+                                                        }
+                                                    ]
+
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ],
+
+                    },
+
+                ],
+
+                group: ['MovieTheater.id', 'MovieTheaterRoom.id',
+                    'MovieTheaterRoom->RoomShowTime.id', 'MovieTheaterRoom->RoomShowTime->TicketShowtime.id',
+                    'MovieTheaterRoom->RoomShowTime->TicketShowtime->BookingTicket.id'
+                ],
+
+                raw: true,
+                nest: true
+            })
+
+            var helper = {};
+            let finalRes = null;
+
+            if (+data.type === 2) {
+
+                // var uniqueArray = removeDuplicates(data2, "createdAt");
+
+                // console.log('uniqueArray: ', uniqueArray)
+                data2 = Object.values(data2.reduce((acc, cur) => Object.assign(acc, { [cur.createdAt]: cur }), {}))
+
+                var result = data2.reduce(function (r, o) {
+                    var key = moment(o.createdAt).format('MM-YYYY') + '-' + o.id;
+
+                    if (!helper[key]) {
+                        helper[key] = Object.assign({}, o); // create a copy of o
+                        r.push(helper[key]);
+                    } else {
+                        helper[key].sum += o.sum;
+
+                    }
+
+                    return r;
+                }, []);
+
+
+
+                result.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+
+
+                finalRes = result.map((item) => {
+                    item.createdAt = moment(item.createdAt).format('MM-YYYY')
+
+                    return item;
+                })
+            } else {
+                data2 = Object.values(data2.reduce((acc, cur) => Object.assign(acc, { [cur.createdAt]: cur }), {}))
+                var result = data2.reduce(function (r, o) {
+                    var key = moment(o.createdAt).format('DD-MM-YYYY') + '-' + o.id;
+
+                    if (!helper[key]) {
+                        helper[key] = Object.assign({}, o); // create a copy of o
+                        r.push(helper[key]);
+                    } else {
+                        helper[key].sum += o.sum;
+
+                    }
+
+                    return r;
+                }, []);
+
+
+                result.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+
+                finalRes = result.map((item) => {
+                    item.createdAt = moment(item.createdAt).format('DD-MM-YYYY')
+
+                    return item;
+                })
+            }
+
+
+
+            resolve({
+                errCode: 0,
+                errMessage: 'OK',
+                data: result
+            });
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
+
+function removeDuplicates(originalArray, prop) {
+    var newArray = [];
+    var lookupObject = {};
+
+    for (var i in originalArray) {
+        lookupObject[originalArray[i][prop]] = originalArray[i];
+    }
+
+    for (i in lookupObject) {
+        newArray.push(lookupObject[i]);
+    }
+    return newArray;
+}
+
+
 let countRoomByMovieTheater = (movieTheaterId) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -280,8 +538,6 @@ let countRoomByMovieTheater = (movieTheaterId) => {
             let dataRoom = await db.Room.findAll({
                 where: { movieTheaterId: movieTheaterId }
             })
-
-
 
             resolve({
                 errCode: 0,
@@ -342,8 +598,6 @@ let checkMerchantMovieTheater = (data) => {
                                 }
 
                             },
-
-
                         ],
 
                         raw: false,
@@ -362,8 +616,6 @@ let checkMerchantMovieTheater = (data) => {
                             nest: true
                         });
 
-                        console.log('result: ', result)
-
                         resolve({
                             errCode: 0,
                             errMessage: 'OK',
@@ -377,25 +629,6 @@ let checkMerchantMovieTheater = (data) => {
                         errMessage: 'OK',
                         data: null
                     }); // return 
-
-
-                    // dataMerchant = await db.Users.findOne({
-                    //     where: {
-                    //         [Op.and]: [
-                    //             data.movieTheaterId &&
-                    //             {
-                    //                 movietheaterid: +data.movieTheaterId
-                    //             },
-                    //             data.roleId &&
-                    //             {
-                    //                 roleId: +data.roleId
-                    //             },
-                    //         ]
-                    //     },
-
-                    //     raw: false,
-                    //     nest: true
-                    // });
                 }
 
 
@@ -453,5 +686,7 @@ module.exports = {
     deleteImageMovieTheater,
     checkMerchantMovieTheater,
     countTurnoverByMovieTheater,
-    countRoomByMovieTheater
+    countRoomByMovieTheater,
+    countTicketByMovieTheater,
+    eachTheaterRevenue
 }

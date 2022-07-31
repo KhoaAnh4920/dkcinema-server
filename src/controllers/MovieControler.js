@@ -33,6 +33,36 @@ let countTicketMovie = async (req, res) => {
 
 }
 
+let countBookingTypeOfMovie = async (req, res) => {
+    let dataMovie = await MovieServices.countBookingTypeOfMovie();
+    return res.status(200).json({
+        errCode: 0,
+        errMessage: 'OK',
+        dataMovie
+    })
+
+}
+
+let handleGetMovieRevenue = async (req, res) => {
+    let dataMovie = await MovieServices.getMovieRevenue(req.query);
+    return res.status(200).json({
+        errCode: 0,
+        errMessage: 'OK',
+        dataMovie
+    })
+
+}
+
+let handleSalesTicketMovie = async (req, res) => {
+    let dataMovie = await MovieServices.salesTicket();
+    return res.status(200).json({
+        errCode: 0,
+        errMessage: 'OK',
+        dataMovie
+    })
+
+}
+
 
 let handleUpdateStatusMovie = async (req, res) => {
     let data = req.body;
@@ -86,6 +116,22 @@ let handleVoteRatingMovie = async (req, res) => {
 }
 
 
+let testGetCustomerTypeMovie = async (req, res) => {
+    try {
+        const result = await MovieServices.testGetCustomerTypeMovie(req);
+        return res
+            .status(200).json(result);
+    } catch (e) {
+        console.log(e)
+        return res
+            .status(400)
+            .json({
+                message: 'Fail'
+            })
+    }
+};
+
+
 
 module.exports = {
     handleCreateNewMovie,
@@ -98,5 +144,9 @@ module.exports = {
     handleGetMovieByStatus,
     handleSearchMovie,
     handleVoteRatingMovie,
-    countTicketMovie
+    countTicketMovie,
+    handleSalesTicketMovie,
+    testGetCustomerTypeMovie,
+    handleGetMovieRevenue,
+    countBookingTypeOfMovie
 }
