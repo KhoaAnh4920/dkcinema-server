@@ -1182,7 +1182,7 @@ color: #fff !important
               <tr>
                 <td class="bg_dark email-section">
 <div class="text" style="padding: 0 3em; text-align: center;">
-            				<h2 style="color: #fff"></h2>
+            				<h2 style="color: #fff">Đề xuất phim mới</h2>
             				
             			</div>
 <a class="btn-ticket" href="http://localhost:3000/lich-chieu"> Đặt vé</a>

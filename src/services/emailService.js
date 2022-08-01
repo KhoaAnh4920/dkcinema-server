@@ -159,7 +159,7 @@ let sendEmailTypeMovie = (maiList, dataSend) => {
             let info = await transporter.sendMail({
                 from: '"DK Cinemas" <khoadido@gmail.com>', // sender address
                 to: maiList, // list of receivers
-                subject: "Có phim mới nè !!!", // Subject line
+                subject: "Phim mới ra mắt !!!", // Subject line
                 html: TemplateEmail.templateMovieIncoming(dataSend), // html body
             });
 
