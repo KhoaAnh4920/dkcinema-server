@@ -39,7 +39,7 @@ let uploadCloud = (image, fName) => {
 let createNewCombo = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
-            console.log("Check dataCombo: ", data);
+            //   console.log("Check dataCombo: ", data);
             if (data) {
 
                 let checkData = await db.Combo.findOne({
@@ -222,20 +222,20 @@ let updateCombo = (data) => {
 
 
                         await Promise.all(foodItems.map(async item => {
-                            console.log(item);
+                            //  console.log(item);
                             if (item.amount === 0) {
-                                console.log('Run delete: ', +item.foodId, +data.id)
+                                //  console.log('Run delete: ', +item.foodId, +data.id)
                                 await db.Combo_Food.destroy({
                                     where: { foodId: +item.foodId, comboId: +data.id }
                                 })
                             } else {
                                 let food = await db.Combo_Food.findOne({ where: { foodId: +item.foodId, comboId: +data.id }, raw: false })
-                                console.log(food);
+                                //   console.log(food);
                                 if (food) {
                                     food.amount = item.amount;
                                     food.save();
                                 } else {
-                                    console.log("Create");
+                                    //  console.log("Create");
                                     let obj = {};
                                     obj.comboId = +data.id;
                                     obj.foodId = item.foodId;
@@ -290,7 +290,7 @@ let deleteCombo = (id) => {
             where: { comboId: id, status: false }
         })
 
-        console.log('existsCombo: ', existsCombo);
+        // console.log('existsCombo: ', existsCombo);
 
 
         if (existsCombo && existsCombo.length > 0) {

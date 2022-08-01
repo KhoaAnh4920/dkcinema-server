@@ -314,9 +314,6 @@ let countTicket = () => {
                 nest: true
             });
 
-            // console.log('dataTicket: ', dataTicket)
-
-
             if (dataTicket) {
                 let result = []
                 let res = dataTicket.map((item, index) => {
@@ -329,13 +326,8 @@ let countTicket = () => {
                     result.push(obj);
                 })
 
-                // console.log('result: ', result);
-
                 var result2 = [];
                 result.reduce(function (res, value) {
-                    // console.log('res: ', res);
-                    // console.log('value: ', value);
-
                     if (!res[value.movieId]) {
                         res[value.movieId] = { id: value.movieId, count: 0, nameMovie: value.nameMovie };
                         result2.push(res[value.movieId])
@@ -343,8 +335,6 @@ let countTicket = () => {
                     res[value.movieId].count += value.count;
                     return res;
                 }, {});
-
-                // console.log(result2)
 
                 resolve(result2);
 

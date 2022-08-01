@@ -84,7 +84,7 @@ let handleDeleteImageMovieTheater = async (req, res) => {
 
 let handleCheckMerchant = async (req, res) => {
     let message = '';
-    console.log(req.query);
+    //  console.log(req.query);
     message = await MovieTheaterServices.checkMerchantMovieTheater(req.query);
 
     return res.status(200).json(message);

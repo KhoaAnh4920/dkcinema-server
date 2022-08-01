@@ -62,11 +62,11 @@ let hashUserPassword = (password) => {
 let checkUserEmail = (email) => {
     return new Promise(async (resolve, reject) => {
         try {
-            console.log('email: ', email);
+            // console.log('email: ', email);
             let user = await db.Users.findOne({
                 where: { email: email }
             })
-            console.log('user: ', user);
+            //  console.log('user: ', user);
             if (user)
                 resolve(true);
             else
@@ -101,7 +101,7 @@ let handleUserLogin = async (email, password) => {
 
 
                     if (check) {
-                        console.log('user: ', user)
+                        // console.log('user: ', user)
                         if (!user.isActive) {
                             resolve({
                                 errCode: -1,
@@ -116,14 +116,14 @@ let handleUserLogin = async (email, password) => {
                             where: { externalId: user.externalid }
                         })
 
-                        console.log('cus: ', cus);
+                        //  console.log('cus: ', cus);
 
                         delete user.password; // ko lay password cua user //
                         delete user.id;
 
                         user.id = cus.id;
 
-                        console.log('user: ', user);
+                        //  console.log('user: ', user);
                         userData.user = user;
 
                         // // Add token code //
@@ -173,7 +173,7 @@ let handleAdminLogin = async (email, password) => {
                             // let dataRes = await getMovieTheaterByUser(user.id);
 
                             if (!user.movietheaterid) {
-                                console.log("Ok");
+                                //  console.log("Ok");
                                 userData.errorCode = 4;
                                 userData.errMessage = `Unmanaged users cinema`;
                                 resolve(userData);

@@ -9,9 +9,6 @@ import QRCode from 'qrcode';
 var cron = require('node-cron');
 
 
-
-
-
 //parameters
 var partnerCode = "MOMO";
 var accessKey = "F8BBA842ECF85";
@@ -21,7 +18,7 @@ var redirectUrl = "http://localhost:3000/";
 
 // var ipnUrl = "https://57ce-2402-800-6371-a14a-ed0d-ccd6-cbe9-5ced.ngrok.io/api/handle-order";
 
-var notifyUrl = "https://952a-123-21-34-220.ap.ngrok.io/api/handle-booking";
+var notifyUrl = "https://b428-123-21-34-220.ap.ngrok.io/api/handle-booking";
 // var ipnUrl = redirectUrl = "https://webhook.site/454e7b77-f177-4ece-8236-ddf1c26ba7f8";
 var requestType = "captureWallet";
 import emailService from '../services/emailService';
@@ -62,7 +59,7 @@ let createNewBookingTicket = (data) => {
 
 
                         if (Math.abs(minutesPassed) > 15) {
-                            console.log("Xoa: ", check[0].bookingId);
+                            // console.log("Xoa: ", check[0].bookingId);
                             await db.Ticket.destroy({
                                 where: { bookingId: check[0].bookingId }
                             })
@@ -297,9 +294,14 @@ let getMomoPaymentLink = async (data) => {
     });
 };
 
+
+function getRandomInt(max) {
+    return Math.floor(Math.random() * max);
+}
+
 // Update status booking //
 let handleBookingPayment = async (req) => {
-    console.log("Check booking: ", req.body);
+    // console.log("Check booking: ", req.body);
     if (req.body.resultCode == 0) {
         // req.body.extraData = "285";
         const orderCurrent = await db.Booking.findOne({
@@ -324,14 +326,28 @@ let handleBookingPayment = async (req) => {
 
         orderCurrent.status = 1;
 
-        if (orderCurrent.voucherId) {
-            let voucher = await db.Voucher.findOne({
-                where: { id: orderCurrent.voucherId },
-                raw: false
-            })
+        //  console.log('orderCurrent: ', orderCurrent)
+
+        if (orderCurrent.voucherId || req.body.voucherCode) {
+            let voucher = null;
+            if (req.body.voucherCode) {
+                voucher = await db.Voucher.findOne({
+                    where: { code: req.body.voucherCode },
+                    raw: false
+                })
+            } else {
+                voucher = await db.Voucher.findOne({
+                    where: { id: orderCurrent.voucherId },
+                    raw: false
+                })
+            }
+
+
+            // console.log('voucher: ', voucher);
 
             if (voucher.maxUses !== -1) {
                 voucher.maxUses = voucher.maxUses - 1;
+                voucher.isdelete = true;
                 await voucher.save()
             }
         }
@@ -347,7 +363,7 @@ let handleBookingPayment = async (req) => {
 
 
 
-        console.log('cusId in handleBookingPayment: ', cusId);
+        // console.log('cusId in handleBookingPayment: ', cusId);
         let totalBooking = await db.Booking.findAll({
             where: { customerId: cusId, status: 1 },
             // attributes: [
@@ -366,7 +382,7 @@ let handleBookingPayment = async (req) => {
             sum += item.price;
         })
 
-        // console.log('sum: ', sum);
+        //  console.log('sum: ', sum);
 
 
 
@@ -375,7 +391,7 @@ let handleBookingPayment = async (req) => {
             raw: false
         })
 
-        console.log('totalBooking: ', totalBooking)
+        // console.log('totalBooking: ', totalBooking)
 
         if (totalBooking && sum > 0) {
             if (sum > 1000000 && sum <= 2000000) {
@@ -392,7 +408,6 @@ let handleBookingPayment = async (req) => {
 
         if (orderCurrentAll[0] && orderCurrentAll[0].BookingTicket[0] && orderCurrentAll[0].BookingTicket[0].TicketShowtime && orderCurrentAll[0].BookingTicket[0].TicketShowtime.ShowtimeMovie) {
             let dataType = orderCurrentAll[0].BookingTicket[0].TicketShowtime.ShowtimeMovie.MovieOfType;
-
 
             // console.log('dataType: ', dataType)
 
@@ -419,38 +434,17 @@ let handleBookingPayment = async (req) => {
         }
 
         // 
-        let dataBook = await db.Booking.findAll({
-            attributes: [
-                'customerId',
-                [db.sequelize.fn('count', db.sequelize.col('BookingTicket.id')), 'user_count'] // <---- Here you will get the total count of user
-            ],
-
-            where: { customerId: orderCurrentAll[0].customerId },
-
-            include: [
-                {
-                    model: db.Ticket, as: 'BookingTicket',
-                    attributes: []
-                },
-            ],
-            group: ['Booking.customerId', "Booking.id"],
 
 
-            raw: true,
-            nest: true
-        });
 
-        let sum2 = 0;
-        dataBook.map(item => {
-            sum2 += +item.user_count
-        })
-
-        if (sum2 >= 50) {
+        if ((customer.numberOfTicket + orderCurrentAll[0].BookingTicket.length) >= 50) {
             // Send voucher free ticket //
             let voucherGif = 'DKFREE' + getRandomInt(10000);
+
+
             await db.Voucher.create({
                 code: voucherGif,
-                discount: discount,
+                discount: 100000,
                 status: 1,
                 maxUses: 1,
                 name: `Voucher gif free ticket ${customer.fullName}`,
@@ -460,6 +454,8 @@ let handleBookingPayment = async (req) => {
                 cusId: customer.id
             })
 
+
+
             customer.numberOfTicket = 0;
 
 
@@ -467,15 +463,20 @@ let handleBookingPayment = async (req) => {
             obj.reciverEmail = orderCurrentAll[0].email;
             obj.voucherCode = voucherGif;
 
+
+
             await emailService.sendEmailVoucherFree(obj);
 
+        } else {
+            customer.numberOfTicket += orderCurrentAll[0].BookingTicket.length;
         }
 
-        customer.save();
+        await customer.save();
 
 
-
-
+        if (req.body.resultCode === 0 && req.body.type === 1) {
+            orderCurrent.price = 0;
+        }
         // send mail //
         sendMailBooking(orderCurrent)
 
@@ -504,7 +505,7 @@ let testSendMail = async (req) => {
         where: { id: 66 },
     });
 
-    console.log("Check orderCurrent: ", orderCurrent);
+    // console.log("Check orderCurrent: ", orderCurrent);
 
     sendMailBooking(orderCurrent)
 
@@ -581,6 +582,7 @@ let testSignature = async (req) => {
 let sendMailBooking = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
+            //console.log('Check data: ', data)
             if (!data) {
                 resolve({
                     errCode: 1,
@@ -599,6 +601,7 @@ let sendMailBooking = (data) => {
                     raw: true,
                     nest: true
                 })
+
 
                 let dataCombo = await db.Combo_Booking.findAll({
                     where: {
@@ -956,6 +959,7 @@ let getBookingByCustomer = (data) => {
                                 db.sequelize.cast(db.sequelize.col("Booking.createdAt"), "varchar"),
                                 whereClause
                             ),
+                            { status: 1 }
                         ]
                     },
                     include: [
@@ -989,6 +993,42 @@ let getBookingByCustomer = (data) => {
                     totalData: listBooking.length
                 }); // return 
             }
+
+
+            resolve({
+                errCode: 2,
+                errMessage: 'Missing data'
+            }); // return 
+
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
+
+
+
+let getSeetBookingByCustomer = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (data) {
+
+
+                let dataSeet = await db.Ticket.findAll({
+                    where: { bookingId: +data.bookingId }
+                })
+
+
+
+                resolve({
+                    errCode: 0,
+                    errMessage: 'OK',
+                    data: dataSeet,
+
+                });
+            }
+
 
 
             resolve({
@@ -1199,7 +1239,8 @@ module.exports = {
     deleteBooking,
     handleUpdateStatusComboBooking,
     countSalesAllMovieTheater,
-    testGetTypeMovieBooking
+    testGetTypeMovieBooking,
+    getSeetBookingByCustomer
 }
 
 

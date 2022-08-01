@@ -91,7 +91,7 @@ let getListFeedback = (data) => {
                 nest: true
             })
 
-            console.log('listFeed: ', listFeed)
+            //    console.log('listFeed: ', listFeed)
 
             resolve({
                 errCode: 0,

@@ -2066,6 +2066,30 @@ let initWebRoutes = (app) => {
 */
     router.get('/get-booking-customer', BookingController.handleGetBookingByCustomer);
 
+
+
+    /** 
+* @swagger 
+* /get-seet-booking-customer: 
+*   get: 
+*     tags: ["Booking Ticket"]
+*     summary: Get seet booking by customer
+*     parameters:
+*       - in: query
+*         name: cusId
+*         type: integer
+*         example: 1
+*       - in: query
+*         name: bookingId
+*         type: integer
+*         example: 1
+*     responses:  
+*       200: 
+*         description: Success  
+*   
+*/
+    router.get('/get-seet-booking-customer', BookingController.handleGetSeetBookingByCustomer);
+
     /** 
 * @swagger 
 * /booking/{id}: 

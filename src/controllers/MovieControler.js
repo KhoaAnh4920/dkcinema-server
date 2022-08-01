@@ -71,7 +71,7 @@ let handleUpdateStatusMovie = async (req, res) => {
 }
 
 let handleDeleteMovie = async (req, res) => {
-    console.log(req.body);
+    //  console.log(req.body);
     let data = req.body;
     let message = await MovieServices.deleteMovie(data);
     return res.status(200).json(message)

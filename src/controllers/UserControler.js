@@ -28,7 +28,7 @@ let handleLoginAdmin = async (req, res) => {
     let email = req.body.email;
     let password = req.body.password;
 
-    console.log(req.body);
+    // console.log(req.body);
 
     if (!email || !password) {
         return res.status(200).json({
@@ -39,7 +39,7 @@ let handleLoginAdmin = async (req, res) => {
 
     let userData = await UserService.handleAdminLogin(email, password);
 
-    console.log(userData);
+    // console.log(userData);
 
     return res.status(200).json({
         errorCode: userData.errorCode,

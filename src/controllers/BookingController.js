@@ -178,6 +178,11 @@ let handleGetBookingByCustomer = async (req, res) => {
     return res.status(200).json(message);
 }
 
+let handleGetSeetBookingByCustomer = async (req, res) => {
+    let message = await BookingServices.getSeetBookingByCustomer(req.query);;
+    return res.status(200).json(message);
+}
+
 
 let handleGetDetailBooking = async (req, res) => {
     let message = '';
@@ -234,5 +239,6 @@ module.exports = {
     handleDeleteBooking,
     handleUpdateStatusComboBooking,
     handleCountSalesAllMovieTheater,
-    testGetTypeMovieBooking
+    testGetTypeMovieBooking,
+    handleGetSeetBookingByCustomer
 }

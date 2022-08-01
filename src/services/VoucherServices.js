@@ -263,7 +263,7 @@ let getListVoucherByCustomer = (data) => {
                                     [Op.or]: [(data.cusId) ? data.cusId : null, null]
                                 }
                             },
-                            { isdelete: false }
+                            { isdelete: false },
 
                         ]
                     },

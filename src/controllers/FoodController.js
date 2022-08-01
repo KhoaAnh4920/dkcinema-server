@@ -3,7 +3,7 @@ import FoodServices from '../services/FoodServices';
 
 
 let handleCreateNewFood = async (req, res) => {
-    console.log("Check req: ", req.body);
+    //  console.log("Check req: ", req.body);
     let message = await FoodServices.createNewFood(req.body);
     return res.status(200).json(message);
 }

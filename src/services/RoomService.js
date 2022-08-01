@@ -115,10 +115,10 @@ let updateRoom = (data) => {
 
 
                     await room.save().then(function (x) {
-                        console.log("Check x: ", x);
+                        //   console.log("Check x: ", x);
                         let dataSeet = data.seets;
 
-                        console.log("Check dataSeet: ", dataSeet);
+                        //   console.log("Check dataSeet: ", dataSeet);
 
                         if (dataSeet && dataSeet.length > 0) {
                             dataSeet.map(item => {
@@ -139,7 +139,7 @@ let updateRoom = (data) => {
 
                     if (data.listSeetChangeType && data.listSeetChangeType.length > 0) {
                         await Promise.all(data.listSeetChangeType.map(async (item, index) => {
-                            console.log("Check item: ", item);
+                            //  console.log("Check item: ", item);
                             let res = await db.Seet.update({
                                 // your new row data here
                                 typeId: item.posOfRow.typeId
@@ -147,7 +147,7 @@ let updateRoom = (data) => {
                                 { where: { roomId: data.id, posOfColumn: item.posOfColumn, posOfRow: item.posOfRow.pos } }
                             );
 
-                            console.log(res);
+                            //  console.log(res);
                         }))
 
 
