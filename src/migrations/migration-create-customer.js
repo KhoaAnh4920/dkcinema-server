@@ -18,7 +18,7 @@ module.exports = {
       fullName: {
         type: Sequelize.STRING
       },
-      point: {
+      numberOfTicket: {
         allowNull: true,
         type: Sequelize.INTEGER
       },

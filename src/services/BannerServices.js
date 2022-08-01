@@ -79,7 +79,7 @@ let getListBanner = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
 
-            console.log('data: ', data);
+            // console.log('data: ', data);
             let status = '';
 
             (+data.status === 1 || data.status === true) ? status = true : status = false

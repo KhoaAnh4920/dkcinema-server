@@ -524,6 +524,26 @@ let initWebRoutes = (app) => {
     router.post('/signUp-customer', UserController.handleSignUpNewUser);
 
 
+    /** 
+     * @swagger 
+     * /get-number-ticket-customer/{cusId}: 
+     *   get: 
+     *     tags: ["Customer"]
+     *     summary: Get number ticket by Customer
+     *     parameters:
+     *       - in: path
+     *         name: cusId
+     *         schema:
+     *         type: integer
+     *         required: true
+     *         description: Cus id of the user to get
+     *     responses:  
+     *       200: 
+     *         description: Success  
+     *   
+     */
+    router.get('/get-number-ticket-customer/:cusId', UserController.handleGetTicketCustomer);
+
     /**
 * @swagger
 *  /feedback-customer:

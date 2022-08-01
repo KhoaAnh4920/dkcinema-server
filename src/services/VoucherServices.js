@@ -484,7 +484,7 @@ var task = cron.schedule('* 6 * * *', async () => {
     console.log('running in 6h am');
     let dateToday = moment(new Date()).format('MM-DD');
 
-    console.log('dateToday: ', dateToday)
+    //console.log('dateToday: ', dateToday)
     let data = await db.Users.findAll(
         {
             where: {
@@ -503,7 +503,7 @@ var task = cron.schedule('* 6 * * *', async () => {
         }
 
     )
-    console.log('data: ', data);
+    // console.log('data: ', data);
 
     if (data && data.length > 0) {
         let mailist = [];
@@ -549,7 +549,7 @@ var task = cron.schedule('* 6 * * *', async () => {
             mailist.push(obj);
         }))
 
-        console.log('maillist: ', mailist);
+        // console.log('maillist: ', mailist);
 
         emailService.sendEmailVoucherGif(mailist);
     }

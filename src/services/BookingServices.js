@@ -314,6 +314,7 @@ let handleBookingPayment = async (req) => {
                         include: [{ model: db.Movie, as: 'ShowtimeMovie', require: true, include: { model: db.TypeMovie, as: 'MovieOfType', require: true } }]
                     }]
                 },
+                { model: db.Customer, as: 'CustomerBooking' }
             ],
 
             raw: false,
@@ -358,14 +359,14 @@ let handleBookingPayment = async (req) => {
             nest: true
         })
 
-        console.log('totalBooking: ', totalBooking)
+        // console.log('totalBooking: ', totalBooking)
 
         let sum = 0;
         totalBooking.map((item, index) => {
             sum += item.price;
         })
 
-        console.log('sum: ', sum);
+        // console.log('sum: ', sum);
 
 
 
@@ -379,11 +380,11 @@ let handleBookingPayment = async (req) => {
         if (totalBooking && sum > 0) {
             if (sum > 1000000 && sum <= 2000000) {
                 customer.rankId = 2;
-                await customer.save();
+                //  await customer.save();
             }
             if (sum > 2000000) {
                 customer.rankId = 3;
-                await customer.save();
+                //    await customer.save();
             }
         }
 
@@ -393,7 +394,7 @@ let handleBookingPayment = async (req) => {
             let dataType = orderCurrentAll[0].BookingTicket[0].TicketShowtime.ShowtimeMovie.MovieOfType;
 
 
-            console.log('dataType: ', dataType)
+            // console.log('dataType: ', dataType)
 
             await Promise.all(dataType.map(async item => {
                 let checkIsExists = await db.TypeMovieCustomer.findOne({
@@ -403,7 +404,7 @@ let handleBookingPayment = async (req) => {
                     },
                     raw: false
                 })
-                console.log('checkIsExists: ', checkIsExists)
+                // console.log('checkIsExists: ', checkIsExists)
                 if (checkIsExists) {
                     checkIsExists.amount += 1;
                     checkIsExists.save();
@@ -416,6 +417,61 @@ let handleBookingPayment = async (req) => {
                 }
             }))
         }
+
+        // 
+        let dataBook = await db.Booking.findAll({
+            attributes: [
+                'customerId',
+                [db.sequelize.fn('count', db.sequelize.col('BookingTicket.id')), 'user_count'] // <---- Here you will get the total count of user
+            ],
+
+            where: { customerId: orderCurrentAll[0].customerId },
+
+            include: [
+                {
+                    model: db.Ticket, as: 'BookingTicket',
+                    attributes: []
+                },
+            ],
+            group: ['Booking.customerId', "Booking.id"],
+
+
+            raw: true,
+            nest: true
+        });
+
+        let sum2 = 0;
+        dataBook.map(item => {
+            sum2 += +item.user_count
+        })
+
+        if (sum2 >= 50) {
+            // Send voucher free ticket //
+            let voucherGif = 'DKFREE' + getRandomInt(10000);
+            await db.Voucher.create({
+                code: voucherGif,
+                discount: discount,
+                status: 1,
+                maxUses: 1,
+                name: `Voucher gif free ticket ${customer.fullName}`,
+                description: 'Voucher gif free ticket',
+                timeStart: null,
+                timeEnd: null,
+                cusId: customer.id
+            })
+
+            customer.numberOfTicket = 0;
+
+
+            let obj = {}
+            obj.reciverEmail = orderCurrentAll[0].email;
+            obj.voucherCode = voucherGif;
+
+            await emailService.sendEmailVoucherFree(obj);
+
+        }
+
+        customer.save();
 
 
 

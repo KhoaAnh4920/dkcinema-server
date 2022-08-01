@@ -5,7 +5,7 @@ const Op = Sequelize.Op;
 let createNewRoom = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
-            console.log('data: ', data);
+            // console.log('data: ', data);
             if (data) {
                 let existsName = await db.Room.findOne({
                     where: {

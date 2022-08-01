@@ -314,7 +314,7 @@ let getUserByExternalId = (externalId) => {
             }
 
             users.id = customer.id
-            users.point = customer.point;
+            users.numberOfTicket = customer.numberOfTicket;
             users.rankId = customer.rankId
 
 
@@ -376,6 +376,54 @@ let getUserByRole = (roleId) => {
     })
 }
 
+
+let getTicketByCustomer = (cusId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let dataBook = await db.Booking.findAll({
+                attributes: [
+                    'customerId',
+                    [db.sequelize.fn('count', db.sequelize.col('BookingTicket.id')), 'user_count'] // <---- Here you will get the total count of user
+                ],
+
+                where: { customerId: cusId },
+
+                include: [
+                    {
+                        model: db.Ticket, as: 'BookingTicket',
+                        attributes: []
+                    },
+                ],
+                group: ['Booking.customerId', "Booking.id"],
+
+
+                raw: true,
+                nest: true
+            });
+
+            let sum = {};
+            sum.sum = 0
+            dataBook.map(item => {
+                sum.sum += +item.user_count
+            })
+            sum.cusId = cusId;
+
+
+
+
+
+            resolve({
+                errCode: 0,
+                errMessage: 'OK',
+                data: sum
+            });
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
+
 let makeid = (length) => {
     var result = '';
     var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -418,13 +466,13 @@ let createNewUser = (data) => {
                         email: data.email,
                         phone: data.phone,
                         fullName: data.fullName,
-                        point: null,
+                        numberOfTicket: 0,
                         rankId: 1,
                         externalId: externalId
                     })
                 }
 
-                console.log('data: ', data);
+                // console.log('data: ', data);
 
                 await db.Users.create({
                     email: data.email,
@@ -462,7 +510,7 @@ let createNewUser = (data) => {
 let userVerifyEmail = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
-            console.log('data: ', data);
+            // console.log('data: ', data);
             if (data.userId && data.userToken) {
                 let user = await db.Users.findOne({
                     where: { id: data.userId, userToken: data.userToken },
@@ -1043,5 +1091,6 @@ module.exports = {
     resetNewPass,
     getAllStaff,
     feedbackCustomer,
-    customerNewPass
+    customerNewPass,
+    getTicketByCustomer
 }

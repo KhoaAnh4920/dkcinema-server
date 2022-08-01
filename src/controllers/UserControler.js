@@ -122,6 +122,14 @@ let handleGetUserByRoles = async (req, res) => {
     return res.status(200).json(message);
 }
 
+let handleGetTicketCustomer = async (req, res) => {
+    let message = '';
+
+    if (req.params && req.params.cusId)
+        message = await UserService.getTicketByCustomer(req.params.cusId);
+    return res.status(200).json(message);
+}
+
 // let handleGetMovieTheaterByUser = async (req, res) => {
 //     let message = '';
 
@@ -190,5 +198,6 @@ module.exports = {
     handleResetNewPass,
     handleGetAllStaff,
     handleFeedbackCustomer,
-    handleCustomerNewPass
+    handleCustomerNewPass,
+    handleGetTicketCustomer
 }
