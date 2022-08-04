@@ -96,7 +96,7 @@ let postComment = (data) => {
                 let check = await db.Vote_News.findOne({
                     where: { cusId: data.cusId }
                 })
-                console.log(check);
+                //    console.log(check);
                 if (!check) {
                     await db.Vote_News.create({
                         rating: +data.rating,
@@ -120,7 +120,7 @@ let postComment = (data) => {
 
                     let calRating = (5 * voteFive + 4 * voteFour + 3 * voteThree + 2 * voteTwo + 1 * voteOne) / (voteFive + voteFour + voteThree + voteTwo + voteOne);
 
-                    console.log('calRating: ', calRating);
+                    //   console.log('calRating: ', calRating);
 
                     let newsData = await db.News.findOne({
                         where: { id: data.newsId },
@@ -170,7 +170,7 @@ let voteNewsRating = (data) => {
                 let check = await db.Vote_News.findOne({
                     where: { cusId: data.cusId, newsId: data.newsId }
                 })
-                console.log(check);
+                //   console.log(check);
                 if (!check) {
                     await db.Vote_News.create({
                         rating: +data.rating,
@@ -194,7 +194,7 @@ let voteNewsRating = (data) => {
 
                     let calRating = (5 * voteFive + 4 * voteFour + 3 * voteThree + 2 * voteTwo + 1 * voteOne) / (voteFive + voteFour + voteThree + voteTwo + voteOne);
 
-                    console.log('calRating: ', calRating);
+                    //  console.log('calRating: ', calRating);
 
                     let newsData = await db.News.findOne({
                         where: { id: data.newsId },

@@ -107,7 +107,7 @@ let createNewMovie = (data) => {
 
                     str = str.substring(0, str.length - 1);
 
-                    console.log('str: ', str);
+                    //  console.log('str: ', str);
 
 
 
@@ -156,7 +156,7 @@ let sendMailCustomerTypeMovie = async (dataType, dataMovie) => {
             nest: true
         })
 
-        console.log('dataCus: ', dataCus)
+        //  console.log('dataCus: ', dataCus)
         dataCus.map(item => {
             if (item.Customer.email)
                 result.push(item.Customer.email)
@@ -199,7 +199,7 @@ let updateMovie = (data) => {
 
                     let dataType = data.typeMovie;
 
-                    console.log(dataType);
+                    //  console.log(dataType);
 
                     // Có truyền image //
                     if (data.poster && data.poster.length > 0) {
@@ -209,7 +209,7 @@ let updateMovie = (data) => {
 
                         let resUpload = {};
 
-                        console.log('dataPoster: ', dataPoster)
+                        //   console.log('dataPoster: ', dataPoster)
 
                         await Promise.all(dataPoster.map(async item => {
                             if (item.image && item.fileName) {
@@ -251,7 +251,7 @@ let updateMovie = (data) => {
                         where: { movieId: +data.id }
                     });
 
-                    console.log("OK");
+                    //   console.log("OK");
                     await Promise.all(dataType.map(async item => {
                         // console.log("Check item: ", item);
                         await db.TypeOfMovie.create({
@@ -406,6 +406,7 @@ let countBookingTypeOfMovie = () => {
 
 
 
+
 let getMovieRevenue = (data) => {
     return new Promise(async (resolve, reject) => {
 
@@ -414,30 +415,34 @@ let getMovieRevenue = (data) => {
             dateFormat = moment(new Date()).format('YYYY-MM-DD');
 
         try {
-            let dataTicket = await db.Ticket.findAll({
-                attributes: ['TicketShowtime->ShowtimeMovie.id', [Sequelize.fn('sum', Sequelize.col('BookingTicket.price')), 'SalesCount']],
+            let dataTicket = await db.Movie.findAll({
+                //  attributes: ['TicketShowtime->ShowtimeMovie.id', [Sequelize.fn('sum', Sequelize.col('BookingTicket.price')), 'SalesCount']],
 
                 include: [
-
                     {
-                        model: db.Showtime, as: 'TicketShowtime', required: true, include: [
-                            { model: db.Movie, as: 'ShowtimeMovie', required: true, where: { status: 1 } },
-                        ]
+                        model: db.Showtime, as: 'ShowtimeMovie', required: true, include: [
+                            {
+                                model: db.Ticket, as: 'TicketShowtime', required: true, include: [
+                                    {
+                                        model: db.Booking, as: 'BookingTicket', required: true, where: { status: 1 },
+                                        where: {
+                                            [Op.and]: [
+                                                dateFormat &&
+                                                db.sequelize.where(
+                                                    db.sequelize.cast(db.sequelize.col("ShowtimeMovie->TicketShowtime->BookingTicket.createdAt"), "varchar"),
+                                                    { [Op.iLike]: `%${dateFormat}%` }
+                                                ),
+                                            ]
+                                        }
+                                    },
+                                ]
+                            }
+                        ],
                     },
-                    {
-                        model: db.Booking, as: 'BookingTicket', where: {
-                            [Op.and]: [
-                                dateFormat &&
-                                db.sequelize.where(
-                                    db.sequelize.cast(db.sequelize.col("BookingTicket.createdAt"), "varchar"),
-                                    { [Op.iLike]: `%${dateFormat}%` }
-                                ),
-                            ]
-                        }
-                    }
-                ],
-                group: ['TicketShowtime->ShowtimeMovie.id', 'TicketShowtime.id', 'BookingTicket.id'],
 
+                ],
+
+                where: { status: 1 },
 
                 raw: true,
                 nest: true
@@ -445,37 +450,22 @@ let getMovieRevenue = (data) => {
 
             // console.log('dataTicket: ', dataTicket)
 
-
             if (dataTicket) {
-                let result = []
-                let res = dataTicket.map((item, index) => {
-                    let obj = {};
-                    obj.id = index;
-                    obj.nameMovie = item.TicketShowtime.ShowtimeMovie.name;
-                    obj.ScheduleId = item.TicketShowtime.id
-                    obj.movieId = item.TicketShowtime.ShowtimeMovie.id;
-                    obj.sum = +item.SalesCount
-                    result.push(obj);
-                })
 
-                console.log('result: ', result);
+                dataTicket = Object.values(dataTicket.reduce((acc, cur) => Object.assign(acc, { [cur.ShowtimeMovie.TicketShowtime.bookingId]: cur }), {}))
 
-                var result2 = [];
-                result.reduce(function (res, value) {
-                    // console.log('res: ', res);
-                    // console.log('value: ', value);
-
-                    if (!res[value.movieId]) {
-                        res[value.movieId] = { id: value.movieId, sum: 0, nameMovie: value.nameMovie };
-                        result2.push(res[value.movieId])
+                var result = [];
+                dataTicket.reduce(function (res, value) {
+                    if (!res[value.id]) {
+                        res[value.id] = { id: value.id, nameMovie: value.name, sum: 0 };
+                        result.push(res[value.id])
                     }
-                    res[value.movieId].sum += value.sum;
+                    res[value.id].sum += value.ShowtimeMovie.TicketShowtime.BookingTicket.price;
                     return res;
                 }, {});
 
-                // console.log(result2)
 
-                resolve(result2);
+                resolve(result);
 
             } else {
                 resolve([]);
@@ -516,7 +506,7 @@ let salesTicket = () => {
                 nest: true
             });
 
-            console.log('dataTicket: ', dataTicket)
+            //   console.log('dataTicket: ', dataTicket)
 
 
             if (dataTicket) {
@@ -645,7 +635,7 @@ let voteNewsRatingMovie = (data) => {
                 let check = await db.Vote_Movie.findOne({
                     where: { cusId: data.cusId, movieId: data.movieId }
                 })
-                console.log(check);
+                //  console.log(check);
                 if (!check) {
                     await db.Vote_Movie.create({
                         rating: +data.rating,
@@ -669,7 +659,7 @@ let voteNewsRatingMovie = (data) => {
 
                     let calRating = (5 * voteFive + 4 * voteFour + 3 * voteThree + 2 * voteTwo + 1 * voteOne) / (voteFive + voteFour + voteThree + voteTwo + voteOne);
 
-                    console.log('calRating: ', calRating);
+                    //  console.log('calRating: ', calRating);
 
                     let movieData = await db.Movie.findOne({
                         where: { id: data.movieId },
@@ -771,7 +761,7 @@ let deleteMovie = async (data) => {
 let getMovieById = (movieId) => {
     return new Promise(async (resolve, reject) => {
         try {
-            console.log(movieId);
+            //   console.log(movieId);
             let movie = await db.Movie.findOne({
                 where: { id: movieId, isDelete: false },
                 include: [
@@ -781,7 +771,7 @@ let getMovieById = (movieId) => {
                 raw: false,
             });
 
-            console.log(movie);
+            //  console.log(movie);
 
             resolve({
                 errCode: 0,
@@ -833,7 +823,7 @@ let getMovieByStatus = (query) => {
 
 let deleteImageMovie = (id) => {
 
-    console.log("Check publicImageId: ", id);
+    //   console.log("Check publicImageId: ", id);
 
     return new Promise(async (resolve, reject) => {
         let imageMovie = await db.ImageMovie.findOne({
@@ -890,7 +880,7 @@ let testGetCustomerTypeMovie = async (req) => {
             nest: true
         })
 
-        console.log('dataCus: ', dataCus)
+        //  console.log('dataCus: ', dataCus)
         dataCus.map(item => {
             if (item.Customer.email)
                 result.push(item.Customer.email)

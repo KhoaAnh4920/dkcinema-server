@@ -18,24 +18,9 @@ let createNewScheduleMovie = (data) => {
 
                 let test = moment(newDatePremier).format("YYYY-MM-DD");
                 let test2 = moment(newDateStartTime).format("HH:mm:ss");
-                console.log(test);
-                console.log("test 2: ", test2);
+                // console.log(test);
+                // console.log("test 2: ", test2);
 
-
-                // let checkStartTimeData = moment(data.startTime).format("DD/MM/YYYY HH:mm:ss");
-                // let checkEndTimeData = moment(data.endTime).format("DD/MM/YYYY HH:mm:ss");
-
-
-                // var ms = moment(checkEndTimeData, "DD/MM/YYYY HH:mm:ss").diff(moment(checkStartTimeData, "DD/MM/YYYY HH:mm:ss"));
-                // var d = moment.duration(ms);
-
-                // console.log("Check d: ", d.hours());
-                // console.log("Check d: ", d.minutes());
-
-
-                // let checkData = await db.Showtime.findOne({
-                //     where: { startTime: data.startTime, premiereDate: data.premiereDate }
-                // })
 
                 let checkData = await db.sequelize.query(
                     'SELECT * FROM "Showtime" WHERE CAST("startTime" AS VARCHAR) LIKE :startTime AND CAST("premiereDate" AS VARCHAR) LIKE :premiereDate',
@@ -57,9 +42,9 @@ let createNewScheduleMovie = (data) => {
 
                 // Get list schedule for day //
                 let getDay = moment(data.premiereDate).format("YYYY-MM-DD");
-                console.log("Check getDay: ", getDay);
+                // console.log("Check getDay: ", getDay);
 
-                console.log("Check payload: ", data);
+                //  console.log("Check payload: ", data);
 
                 let listSchedule = await db.sequelize.query(
                     'SELECT * FROM "Showtime" WHERE "Showtime"."roomId" = :roomId AND CAST("premiereDate" AS VARCHAR) LIKE :premiereDate order by id asc',
@@ -69,13 +54,13 @@ let createNewScheduleMovie = (data) => {
                     }
                 );
 
-                console.log("listSchedule: ", listSchedule);
+                // console.log("listSchedule: ", listSchedule);
 
 
                 if (listSchedule && listSchedule.length > 0) {
 
-                    console.log("data.startTime: ", data.startTime);
-                    console.log("data.startTime 2: ", moment.utc(data.startTime).format("HH:mm:ss"));
+                    //   console.log("data.startTime: ", data.startTime);
+                    //    console.log("data.startTime 2: ", moment.utc(data.startTime).format("HH:mm:ss"));
 
 
                     let checkFlag = false;
@@ -91,17 +76,17 @@ let createNewScheduleMovie = (data) => {
                         let h2 = moment(item.endTime).format("HH");
                         let m2 = moment(item.endTime).format("mm");
 
-                        console.log("h: ", h);
-                        console.log("m: ", m);
-                        console.log("h1: ", h1);
-                        console.log("m1: ", m1);
-                        console.log("h2: ", h2);
-                        console.log("m2: ", m2);
+                        // console.log("h: ", h);
+                        // console.log("m: ", m);
+                        // console.log("h1: ", h1);
+                        // console.log("m1: ", m1);
+                        // console.log("h2: ", h2);
+                        // console.log("m2: ", m2);
 
 
 
                         if ((h1 < h || h1 == h && m1 <= m) && (h < h2 || h == h2 && m <= m2)) {
-                            console.log("Co chay")
+                            //  console.log("Co chay")
                             // resolve({
                             //     errCode: 1,
                             //     errMessage: 'Invalid data'
@@ -110,7 +95,7 @@ let createNewScheduleMovie = (data) => {
                             return;
                         }
                         if (h < h1) {
-                            console.log("Co chay");
+                            //   console.log("Co chay");
                             checkFlag = true;
                             // resolve({
                             //     errCode: 1,
@@ -119,7 +104,7 @@ let createNewScheduleMovie = (data) => {
                             return;
                         }
                     }))
-                    console.log("checkFlag: ", checkFlag);
+                    //  console.log("checkFlag: ", checkFlag);
                     if (checkFlag) {
                         resolve({
                             errCode: 1,
@@ -133,20 +118,20 @@ let createNewScheduleMovie = (data) => {
 
                     let lastSchedule = listSchedule[listSchedule.length - 1];
 
-                    console.log("lastSchedule: ", lastSchedule);
+                    //   console.log("lastSchedule: ", lastSchedule);
 
 
                     let test2 = moment(newDateStartTime).format("HH:mm:ss");
                     let endTime = moment(lastSchedule.endTime).format("HH:mm:ss");
 
-                    console.log("Check end time: ", endTime);
+                    //  console.log("Check end time: ", endTime);
 
                     var givenTime = moment(test2, "HH:mm:ss");
                     var minutesPassed = moment(endTime, "HH:mm:ss").diff(givenTime, "minutes");
 
-                    console.log('minutesPassed: ', minutesPassed);
+                    //  console.log('minutesPassed: ', minutesPassed);
 
-                    console.log("Check duration: ", Math.abs(minutesPassed));
+                    //  console.log("Check duration: ", Math.abs(minutesPassed));
 
                     if (Math.abs(minutesPassed) < 16) {
                         resolve({
@@ -155,7 +140,7 @@ let createNewScheduleMovie = (data) => {
                         });
                         return;
                     } else {
-                        console.log("OK");
+                        //  console.log("OK");
                         db.Showtime.create({
                             movieId: data.movieId,
                             roomId: data.roomId,
@@ -323,7 +308,7 @@ let getScheduleById = (scheduleId) => {
                 nest: true
             });
 
-            console.log(schedule);
+            //  console.log(schedule);
 
             resolve({
                 errCode: 0,

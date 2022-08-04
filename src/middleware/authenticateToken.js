@@ -9,7 +9,7 @@ const authToken = async (req, res, next) => {
     // Option 2
     // const token = req.header("x-auth-token");
 
-    console.log("Check token: ", token);
+    // console.log("Check token: ", token);
     // If token not found, send error message
     if (!token) {
         res.status(401).json({

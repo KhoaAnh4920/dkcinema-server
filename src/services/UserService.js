@@ -8,7 +8,7 @@ import emailService from '../services/emailService';
 import moment from 'moment';
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
-
+var cron = require('node-cron');
 
 
 
@@ -171,6 +171,8 @@ let handleAdminLogin = async (email, password) => {
 
 
                             // let dataRes = await getMovieTheaterByUser(user.id);
+
+                            //  console.log('user: ', user)
 
                             if (!user.movietheaterid) {
                                 //  console.log("Ok");
@@ -1062,13 +1064,37 @@ let feedbackCustomer = (data) => {
                 errMessage: 'OK',
             })
 
-
-
         } catch (e) {
             reject(e);
         }
     })
 }
+
+
+// * 0 1 1 *
+
+var task = cron.schedule('* 0 1 1 *', async () => {
+    console.log('running in 0h am 01/01');
+
+
+    // Reset rank customer //
+
+    await db.Customer.update(
+        { rankId: 1 },
+        {
+            where: {
+                rankId: {
+                    [Op.gt]: 1
+                }
+            }
+        }
+    )
+
+    console.log('Reset ok')
+
+});
+
+task.start();
 
 
 

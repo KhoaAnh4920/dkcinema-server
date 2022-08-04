@@ -8,12 +8,6 @@ require('dotenv').config();
 
 
 
-
-
-
-
-
-
 let app = express();
 
 // enable CROS // 

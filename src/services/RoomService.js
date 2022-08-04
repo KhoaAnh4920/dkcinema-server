@@ -78,14 +78,12 @@ let updateRoom = (data) => {
                 if (data.listSeetChangeType && data.listSeetChangeType.length > 0) {
                     await Promise.all(data.listSeetChangeType.map(async (item, index) => {
 
-                        let res = await db.Seet.update({
-                            // your new row data here
+                        await db.Seet.update({
                             typeId: item.posOfRow.typeId
                         },
                             { where: { roomId: data.id, posOfColumn: item.posOfColumn, posOfRow: item.posOfRow.pos } }
                         );
                     }))
-
                 }
 
                 if (room) {

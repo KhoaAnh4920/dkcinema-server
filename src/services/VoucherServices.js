@@ -1,6 +1,5 @@
 import db from "../models/index";
 require('dotenv').config();
-var cloudinary = require('cloudinary').v2;
 const Sequelize = require('sequelize');
 import moment from 'moment';
 const Op = Sequelize.Op;
@@ -8,36 +7,6 @@ var cron = require('node-cron');
 import emailService from '../services/emailService';
 
 
-cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET
-});
-
-let uploadCloud = (image, fName) => {
-    return new Promise(async (resolve, reject) => {
-        try {
-            await cloudinary.uploader.upload(
-                image,
-                {
-                    resource_type: "raw",
-                    public_id: `image/News/${fName}`,
-                },
-                // Send cloudinary response or catch error
-                (err, result) => {
-                    if (err) console.log(err);
-                    if (result) {
-                        resolve(result)
-                    }
-
-                }
-            );
-        } catch (e) {
-            reject(e);
-        }
-    })
-
-}
 
 
 
@@ -158,9 +127,6 @@ let updateVoucher = (data) => {
                 return;
             }
 
-
-
-
         } catch (e) {
             reject(e);
         }
@@ -172,9 +138,6 @@ let getListVoucher = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
             if (data) {
-
-                console.log(data);
-
 
                 let dateFormat = moment(new Date(+data.timeStart)).format('YYYY-MM-DD');
 
@@ -219,9 +182,9 @@ let getListVoucher = (data) => {
                     nest: true
                 });
 
-                console.log(data.type);
+                // console.log(data.type);
 
-                console.log(moment().utcOffset(0).startOf('day').subtract(1, "days").format());
+                //  console.log(moment().utcOffset(0).startOf('day').subtract(1, "days").format());
                 // console.log("listVoucher: ", listVoucher);
 
 
@@ -249,7 +212,7 @@ let getListVoucherByCustomer = (data) => {
         try {
             if (data) {
 
-                console.log(data);
+                //  console.log(data);
 
                 let listVoucher = await db.Voucher.findAll({
                     where: {
@@ -275,9 +238,9 @@ let getListVoucherByCustomer = (data) => {
                     nest: true
                 });
 
-                console.log(data.type);
+                // console.log(data.type);
 
-                console.log(moment().utcOffset(0).startOf('day').subtract(1, "days").format());
+                // console.log(moment().utcOffset(0).startOf('day').subtract(1, "days").format());
                 // console.log("listVoucher: ", listVoucher);
 
 
@@ -338,8 +301,6 @@ let getVoucherById = (key) => {
                 });
             }
 
-
-
             // console.log(schedule);
 
             resolve({
@@ -353,55 +314,6 @@ let getVoucherById = (key) => {
         }
     })
 }
-
-
-let getVoucheryCustomer = (key) => {
-    return new Promise(async (resolve, reject) => {
-        try {
-
-            let voucher = await db.Voucher.findOne({
-                where: { code: key, status: true, isdelete: false },
-                raw: false,
-                nest: true
-            });
-
-            if (voucher.maxUses === 0) {
-                resolve({
-                    errCode: -1,
-                    errMessage: 'Expired voucher',
-                });
-            }
-
-            if (voucher.timeStart && voucher.timeEnd) {
-                var compareDate = moment(new Date(), "DD/MM/YYYY");
-                var startDate = moment(voucher.timeStart, "DD/MM/YYYY");
-                var endDate = moment(voucher.timeEnd, "DD/MM/YYYY");
-
-                let check = compareDate.isBetween(startDate, endDate);
-                if (!check) {
-                    resolve({
-                        errCode: -1,
-                        errMessage: 'Expired voucher',
-                    });
-                }
-
-            }
-
-            resolve({
-                errCode: 0,
-                errMessage: 'OK',
-                data: voucher
-            });
-
-        } catch (e) {
-            reject(e);
-        }
-    })
-}
-
-
-
-
 
 
 let updateStatusVoucher = async (data) => {
@@ -457,7 +369,7 @@ let deleteVoucher = (id) => {
         await voucher.save();
 
 
-        console.log('voucher: ', voucher);
+        // console.log('voucher: ', voucher);
 
         // await db.Voucher.destroy({
         //     where: { id: id }

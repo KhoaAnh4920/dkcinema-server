@@ -131,11 +131,11 @@ let testSignature = async (req, res) => {
 
 
 let testUpload = async (req, res) => {
-    console.log("OK: ", req.files);
+    // console.log("OK: ", req.files);
 
     let result = await uploadCloud(req.files.upload.path, req.files.upload.name);
 
-    console.log('result: ', result);
+    // console.log('result: ', result);
 
     return res.status(200).json({
         uploaded: true,

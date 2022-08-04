@@ -18,7 +18,7 @@ var redirectUrl = "http://localhost:3000/";
 
 // var ipnUrl = "https://57ce-2402-800-6371-a14a-ed0d-ccd6-cbe9-5ced.ngrok.io/api/handle-order";
 
-var notifyUrl = "https://b428-123-21-34-220.ap.ngrok.io/api/handle-booking";
+var notifyUrl = "https://d194-115-73-215-16.ap.ngrok.io/api/handle-booking";
 // var ipnUrl = redirectUrl = "https://webhook.site/454e7b77-f177-4ece-8236-ddf1c26ba7f8";
 var requestType = "captureWallet";
 import emailService from '../services/emailService';
@@ -946,6 +946,25 @@ let getBookingByCustomer = (data) => {
 
                 let listBooking = await db.Booking.findAll({
 
+
+                    include: [
+                        {
+                            model: db.Ticket, as: 'BookingTicket',
+                            include: [{
+                                model: db.Showtime, as: 'TicketShowtime', require: true,
+                                include: [{
+                                    model: db.Room, as: 'RoomShowTime', require: true,
+                                    include: [{
+                                        model: db.MovieTheater, as: 'MovieTheaterRoom',
+                                    }]
+                                },
+                                { model: db.Movie, as: 'ShowtimeMovie', require: true }
+                                ]
+                            }]
+                        },
+
+                    ],
+
                     where: {
                         [Op.and]: [
 
@@ -962,23 +981,7 @@ let getBookingByCustomer = (data) => {
                             { status: 1 }
                         ]
                     },
-                    include: [
-                        {
-                            model: db.Ticket, as: 'BookingTicket',
-                            include: [{
-                                model: db.Showtime, as: 'TicketShowtime',
-                                include: [{
-                                    model: db.Room, as: 'RoomShowTime',
-                                    include: [{
-                                        model: db.MovieTheater, as: 'MovieTheaterRoom',
-                                    }]
-                                },
-                                { model: db.Movie, as: 'ShowtimeMovie', }
-                                ]
-                            }]
-                        },
 
-                    ],
                     order: [
                         ['id', 'DESC'],
                     ],
@@ -1200,7 +1203,7 @@ var task = cron.schedule('59 * * * *', async () => {
             var minutesPassed = moment(item.createdAt, "HH:mm:ss").diff(givenTime, "minutes");
 
             if (Math.abs(minutesPassed) > 15) {
-                console.log('Math.abs(minutesPassed): ', Math.abs(minutesPassed))
+                //   console.log('Math.abs(minutesPassed): ', Math.abs(minutesPassed))
                 await db.Ticket.destroy({
                     where: { bookingId: item.id }
                 })

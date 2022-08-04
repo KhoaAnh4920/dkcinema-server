@@ -299,7 +299,7 @@ let countTicketByMovieTheater = (data) => {
         try {
             let dateFormat = null;
 
-            console.log('data.movieTheaterId: ', data.movieTheaterId)
+            //   console.log('data.movieTheaterId: ', data.movieTheaterId)
             if (!data.time)
                 dateFormat = moment(new Date()).format('YYYY-MM-DD');
             else dateFormat = moment(new Date(+data.time)).format('YYYY-MM-DD');
@@ -346,7 +346,7 @@ let countTicketByMovieTheater = (data) => {
                 nest: true
             })
 
-            console.log('data2: ', data2)
+            //  console.log('data2: ', data2)
 
             let result = [];
 
@@ -358,7 +358,7 @@ let countTicketByMovieTheater = (data) => {
                 result.push(obj);
             })
 
-            console.log('result: ', result)
+            // console.log('result: ', result)
 
 
 
