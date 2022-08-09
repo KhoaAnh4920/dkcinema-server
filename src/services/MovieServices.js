@@ -1,5 +1,4 @@
 import db from "../models/index";
-import bcrypt from 'bcryptjs';
 require('dotenv').config();
 var cloudinary = require('cloudinary').v2;
 const Sequelize = require('sequelize');
@@ -30,7 +29,6 @@ let uploadCloud = (image, fName) => {
                     if (result) {
                         resolve(result)
                     }
-
                 }
             );
         } catch (e) {
@@ -107,10 +105,6 @@ let createNewMovie = (data) => {
 
                     str = str.substring(0, str.length - 1);
 
-                    //  console.log('str: ', str);
-
-
-
                     let dataSend = data;
 
                     dataSend.poster = result.filter(item => item.typeImage === 1)
@@ -171,8 +165,6 @@ let sendMailCustomerTypeMovie = async (dataType, dataMovie) => {
         return result;
     }
     return;
-
-
 };
 
 
@@ -199,8 +191,6 @@ let updateMovie = (data) => {
 
                     let dataType = data.typeMovie;
 
-                    //  console.log(dataType);
-
                     // Có truyền image //
                     if (data.poster && data.poster.length > 0) {
                         // upload cloud //
@@ -208,8 +198,6 @@ let updateMovie = (data) => {
                         let dataPoster = data.poster;
 
                         let resUpload = {};
-
-                        //   console.log('dataPoster: ', dataPoster)
 
                         await Promise.all(dataPoster.map(async item => {
                             if (item.image && item.fileName) {
@@ -303,7 +291,6 @@ let countTicket = () => {
                 attributes: ['TicketShowtime->ShowtimeMovie.id', [Sequelize.fn('COUNT', Sequelize.col('Ticket.id')), 'TicketCount']],
 
                 include: [
-
                     {
                         model: db.Showtime, as: 'TicketShowtime', required: true, include: [{ model: db.Movie, as: 'ShowtimeMovie', required: true, where: { status: 1 } }]
                     },
@@ -380,7 +367,6 @@ let countBookingTypeOfMovie = () => {
 
                 var result2 = [];
                 result.reduce(function (res, value) {
-
 
                     if (!res[value.typeId]) {
                         res[value.typeId] = { id: value.typeId, count: 0, nameType: value.nameType };
@@ -486,7 +472,6 @@ let salesTicket = () => {
             let dataTicket = await db.Ticket.findAll({
 
                 include: [
-
                     {
                         model: db.Showtime, as: 'TicketShowtime', required: true, include: [{ model: db.Movie, as: 'ShowtimeMovie', required: true, where: { status: 1 } }]
                     },
@@ -575,8 +560,6 @@ let getMovieByKeyword = (data) => {
                                         [Sequelize.Op.iLike]: data.kw
                                     }
                                 },
-
-
                             ]
                         },
                         include: [
@@ -605,8 +588,6 @@ let getMovieByKeyword = (data) => {
                         nest: true
                     });
                 }
-
-                // console.log('listMovie: ', listMovie)
 
                 resolve({
                     errCode: 0,
@@ -788,8 +769,7 @@ let getMovieByStatus = (query) => {
     const page = (query.page) ? +query.page : 1;
     const PerPage = (query.PerPage) ? +query.PerPage : 6;
     const skip = (page - 1) * PerPage;
-    // console.log("Check page: ", page);
-    // console.log("Check PerPage: ", PerPage);
+
     return new Promise(async (resolve, reject) => {
         try {
             let total = await db.Movie.count({ where: { status: +query.status, isDelete: false } });
@@ -880,7 +860,6 @@ let testGetCustomerTypeMovie = async (req) => {
             nest: true
         })
 
-        //  console.log('dataCus: ', dataCus)
         dataCus.map(item => {
             if (item.Customer.email)
                 result.push(item.Customer.email)

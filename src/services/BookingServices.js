@@ -18,7 +18,7 @@ var redirectUrl = "http://localhost:3000/";
 
 // var ipnUrl = "https://57ce-2402-800-6371-a14a-ed0d-ccd6-cbe9-5ced.ngrok.io/api/handle-order";
 
-var notifyUrl = "https://d194-115-73-215-16.ap.ngrok.io/api/handle-booking";
+var notifyUrl = "https://a6d9-2402-800-6315-a03e-409a-3811-8032-d1fa.ap.ngrok.io/api/handle-booking";
 // var ipnUrl = redirectUrl = "https://webhook.site/454e7b77-f177-4ece-8236-ddf1c26ba7f8";
 var requestType = "captureWallet";
 import emailService from '../services/emailService';
@@ -34,7 +34,6 @@ let createNewBookingTicket = (data) => {
             if (data) {
                 let bookingId = '';
 
-
                 // Check seet //
                 let seets = data.seets;
 
@@ -44,8 +43,6 @@ let createNewBookingTicket = (data) => {
                     raw: true,
                     nest: true
                 })
-
-                // console.log('ticketData: ', ticketData);
 
 
                 await Promise.all(seets.map(async item => {
@@ -455,15 +452,12 @@ let handleBookingPayment = async (req) => {
             })
 
 
-
             customer.numberOfTicket = 0;
 
 
             let obj = {}
             obj.reciverEmail = orderCurrentAll[0].email;
             obj.voucherCode = voucherGif;
-
-
 
             await emailService.sendEmailVoucherFree(obj);
 
@@ -514,7 +508,6 @@ let testSendMail = async (req) => {
 
 let testGetTypeMovieBooking = async (req) => {
 
-
     const orderCurrent = await db.Booking.findAll({
         where: { id: 88 },
         include: [
@@ -556,8 +549,6 @@ let testGetTypeMovieBooking = async (req) => {
             })
         }
     }))
-
-
 
     return orderCurrent;
 };
@@ -946,7 +937,6 @@ let getBookingByCustomer = (data) => {
 
                 let listBooking = await db.Booking.findAll({
 
-
                     include: [
                         {
                             model: db.Ticket, as: 'BookingTicket',
@@ -1017,12 +1007,9 @@ let getSeetBookingByCustomer = (data) => {
         try {
             if (data) {
 
-
                 let dataSeet = await db.Ticket.findAll({
                     where: { bookingId: +data.bookingId }
                 })
-
-
 
                 resolve({
                     errCode: 0,
@@ -1031,9 +1018,6 @@ let getSeetBookingByCustomer = (data) => {
 
                 });
             }
-
-
-
             resolve({
                 errCode: 2,
                 errMessage: 'Missing data'
@@ -1092,7 +1076,7 @@ let deleteBooking = (id) => {
         if (!dataBooking) {
             resolve({
                 errCode: 2,
-                errMessage: 'Booking ko ton tai'
+                errMessage: 'Booking không tồn tại'
             })
         }
 
@@ -1145,9 +1129,6 @@ let handleUpdateStatusComboBooking = async (data) => {
                     errCode: 0,
                     message: "OK"
                 });
-
-
-
             }
         } catch (e) {
             reject(e);
@@ -1218,8 +1199,6 @@ var task = cron.schedule('59 * * * *', async () => {
     }
 
     console.log('bookingData: ', bookingData)
-
-
 
 
 });

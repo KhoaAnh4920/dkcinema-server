@@ -219,8 +219,6 @@ let updateCombo = (data) => {
 
                     let foodItems = data.items;
                     if (foodItems && foodItems.length > 0) {
-
-
                         await Promise.all(foodItems.map(async item => {
                             //  console.log(item);
                             if (item.amount === 0) {

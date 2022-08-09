@@ -18,9 +18,6 @@ let createNewScheduleMovie = (data) => {
 
                 let test = moment(newDatePremier).format("YYYY-MM-DD");
                 let test2 = moment(newDateStartTime).format("HH:mm:ss");
-                // console.log(test);
-                // console.log("test 2: ", test2);
-
 
                 let checkData = await db.sequelize.query(
                     'SELECT * FROM "Showtime" WHERE CAST("startTime" AS VARCHAR) LIKE :startTime AND CAST("premiereDate" AS VARCHAR) LIKE :premiereDate',

@@ -75,9 +75,9 @@ let initWebRoutes = (app) => {
 *               schema:
 *                  type: object
 *                  properties:
-*                     email:          # <!--- form field name
+*                     email:
 *                        type: string
-*                     password:          # <!--- form field name
+*                     password:
 *                        type: string
 *      responses:
 *        201:
@@ -91,7 +91,7 @@ let initWebRoutes = (app) => {
 
     /**
 * @swagger
-*  /aaa:
+*  /cms/admin-login:
 *    post:
 *      tags:
 *        - Auth
@@ -111,7 +111,7 @@ let initWebRoutes = (app) => {
 *                     password:          # <!--- form field name
 *                        type: string
 *      responses:
-*        201:
+*        200:
 *          description: Login OK!
 */
     router.post('/cms/admin-login', UserController.handleLoginAdmin);

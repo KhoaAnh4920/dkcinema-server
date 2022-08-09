@@ -2,6 +2,8 @@ import db from "../models/index";
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 
+
+
 let createNewRoom = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -20,7 +22,6 @@ let createNewRoom = (data) => {
                         errMessage: 'Name room is exists'
                     }); // return
                 }
-
 
 
                 await db.Room.create({
@@ -62,7 +63,6 @@ let createNewRoom = (data) => {
         }
     })
 }
-
 
 
 
@@ -138,7 +138,7 @@ let updateRoom = (data) => {
                     if (data.listSeetChangeType && data.listSeetChangeType.length > 0) {
                         await Promise.all(data.listSeetChangeType.map(async (item, index) => {
                             //  console.log("Check item: ", item);
-                            let res = await db.Seet.update({
+                            await db.Seet.update({
                                 // your new row data here
                                 typeId: item.posOfRow.typeId
                             },

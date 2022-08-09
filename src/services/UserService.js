@@ -1014,7 +1014,6 @@ let signUpNewUser = (data) => {
 
                         emailService.sendEmailActive(obj);
 
-
                         resolve({
                             errCode: 0,
                             errMessage: 'OK',

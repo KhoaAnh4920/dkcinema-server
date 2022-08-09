@@ -28,14 +28,12 @@ let uploadCloud = (image, fName) => {
                     if (result) {
                         resolve(result)
                     }
-
                 }
             );
         } catch (e) {
             reject(e);
         }
     })
-
 }
 
 let getAllMovieTheater = () => {
@@ -46,7 +44,6 @@ let getAllMovieTheater = () => {
                     isdelete: false
                 },
                 include: [
-                    // { model: db.Users, as: 'UserMovieTheater' },
                     { model: db.ImageMovieTheater, as: 'MovieTheaterImage' },
                 ],
                 raw: false,
@@ -73,7 +70,6 @@ let createNewMovieTheater = (data) => {
                 cityCode: data.cityCode,
                 districtCode: data.districtCode,
                 wardCode: data.wardCode,
-                // userId: data.userId,
             })
 
             if (resMovieTheater && resMovieTheater.dataValues) {
@@ -164,7 +160,10 @@ let updateMovieTheater = (data) => {
                         message: "Update MovieTheater Success"
                     });
                 } else {
-
+                    resolve({
+                        errCode: -1,
+                        message: "MovieTheater not found"
+                    });
                 }
 
             }
@@ -206,8 +205,6 @@ let countTurnoverByMovieTheater = (movieTheaterId, type) => {
     return new Promise(async (resolve, reject) => {
         try {
             let dateFormat = moment(new Date()).format('YYYY-MM-DD');
-
-            // console.log('dateFormat: ', dateFormat)
 
             let data2 = await db.MovieTheater.findAll({
                 attributes:
@@ -252,21 +249,17 @@ let countTurnoverByMovieTheater = (movieTheaterId, type) => {
                         ],
 
                     },
-
-
                 ],
 
                 group: ['MovieTheater.id', 'MovieTheaterRoom.id',
                     'MovieTheaterRoom->RoomShowTime.id', 'MovieTheaterRoom->RoomShowTime->TicketShowtime.id',
                     'MovieTheaterRoom->RoomShowTime->TicketShowtime->BookingTicket.id',
-                    // 'MONTH(MovieTheaterRoom->RoomShowTime->TicketShowtime->BookingTicket.createdAt)'
+
                 ],
 
                 raw: true,
                 nest: true
             })
-
-            //console.log('data2: ', data2);
 
             data2 = Object.values(data2.reduce((acc, cur) => Object.assign(acc, { [cur.createdAt]: cur }), {}))
 
@@ -299,13 +292,11 @@ let countTicketByMovieTheater = (data) => {
         try {
             let dateFormat = null;
 
-            //   console.log('data.movieTheaterId: ', data.movieTheaterId)
             if (!data.time)
                 dateFormat = moment(new Date()).format('YYYY-MM-DD');
             else dateFormat = moment(new Date(+data.time)).format('YYYY-MM-DD');
 
             let data2 = await db.MovieTheater.findAll({
-                // attributes: ['MovieTheater.id', [Sequelize.fn('COUNT', Sequelize.col('Ticket.id')), 'TicketCount']],
 
                 where: {
                     [Op.and]: [
@@ -338,15 +329,10 @@ let countTicketByMovieTheater = (data) => {
 
                 ],
 
-                // group: ['MovieTheater.id', 'MovieTheaterRoom.id',
-                //     'MovieTheaterRoom->RoomShowTime.id', 'MovieTheaterRoom->RoomShowTime->TicketShowtime.id',
-                // ],
-
                 raw: false,
                 nest: true
             })
 
-            //  console.log('data2: ', data2)
 
             let result = [];
 
@@ -358,10 +344,6 @@ let countTicketByMovieTheater = (data) => {
                 result.push(obj);
             })
 
-            // console.log('result: ', result)
-
-
-
             resolve({
                 errCode: 0,
                 errMessage: 'OK',
@@ -372,7 +354,6 @@ let countTicketByMovieTheater = (data) => {
         }
     })
 }
-
 
 
 
