@@ -227,6 +227,7 @@ let getListVoucherByCustomer = (data) => {
                                 }
                             },
                             { isdelete: false },
+                            { status: true },
 
                         ]
                     },
@@ -444,8 +445,8 @@ var task = cron.schedule('* 6 * * *', async () => {
                 discount: discount,
                 status: 1,
                 maxUses: 1,
-                name: `Voucher gif birhday ${item.fullName}`,
-                description: 'Hapby dob',
+                name: `Voucher gift birhday ${item.fullName}`,
+                description: 'Happy dob',
                 timeStart: null,
                 timeEnd: null,
                 cusId: customer.id

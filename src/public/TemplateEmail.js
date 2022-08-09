@@ -446,7 +446,7 @@ let templateBooking = (dataSend) => {
                             </tr>
                             <tr>
                                 <td class="text-left">tổng tiền</td>
-                                <td class="text-right">${dataSend.price} VND</td>
+                                <td class="text-right">${dataSend.price}</td>
                             </tr>
                             <tr>
                                 <td>&nbsp;</td>

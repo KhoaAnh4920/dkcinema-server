@@ -150,7 +150,6 @@ let sendMailCustomerTypeMovie = async (dataType, dataMovie) => {
             nest: true
         })
 
-        //  console.log('dataCus: ', dataCus)
         dataCus.map(item => {
             if (item.Customer.email)
                 result.push(item.Customer.email)

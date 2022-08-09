@@ -19,6 +19,8 @@ let sendSimpleEmail = async (dataSend) => {
     });
 
 
+    if (dataSend.price)
+        dataSend.price = dataSend.price.toLocaleString('it-IT', { style: 'currency', currency: 'VND' })
     // send mail with defined transport object
     let info = await transporter.sendMail({
         from: '"DK Cinemas Booking Ticket" <khoadido@gmail.com>', // sender address

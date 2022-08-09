@@ -18,7 +18,7 @@ var redirectUrl = "http://localhost:3000/";
 
 // var ipnUrl = "https://57ce-2402-800-6371-a14a-ed0d-ccd6-cbe9-5ced.ngrok.io/api/handle-order";
 
-var notifyUrl = "https://a6d9-2402-800-6315-a03e-409a-3811-8032-d1fa.ap.ngrok.io/api/handle-booking";
+var notifyUrl = "https://4084-123-21-34-220.ap.ngrok.io/api/handle-booking";
 // var ipnUrl = redirectUrl = "https://webhook.site/454e7b77-f177-4ece-8236-ddf1c26ba7f8";
 var requestType = "captureWallet";
 import emailService from '../services/emailService';
@@ -332,6 +332,8 @@ let handleBookingPayment = async (req) => {
                     where: { code: req.body.voucherCode },
                     raw: false
                 })
+
+                orderCurrent.voucherId = voucher.id;
             } else {
                 voucher = await db.Voucher.findOne({
                     where: { id: orderCurrent.voucherId },
@@ -347,6 +349,10 @@ let handleBookingPayment = async (req) => {
                 voucher.isdelete = true;
                 await voucher.save()
             }
+
+
+
+
         }
 
         const result = await db.Booking.update(orderCurrent, {
