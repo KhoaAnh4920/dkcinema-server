@@ -1,8 +1,8 @@
 import db from "../models/index";
-import UserService from '../Services/UserService'
+import UserService from '../services/UserService'
 
 
-let handleLogin = async (req, res) => {
+let handleLogin = async(req, res) => {
 
     let email = req.body.email;
     let password = req.body.password;
@@ -23,7 +23,7 @@ let handleLogin = async (req, res) => {
     })
 }
 
-let handleLoginAdmin = async (req, res) => {
+let handleLoginAdmin = async(req, res) => {
 
     let email = req.body.email;
     let password = req.body.password;
@@ -48,17 +48,17 @@ let handleLoginAdmin = async (req, res) => {
     })
 }
 
-let handleSignUpNewUser = async (req, res) => {
+let handleSignUpNewUser = async(req, res) => {
     let message = await UserService.signUpNewUser(req.body);
     return res.status(200).json(message);
 }
 
-let handleFeedbackCustomer = async (req, res) => {
+let handleFeedbackCustomer = async(req, res) => {
     let message = await UserService.feedbackCustomer(req.body);
     return res.status(200).json(message);
 }
 
-let handleGetAllUser = async (req, res) => {
+let handleGetAllUser = async(req, res) => {
     let user = await UserService.getAllUser();
     return res.status(200).json({
         errCode: 0,
@@ -68,37 +68,37 @@ let handleGetAllUser = async (req, res) => {
 
 }
 
-let handleCreateNewUser = async (req, res) => {
+let handleCreateNewUser = async(req, res) => {
     let message = await UserService.createNewUser(req.body);
     return res.status(200).json(message);
 }
 
-let handleVerifyEmail = async (req, res) => {
+let handleVerifyEmail = async(req, res) => {
     let message = await UserService.userVerifyEmail(req.body);
     return res.status(200).json(message);
 }
 
-let handleSendMailResetPass = async (req, res) => {
+let handleSendMailResetPass = async(req, res) => {
     let message = await UserService.sendMailResetPass(req.body);
     return res.status(200).json(message);
 }
 
-let handleRequiredResetPass = async (req, res) => {
+let handleRequiredResetPass = async(req, res) => {
     let message = await UserService.requiredResetPass(req.body);
     return res.status(200).json(message);
 }
 
-let handleResetNewPass = async (req, res) => {
+let handleResetNewPass = async(req, res) => {
     let message = await UserService.resetNewPass(req.body);
     return res.status(200).json(message);
 }
 
-let handleCustomerNewPass = async (req, res) => {
+let handleCustomerNewPass = async(req, res) => {
     let message = await UserService.customerNewPass(req.body);
     return res.status(200).json(message);
 }
 
-let handleGetUserById = async (req, res) => {
+let handleGetUserById = async(req, res) => {
     let message = '';
 
     if (req.params && req.params.userId)
@@ -106,7 +106,7 @@ let handleGetUserById = async (req, res) => {
     return res.status(200).json(message);
 }
 
-let handleGetUserByExternalId = async (req, res) => {
+let handleGetUserByExternalId = async(req, res) => {
     let message = '';
 
     if (req.params && req.params.externalId)
@@ -114,7 +114,7 @@ let handleGetUserByExternalId = async (req, res) => {
     return res.status(200).json(message);
 }
 
-let handleGetUserByRoles = async (req, res) => {
+let handleGetUserByRoles = async(req, res) => {
     let message = '';
 
     if (req.params && req.params.roleId)
@@ -122,7 +122,7 @@ let handleGetUserByRoles = async (req, res) => {
     return res.status(200).json(message);
 }
 
-let handleGetTicketCustomer = async (req, res) => {
+let handleGetTicketCustomer = async(req, res) => {
     let message = '';
 
     if (req.params && req.params.cusId)
@@ -138,13 +138,13 @@ let handleGetTicketCustomer = async (req, res) => {
 //     return res.status(200).json(message);
 // }
 
-let handleEditUser = async (req, res) => {
+let handleEditUser = async(req, res) => {
     let data = req.body;
     let message = await UserService.updateUser(data);
     return res.status(200).json(message)
 }
 
-let handleDeleteUser = async (req, res) => {
+let handleDeleteUser = async(req, res) => {
     if (!req.params.userId) {
         return res.status(200).json({
             errCode: 1,
@@ -155,7 +155,7 @@ let handleDeleteUser = async (req, res) => {
     return res.status(200).json(message);
 }
 
-let getAllRoles = async (req, res) => {
+let getAllRoles = async(req, res) => {
     try {
         let data = await UserService.getAllRoles();
         return res.status(200).json(data);
@@ -169,7 +169,7 @@ let getAllRoles = async (req, res) => {
 }
 
 
-let handleGetAllStaff = async (req, res) => {
+let handleGetAllStaff = async(req, res) => {
     let message = '';
     message = await UserService.getAllStaff(req.query);
     return res.status(200).json(message);
