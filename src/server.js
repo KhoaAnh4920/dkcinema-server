@@ -1,4 +1,6 @@
-import express from "express";
+var express = require('express')
+var cors = require('cors')
+var app = express()
 import bodyParser from "body-parser";
 import viewEngine from "./config/viewEngine";
 import initWebRoutes from './route/web';
@@ -8,7 +10,6 @@ require('dotenv').config();
 
 
 
-let app = express();
 
 // enable CROS // 
 app.use(cors({ credentials: true, origin: true }));
